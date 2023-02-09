@@ -150,7 +150,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-TW">
-    <link itemprop="mainEntityOfPage" href="https://leozhou.github.io/2023/02/10/Jenkins%E5%AE%89%E8%A3%9D%E6%95%99%E5%AD%B8/">
+    <link itemprop="mainEntityOfPage" href="https://leozhou.github.io/2023/02/10/Webhook%E8%A7%B8%E7%99%BCJenkins%E5%AF%A6%E7%8F%BECI-CD/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/uploads/avatar.jpg">
@@ -164,7 +164,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/2023/02/10/Jenkins%E5%AE%89%E8%A3%9D%E6%95%99%E5%AD%B8/" class="post-title-link" itemprop="url">Jenkins安裝教學</a>
+            <a href="/2023/02/10/Webhook%E8%A7%B8%E7%99%BCJenkins%E5%AF%A6%E7%8F%BECI-CD/" class="post-title-link" itemprop="url">【CI/CD實作】透過Github Webhook觸發Jenkins實現CI/CD(四)</a>
         </h2>
 
         <div class="post-meta">
@@ -173,8 +173,18 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">發表於</span>
+              
 
-              <time title="創建時間：2023-02-10 05:05:19" itemprop="dateCreated datePublished" datetime="2023-02-10T05:05:19+08:00">2023-02-10</time>
+              <time title="創建時間：2023-02-10 05:37:23 / 修改時間：06:17:07" itemprop="dateCreated datePublished" datetime="2023-02-10T05:37:23+08:00">2023-02-10</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分類於</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Jenkins/" itemprop="url" rel="index"><span itemprop="name">Jenkins</span></a>
+                </span>
             </span>
 
           
@@ -183,7 +193,123 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">文章字數：</span>
-              <span>76</span>
+              <span>2.2k</span>
+            </span>
+            <span class="post-meta-item" title="所需閱讀時間">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">所需閱讀時間 &asymp;</span>
+              <span>2 分鐘</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>在前面的文章中，我們已經成功設置好了Jenkins並讓Jenkins擁有sudo權限能更讓我們做更多事情了。<br>接下來就準備進到重頭戲，開始設定GitHub Webhook並觸發Jenkins來將專案Clone下來後，實現CI&#x2F;CD吧！</p>
+<h3 id="設定Github-Webhook"><a href="#設定Github-Webhook" class="headerlink" title="設定Github Webhook"></a>設定Github Webhook</h3><p>首先登入到 GitHub，點選你希望更新時能透過 GitHub Webhook 觸發 Jenkins 的 Repository，點選 Settings 選取 Webhooks，再點選「add webhook」後輸入 &lt;你的Jenkins Server&gt;&#x2F;github-webhook&#x2F;</p>
+<div style="color:red;font-weight:900;margin-bottom:10px;">
+註：網址最後面一定要加上/github-webhook/
+</div>
+
+<p><img src="https://miro.medium.com/v2/resize:fit:1400/format:webp/1*z_W3UfV_fa9aCbsshvstGw.png"></p>
+<p>這時候設定完後，返回後會發現會有一個錯誤的圖案，這是因為Github還沒有跟我們的Jenkins進行連接，等到第一次Clone後就會是綠燈了，請放心。</p>
+<p>接著我們回到Jenkins</p>
+<h2 id="Jenkins-設定"><a href="#Jenkins-設定" class="headerlink" title="Jenkins 設定"></a>Jenkins 設定</h2><p>首先在 Jenkins 首頁點選「New Item」：</p>
+<p><img src="https://miro.medium.com/v2/resize:fit:1400/format:webp/1*62IikWEmw6AxRnlK94j-hA.png"></p>
+<p>點選 Pipeline 後輸入你的Pipeline名稱：</p>
+<p><img src="https://miro.medium.com/v2/resize:fit:1400/format:webp/1*lxXyir5SnVKq1xQ67HSwzw.png"></p>
+<p>接著進入<strong>Configure</strong>後，我們先找到 <strong>General</strong><br>勾選「GitHub project」然後貼上你的 GitHub Repository URL<br><img src="https://miro.medium.com/v2/resize:fit:1400/format:webp/1*CWS0wqzOqfED3qTwcjm2Jg.png"></p>
+<p><strong>Configure — Build Triggers:</strong><br>選取「GitHub hook trigger for GITScm polling」<br><img src="https://miro.medium.com/v2/resize:fit:1400/format:webp/1*ZSHr-XSmKWSo6HePHNRSUw.png"></p>
+<p><strong>Configure — Pipeline:</strong><br>接下來就可以開始設定當觸發Jenkins將專案拉下來之後，我們要做哪些事情。<br>Pipeline一般來說我們可以分為三個階段：Buid、Test、Deploy<br>當然你也可以自定義各種階段，基本上每一個階段就只是將內容分離出來，讓你比較好知道現在執行到哪裡，以及每一階段執行所需時間如何。</p>
+<div style="color:red;font-weight:900;margin-bottom:10px;">
+這裡與GitLab Runner最大不同在於每一階段產生的檔案都會保留，非常方便，不用再寫多餘的Code
+</div>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">pipeline &#123;</span><br><span class="line">    agent any</span><br><span class="line"></span><br><span class="line">    stages &#123;</span><br><span class="line">        stage(&#x27;Build&#x27;) &#123;</span><br><span class="line">            steps &#123;</span><br><span class="line">                echo &#x27;打包專案&#x27;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        stage(&#x27;Test&#x27;) &#123;</span><br><span class="line">            steps &#123;</span><br><span class="line">                echo &#x27;可以執行一些自動化測試項目&#x27;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        stage(&#x27;Deploy&#x27;) &#123;</span><br><span class="line">            steps &#123;</span><br><span class="line">                echo &#x27;最後執行遠端部署指令&#x27;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>而由於筆者本身使用.NET6進行API開發，因此這邊同時也放上.NET版本給各位參考一下。但由於礙於公司機密，所以拿掉不少東西，再請各位多多包涵</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">pipeline &#123;</span><br><span class="line">    agent any</span><br><span class="line">    stages &#123;</span><br><span class="line">        stage(&#x27;Build&#x27;) &#123;</span><br><span class="line">            steps &#123;</span><br><span class="line">                sh &#x27;cd API&#x27;</span><br><span class="line">                sh &#x27;dotnet build&#x27;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        stage(&#x27;Deploy&#x27;) &#123;</span><br><span class="line">            steps &#123;</span><br><span class="line">                sh &#x27;sudo systemctl stop API.service&#x27;</span><br><span class="line">                sh &#x27;sudo rm -rf /專案存放位置&#x27;</span><br><span class="line">                sh &#x27;sudo mkdir /專案存放位置&#x27;</span><br><span class="line">                sh &#x27;sudo cp -r /專案存放位置. /Server 目錄位置&#x27;</span><br><span class="line">                sh &#x27;sudo systemctl start API.service&#x27;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>到這裡基本上就完成的差不多了，最後我們實際上將Code推倒Github試試看：<br>我們可以注意到整體速度滿快的，從Build、Deploy 平均只花了10秒就完成。</p>
+<p><img src="https://t45009037.p.clickup-attachments.com/t45009037/8e542c8d-3201-4607-b807-760a835e64f9/Screen%20Shot%202023-02-09%20at%202.47.17%20AM.png"></p>
+<div>
+以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
+
+<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
+<p><a target="_blank" rel="noopener" href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
+</div>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-TW">
+    <link itemprop="mainEntityOfPage" href="https://leozhou.github.io/2023/02/10/%E5%85%81%E8%A8%B1Jenkins%E6%9C%89sudo%E6%AC%8A%E9%99%90/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/avatar.jpg">
+      <meta itemprop="name" content="Leo Zhou">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Leo程式筆記">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2023/02/10/%E5%85%81%E8%A8%B1Jenkins%E6%9C%89sudo%E6%AC%8A%E9%99%90/" class="post-title-link" itemprop="url">【CI/CD實作】允許Jenkins有sudo權限(三)</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">發表於</span>
+              
+
+              <time title="創建時間：2023-02-10 05:37:23 / 修改時間：05:53:41" itemprop="dateCreated datePublished" datetime="2023-02-10T05:37:23+08:00">2023-02-10</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分類於</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Jenkins/" itemprop="url" rel="index"><span itemprop="name">Jenkins</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="文章字數">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">文章字數：</span>
+              <span>535</span>
             </span>
             <span class="post-meta-item" title="所需閱讀時間">
               <span class="post-meta-item-icon">
@@ -202,7 +328,119 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <div>
+          <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>由於我們要利用Jenkins來實作CI&#x2F;CD，因此部署上的操作上往往免不了會需要sudo的權限讓我們能做一些事情，如：建立資料夾、刪除資料夾、搬遷檔案等各種操作。</p>
+<p>因此本篇主要介紹如何允許Jenkins有sudo權限</p>
+<p>下面來描述在CentOS7上配置的具體步驟。</p>
+<h3 id="配置步驟"><a href="#配置步驟" class="headerlink" title="配置步驟"></a>配置步驟</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">讓root 有權限可以編輯sudoers權限</span><br><span class="line">chmod 600 /etc/sudoers </span><br><span class="line">運行 vim /etc/sudoers 來修改該文件，允許root組下的用戶不需要密碼運行任何命令：</span><br><span class="line">## Same thing without a password</span><br><span class="line">%root        ALL=(ALL)       NOPASSWD: ALL</span><br><span class="line">在Defaults requiretty 後面添加一行Defaults:jenkins !requiretty</span><br></pre></td></tr></table></figure>
+
+<p>接著將jenkins帳號加入到root的Group中：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">usermod -a -G root jenkins</span><br></pre></td></tr></table></figure>
+
+<p>重啟Jenkins</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">systemctl restart jenkins</span><br></pre></td></tr></table></figure>
+
+<div>
+以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
+
+<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
+<p><a target="_blank" rel="noopener" href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
+</div>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-TW">
+    <link itemprop="mainEntityOfPage" href="https://leozhou.github.io/2023/02/10/%E8%AE%8A%E6%9B%B4Jenkins%E5%AE%B6%E7%9B%AE%E9%8C%84(%E4%BA%8C)/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/avatar.jpg">
+      <meta itemprop="name" content="Leo Zhou">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Leo程式筆記">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2023/02/10/%E8%AE%8A%E6%9B%B4Jenkins%E5%AE%B6%E7%9B%AE%E9%8C%84(%E4%BA%8C)/" class="post-title-link" itemprop="url">【CI/CD實作】變更Jenkins家目錄(二)</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">發表於</span>
+              
+
+              <time title="創建時間：2023-02-10 05:05:19 / 修改時間：05:53:37" itemprop="dateCreated datePublished" datetime="2023-02-10T05:05:19+08:00">2023-02-10</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分類於</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Jenkins/" itemprop="url" rel="index"><span itemprop="name">Jenkins</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="文章字數">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">文章字數：</span>
+              <span>792</span>
+            </span>
+            <span class="post-meta-item" title="所需閱讀時間">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">所需閱讀時間 &asymp;</span>
+              <span>1 分鐘</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>根據上篇所述，由於我們的Jenkins預設是安裝在 &#x2F;var&#x2F;lib&#x2F;jenkins底下<br>而當時筆者遇到的狀況是，當時沒有注意到AWS的EC2空間快用滿了，而當安裝Jenkins後硬生生將硬碟空間吃到100%，以至於我們沒有多餘的空間可以進行其他操作。</p>
+<p>因此本篇主要來介紹，當硬碟空間擴展後我們要如何搬遷位置，確保Jenkins有多餘的空間可以儲存。</p>
+<p>首先我們需要前往Jenkins配置檔的位置：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">vim /etc/default/jenkins</span><br><span class="line"></span><br><span class="line">修改配置檔的JENKINS_HOME为自己想要的路徑，這邊我們安裝在/home底下</span><br><span class="line">JENKINS_HOME=/home/$NAME</span><br></pre></td></tr></table></figure>
+
+<p>由於我們改變了jenkins的執行位置，因此需要將原本在 &#x2F;var&#x2F;lib&#x2F;jenkins 搬遷到 &#x2F;home&#x2F;jenkins</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">sudo mkdir /home/jenkins</span><br><span class="line"></span><br><span class="line">sudo chown jenkins:jenkins /home/jenkins/</span><br><span class="line"> </span><br><span class="line">sudo cp /var/lib/jenkins/* /home/jenkins/ -rf</span><br></pre></td></tr></table></figure>
+
+<p>由於執行路徑雖然在 &#x2F;home底下，但jenkins的預設家目錄仍然被記錄在 &#x2F;var&#x2F;lib底下，因此我們需要再輸入以下兩行</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo usermod --home /home/jenkins jenkins </span><br><span class="line">sudo chown -R jenkins:jenkins /home/jenkins/</span><br></pre></td></tr></table></figure>
+
+<p>最後重啟Jenkins就搞定了！</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">systemctl restart jenkins</span><br></pre></td></tr></table></figure>
+
+<div>
 以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
 
 <p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
@@ -1006,7 +1244,7 @@ LINQ to Entities 查詢中無法建構實體或複雜類型
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">7</span>
+          <span class="site-state-item-count">9</span>
           <span class="site-state-item-name">文章</span>
         </a>
       </div>
@@ -1062,13 +1300,13 @@ LINQ to Entities 查詢中無法建構實體或複雜類型
       <i class="fa fa-chart-area"></i>
     </span>
       <span class="post-meta-item-text">總字數：</span>
-    <span title="總字數">9k</span>
+    <span title="總字數">12k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span class="post-meta-item-text">所需總閱讀時間 &asymp;</span>
-    <span title="所需總閱讀時間">8 分鐘</span>
+    <span title="所需總閱讀時間">11 分鐘</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 強力驅動
   </div><script color="45,115,227" opacity="0.7" zIndex="-1" count="150" src="https://cdn.jsdelivr.net/npm/canvas-nest.js@1/dist/canvas-nest.js"></script>
