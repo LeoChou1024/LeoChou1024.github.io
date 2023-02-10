@@ -2,7 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
-    <loc>https://blog.zhenghui.idv.tw/2023/02/11/%E5%9C%A8-NET-%E9%80%8F%E9%81%8Enuget-config-%E8%87%AA%E8%A8%82NuGet-%E5%A5%97%E4%BB%B6%E4%BE%86%E6%BA%90/</loc>
+    <loc>https://blog.zhenghui.idv.tw/2023/02/11/%E5%9C%A8-NET-%E9%80%8F%E9%81%8Enuget-config-%E8%87%AA%E8%A8%82NuGet-%E5%A5%97%E4%BB%B6%E4%BE%86%E6%BA%90/%E5%9C%A8-NET-%E9%80%8F%E9%81%8Enuget-config-%E8%87%AA%E8%A8%82NuGet-%E5%A5%97%E4%BB%B6%E4%BE%86%E6%BA%90/</loc>
     
     <lastmod>2023-02-10</lastmod>
     
@@ -137,13 +137,6 @@
 
   
   <url>
-    <loc>https://blog.zhenghui.idv.tw/tags/Dapper/</loc>
-    <lastmod>2023-02-10</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
     <loc>https://blog.zhenghui.idv.tw/tags/LINQ/</loc>
     <lastmod>2023-02-10</lastmod>
     <changefreq>weekly</changefreq>
@@ -151,7 +144,7 @@
   </url>
   
   <url>
-    <loc>https://blog.zhenghui.idv.tw/tags/NETCore/</loc>
+    <loc>https://blog.zhenghui.idv.tw/tags/Dapper/</loc>
     <lastmod>2023-02-10</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -159,6 +152,13 @@
   
   <url>
     <loc>https://blog.zhenghui.idv.tw/tags/CI-CD/</loc>
+    <lastmod>2023-02-10</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://blog.zhenghui.idv.tw/tags/NETCore/</loc>
     <lastmod>2023-02-10</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
