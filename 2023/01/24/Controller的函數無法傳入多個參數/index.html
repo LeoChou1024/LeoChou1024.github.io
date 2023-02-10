@@ -164,7 +164,7 @@
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/uploads/avatar.jpg">
       <meta itemprop="name" content="Leo Zhou">
-      <meta itemprop="description" content="">
+      <meta itemprop="description" content>
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
@@ -238,7 +238,7 @@
 <p>所以當函數設定為private就不會把它當成Action來呼叫使用，也因此這問題我從來沒發生過。</p>
 <p>而同事遇到的這個問題，正是因為他把Controller內部的函數，統一宣告為public，因此被當作Action來呼叫，才會有這個問題。</p>
 <font style="color:red"> 
-那，如果真的想要使用public來進行呼叫呢? <br/>
+那，如果真的想要使用public來進行呼叫呢? <br>
 就必須要在函數上加上 [NonAction] 的標籤，讓編譯器知道這個函數並不是一個Action。
 </font>
 
@@ -248,7 +248,7 @@
 <font style="color:red">
 但筆者還是建議，若是複雜的商業邏輯，需要額外抽成函數來撰寫的話，應該要額外建立類別來處理業務邏輯(也就是BAL)
 
-<p>如果只是圖方便想直接讓Controller呼叫使用的話，也建議改成private做使用，除非萬不得已，不然建議不要設定成public，並使用 [NonAction]來宣告。<br></font></p>
+<p>如果只是圖方便想直接讓Controller呼叫使用的話，也建議改成private做使用，除非萬不得已，不然建議不要設定成public，並使用 [NonAction]來宣告。<br></p></font><p></p>
 
     </div>
 
@@ -337,8 +337,7 @@
 
       <div class="site-overview-wrap sidebar-panel">
         <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
-    <img class="site-author-image" itemprop="image" alt="Leo Zhou"
-      src="/uploads/avatar.jpg">
+    <img class="site-author-image" itemprop="image" alt="Leo Zhou" src="/uploads/avatar.jpg">
   <p class="site-author-name" itemprop="name">Leo Zhou</p>
   <div class="site-description" itemprop="description"></div>
 </div>
@@ -365,10 +364,10 @@
 </div>
   <div class="links-of-author motion-element">
       <span class="links-of-author-item">
-        <a href="mailto:leo604leo604@gmail.com" title="E-Mail → mailto:leo604leo604@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+        <a href="mailto:leo604leo604@gmail.com" title="E-Mail → mailto:leo604leo604@gmail.com" rel="external nofollow noopener noreferrer" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
       </span>
       <span class="links-of-author-item">
-        <a href="https://zhenghui.idv.tw/" title="Weibo → https:&#x2F;&#x2F;zhenghui.idv.tw" rel="noopener" target="_blank"><i class="fab fa-chrome fa-fw"></i>Weibo</a>
+        <a href="https://zhenghui.idv.tw/" title="Weibo → https:&#x2F;&#x2F;zhenghui.idv.tw" rel="external nofollow noopener noreferrer" target="_blank"><i class="fab fa-chrome fa-fw"></i>Weibo</a>
       </span>
   </div>
 
@@ -411,8 +410,8 @@
       <span class="post-meta-item-text">所需總閱讀時間 &asymp;</span>
     <span title="所需總閱讀時間">11 分鐘</span>
 </div>
-  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 強力驅動
-  </div><script color="45,115,227" opacity="0.7" zIndex="-1" count="150" src="https://cdn.jsdelivr.net/npm/canvas-nest.js@1/dist/canvas-nest.js"></script>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="external nofollow noopener noreferrer" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="external nofollow noopener noreferrer" target="_blank">NexT.Pisces</a> 強力驅動
+  </div><script color="45,115,227" opacity="0.7" zindex="-1" count="150" src="https://cdn.jsdelivr.net/npm/canvas-nest.js@1/dist/canvas-nest.js"></script>
 
 
         
@@ -430,7 +429,7 @@
 
   
   
-  <script color='0,0,255' opacity='0.5' zIndex='-1' count='99' src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  <script color="0,0,255" opacity="0.5" zindex="-1" count="99" src="/lib/canvas-nest/canvas-nest.min.js"></script>
   <script src="/lib/anime.min.js"></script>
   <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
   <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
