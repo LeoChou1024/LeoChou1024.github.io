@@ -25,26 +25,20 @@
     var CONFIG = {"hostname":"blog.zhenghui.idv.tw","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="一直以來耳聞Jenkins的大名，知道可以用它來做CI&#x2F;CD以及跑專案排程等等，能做到的事情非常的多。 但由於筆者先前的公司過去一直都是使用GitLab作為 Repository Server，而GitLab本身的CI Server - GitLab Runner 又很有名，因此一直沒機會可以好好探究，直到現在換了新公司，改採用Gitgub後終於有機會好好一探究竟。 本篇環境主要是在Ub">
+  <meta name="description" content="前言最近筆者在架設BaGet這套 private Nuget Server時，發現由於Baget是採用 .NET Core3.1的環境進行建置的，而在2023年的今天，.NETCore3.1早已被微軟淘汰不再支援了，因此無法從官網上直接安裝想要的版本。 因此本篇教學主要介紹如何在Ubuntu上安裝多個.NET版本環境。 環境安裝由於.NETCore 3.1 已經不被微軟所維護了，因此我們無法直接透">
 <meta property="og:type" content="article">
-<meta property="og:title" content="【CI&#x2F;CD實作】安裝Jenkins(一)">
-<meta property="og:url" content="https://blog.zhenghui.idv.tw/2023/02/09/%E5%AE%89%E8%A3%9DJenkins(%E4%B8%80)/index.html">
+<meta property="og:title" content="如何在Ubuntu安裝多個.NET版本環境">
+<meta property="og:url" content="https://blog.zhenghui.idv.tw/2023/02/11/%E5%A6%82%E4%BD%95%E5%9C%A8Ubuntu%E5%AE%89%E8%A3%9D%E5%A4%9A%E5%80%8B-NET%E7%89%88%E6%9C%AC%E7%92%B0%E5%A2%83/%E5%A6%82%E4%BD%95%E5%9C%A8Ubuntu%E5%AE%89%E8%A3%9D%E5%A4%9A%E5%80%8B-NET%E7%89%88%E6%9C%AC%E7%92%B0%E5%A2%83/index.html">
 <meta property="og:site_name" content="Leo程式筆記">
-<meta property="og:description" content="一直以來耳聞Jenkins的大名，知道可以用它來做CI&#x2F;CD以及跑專案排程等等，能做到的事情非常的多。 但由於筆者先前的公司過去一直都是使用GitLab作為 Repository Server，而GitLab本身的CI Server - GitLab Runner 又很有名，因此一直沒機會可以好好探究，直到現在換了新公司，改採用Gitgub後終於有機會好好一探究竟。 本篇環境主要是在Ub">
+<meta property="og:description" content="前言最近筆者在架設BaGet這套 private Nuget Server時，發現由於Baget是採用 .NET Core3.1的環境進行建置的，而在2023年的今天，.NETCore3.1早已被微軟淘汰不再支援了，因此無法從官網上直接安裝想要的版本。 因此本篇教學主要介紹如何在Ubuntu上安裝多個.NET版本環境。 環境安裝由於.NETCore 3.1 已經不被微軟所維護了，因此我們無法直接透">
 <meta property="og:locale" content="zh_TW">
-<meta property="og:image" content="https://miro.medium.com/v2/resize:fit:1400/format:webp/1*9Y_JwWoGh2ZXzJ94zLpPLw.png">
-<meta property="og:image" content="https://miro.medium.com/v2/resize:fit:1400/format:webp/1*jcluDo-52PTdpydzApvUzQ.png">
-<meta property="og:image" content="https://miro.medium.com/v2/resize:fit:1400/format:webp/1*dBGZe7LSGZAVhgol-kQRVA.png">
-<meta property="og:image" content="https://miro.medium.com/v2/resize:fit:1400/format:webp/1*X32QycUdoUS74x6E5pKytg.png">
-<meta property="og:image" content="https://miro.medium.com/v2/resize:fit:1400/format:webp/1*SqqCK5W-cS-pcWrW0EkqSw.png">
-<meta property="article:published_time" content="2023-02-08T20:04:29.000Z">
-<meta property="article:modified_time" content="2023-02-09T21:13:37.913Z">
+<meta property="article:published_time" content="2023-02-10T16:34:11.000Z">
+<meta property="article:modified_time" content="2023-02-10T16:51:25.430Z">
 <meta property="article:author" content="Leo Zhou">
-<meta property="article:tag" content="CI&#x2F;CD">
+<meta property="article:tag" content=".NET">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://miro.medium.com/v2/resize:fit:1400/format:webp/1*9Y_JwWoGh2ZXzJ94zLpPLw.png">
 
-<link rel="canonical" href="https://blog.zhenghui.idv.tw/2023/02/09/%E5%AE%89%E8%A3%9DJenkins(%E4%B8%80)/">
+<link rel="canonical" href="https://blog.zhenghui.idv.tw/2023/02/11/%E5%A6%82%E4%BD%95%E5%9C%A8Ubuntu%E5%AE%89%E8%A3%9D%E5%A4%9A%E5%80%8B-NET%E7%89%88%E6%9C%AC%E7%92%B0%E5%A2%83/%E5%A6%82%E4%BD%95%E5%9C%A8Ubuntu%E5%AE%89%E8%A3%9D%E5%A4%9A%E5%80%8B-NET%E7%89%88%E6%9C%AC%E7%92%B0%E5%A2%83/">
 
 
 <script id="page-configurations">
@@ -57,7 +51,7 @@
   };
 </script>
 
-  <title>【CI/CD實作】安裝Jenkins(一) | Leo程式筆記</title>
+  <title>如何在Ubuntu安裝多個.NET版本環境 | Leo程式筆記</title>
   
 
 
@@ -163,7 +157,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-TW">
-    <link itemprop="mainEntityOfPage" href="https://blog.zhenghui.idv.tw/2023/02/09/%E5%AE%89%E8%A3%9DJenkins(%E4%B8%80)/">
+    <link itemprop="mainEntityOfPage" href="https://blog.zhenghui.idv.tw/2023/02/11/%E5%A6%82%E4%BD%95%E5%9C%A8Ubuntu%E5%AE%89%E8%A3%9D%E5%A4%9A%E5%80%8B-NET%E7%89%88%E6%9C%AC%E7%92%B0%E5%A2%83/%E5%A6%82%E4%BD%95%E5%9C%A8Ubuntu%E5%AE%89%E8%A3%9D%E5%A4%9A%E5%80%8B-NET%E7%89%88%E6%9C%AC%E7%92%B0%E5%A2%83/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/uploads/avatar.jpg">
@@ -176,7 +170,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          【CI/CD實作】安裝Jenkins(一)
+          如何在Ubuntu安裝多個.NET版本環境
         </h1>
 
         <div class="post-meta">
@@ -185,23 +179,17 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">發表於</span>
+              
 
-              <time title="創建時間：2023-02-09 04:04:29" itemprop="dateCreated datePublished" datetime="2023-02-09T04:04:29+08:00">2023-02-09</time>
+              <time title="創建時間：2023-02-11 00:34:11 / 修改時間：00:51:25" itemprop="dateCreated datePublished" datetime="2023-02-11T00:34:11+08:00">2023-02-11</time>
             </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新於</span>
-                <time title="修改時間：2023-02-10 05:13:37" itemprop="dateModified" datetime="2023-02-10T05:13:37+08:00">2023-02-10</time>
-              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
               </span>
               <span class="post-meta-item-text">分類於</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Jenkins/" itemprop="url" rel="index"><span itemprop="name">Jenkins</span></a>
+                  <a href="/categories/NET/" itemprop="url" rel="index"><span itemprop="name">.NET</span></a>
                 </span>
             </span>
 
@@ -211,7 +199,7 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">文章字數：</span>
-              <span>1.2k</span>
+              <span>903</span>
             </span>
             <span class="post-meta-item" title="所需閱讀時間">
               <span class="post-meta-item-icon">
@@ -230,35 +218,20 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>一直以來耳聞Jenkins的大名，知道可以用它來做CI&#x2F;CD以及跑專案排程等等，能做到的事情非常的多。</p>
-<p>但由於筆者先前的公司過去一直都是使用GitLab作為 Repository Server，而GitLab本身的CI Server - <strong>GitLab Runner</strong> 又很有名，因此一直沒機會可以好好探究，直到現在換了新公司，改採用Gitgub後終於有機會好好一探究竟。</p>
-<p>本篇環境主要是在Ubuntu環境上建置的，因此以下操作指令都是以Ubuntu為主。</p>
-<h3 id="JAVA-安裝"><a href="#JAVA-安裝" class="headerlink" title="JAVA 安裝"></a>JAVA 安裝</h3><p>首先一如往常需要先更新套件。<br>由於jenkins是用java編寫的, 所以必須先安裝java執行環境，確認完成後，再下載Jenkins進行安裝。</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get update</span><br><span class="line">sudo apt-get install default-jre</span><br><span class="line">sudo apt-get install default-jdk</span><br></pre></td></tr></table></figure>
+        <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>最近筆者在架設<code>BaGet</code>這套 private Nuget Server時，發現由於Baget是採用 .NET Core3.1的環境進行建置的，而在2023年的今天，.NETCore3.1早已被微軟淘汰不再支援了，因此無法從官網上直接安裝想要的版本。</p>
+<p>因此本篇教學主要介紹如何在Ubuntu上安裝多個.NET版本環境。</p>
+<h3 id="環境安裝"><a href="#環境安裝" class="headerlink" title="環境安裝"></a>環境安裝</h3><p>由於.NETCore 3.1 已經不被微軟所維護了，因此我們無法直接透過 <code>apt-get install</code> 進行安裝。</p>
+<p>因此我們需要手動下載並加入到環境變數以利未來我們可以在任何地方直接呼叫：</p>
+<h4 id="下載-NETCore-3-1-SDK"><a href="#下載-NETCore-3-1-SDK" class="headerlink" title="下載.NETCore 3.1 SDK"></a>下載.NETCore 3.1 SDK</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">sudo mkdir -p /home/download &amp;&amp;  cd /home/download</span><br><span class="line"></span><br><span class="line">sudo wget --no-check-certificate -O dotnet-3.1.tar.gz https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/sdk-3.1.426-linux-x64-binaries</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h4 id="建立dotnet根目錄-amp-解壓sdk"><a href="#建立dotnet根目錄-amp-解壓sdk" class="headerlink" title="建立dotnet根目錄&amp;解壓sdk"></a>建立dotnet根目錄&amp;解壓sdk</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">sudo mkdir /usr/dotnet</span><br><span class="line"></span><br><span class="line">#解壓縮.NET Core 3.1到指定目錄</span><br><span class="line">sudo mkdir /usr/dotnet/dotnet-3.1</span><br><span class="line">sudo tar zvxf dotnet-3.1.tar.gz -C /usr/dotnet/dotnet-3.1</span><br></pre></td></tr></table></figure>
 
-<h3 id="Jenkins下載與安裝"><a href="#Jenkins下載與安裝" class="headerlink" title="Jenkins下載與安裝"></a>Jenkins下載與安裝</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">下載Jenkins並將Jenkins加入到套件清單中</span><br><span class="line"></span><br><span class="line">wget -q -O - https://pkg.jenkins.io/debian/jenkins-ci.org.key | sudo apt-key add -</span><br><span class="line">sudo sh -c &#x27;echo deb http://pkg.jenkins.io/debian-stable binary/ &gt; /etc/apt/sources.list.d/jenkins.list&#x27;</span><br><span class="line">sudo apt-get update</span><br><span class="line"></span><br><span class="line">安裝jenkins</span><br><span class="line">sudo apt-get install jenkins</span><br></pre></td></tr></table></figure>
+<h4 id="執行-NET前需要先安裝依賴套件"><a href="#執行-NET前需要先安裝依賴套件" class="headerlink" title="執行.NET前需要先安裝依賴套件"></a>執行.NET前需要先安裝依賴套件</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get install -y libunwind8 apt-transport-https</span><br></pre></td></tr></table></figure>
 
-<p>當安裝一切就緒後，Jenkins會自動監聽8080port，因此可以透過該網址前往設定。</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://localhost:8080</span><br></pre></td></tr></table></figure>
-<div style="color:red;font-weight:900;margin-bottom:10px;">
-註：Jenkins預設為開機自動啟動，已經有寫好服務腳本了，可以透過 systemctl status jenkins查看
-</div>
+<h3 id="建立-NETCore環境變數"><a href="#建立-NETCore環境變數" class="headerlink" title="建立.NETCore環境變數"></a>建立.NETCore環境變數</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo ln -s /usr/dotnet/dotnet-3.1/dotnet /usr/bin/dotnet3.1</span><br></pre></td></tr></table></figure>
 
-<p>當連線後，我們需要先解鎖Jenkins，到圖中指定的目錄下找到密碼後，貼上來：<br><img src="https://miro.medium.com/v2/resize:fit:1400/format:webp/1*9Y_JwWoGh2ZXzJ94zLpPLw.png"></p>
-<div style="color:red;font-weight:900;margin-bottom:10px;">
-註：Jenkins預設安裝路徑為 /var/lib/jenkins
-下一篇會教如何更改預設路徑
-</div>
+<h3 id="驗證版本"><a href="#驗證版本" class="headerlink" title="驗證版本"></a>驗證版本</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dotnet3.1 --info</span><br></pre></td></tr></table></figure>
 
-<p>解鎖後，會詢問我們選擇套件安裝，直接選擇左邊按鈕，讓他按照推薦套件安裝即可。</p>
-<p><img src="https://miro.medium.com/v2/resize:fit:1400/format:webp/1*jcluDo-52PTdpydzApvUzQ.png"></p>
-<p>其中套件有包含 Git Plugin，因此我們不再需要手動安裝相關套件就可以開始實現CI&#x2F;CD</p>
-<p><img src="https://miro.medium.com/v2/resize:fit:1400/format:webp/1*dBGZe7LSGZAVhgol-kQRVA.png"></p>
-<p>安裝完成後，接下來會要求要輸入帳號&#x2F;密碼，這組帳號密碼未來將為作為我們切換jenkins身份，下指令要操作其他行為的時候將會用到，並且登入平台的時候預設也是採用該身份進行登入。</p>
-<p><img src="https://miro.medium.com/v2/resize:fit:1400/format:webp/1*X32QycUdoUS74x6E5pKytg.png"></p>
-<p>全部完成後，我們就可以看到登入的畫面了。</p>
-<p><img src="https://miro.medium.com/v2/resize:fit:1400/format:webp/1*SqqCK5W-cS-pcWrW0EkqSw.png"></p>
-<p>下一篇將會先介紹該如何變更Jenkins的位置，避免當硬碟空間不足的時候，Jenkins會有故障的情況發生。</p>
+<p>如果能看到歡迎的訊息就代表成功完成了。</p>
 <div>
 以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
 
@@ -274,7 +247,7 @@
 
       <footer class="post-footer">
           <div class="post-tags">
-              <a href="/tags/CI-CD/" rel="tag"># CI/CD</a>
+              <a href="/tags/NET/" rel="tag"># .NET</a>
           </div>
 
         
@@ -283,12 +256,12 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2023/01/24/C-LINQ-to-Entities-%E6%9F%A5%E8%A9%A2%E4%B8%AD%E7%84%A1%E6%B3%95%E5%BB%BA%E6%A7%8B%E5%AF%A6%E9%AB%94%E6%88%96%E8%A4%87%E9%9B%9C%E9%A1%9E%E5%9E%8B/" rel="prev" title="C# - LINQ to Entities 查詢中無法建構實體或複雜類型">
-      <i class="fa fa-chevron-left"></i> C# - LINQ to Entities 查詢中無法建構實體或複雜類型
+    <a href="/2023/02/11/%E5%9C%A8-NET-%E9%80%8F%E9%81%8Enuget-config-%E8%87%AA%E8%A8%82NuGet-%E5%A5%97%E4%BB%B6%E4%BE%86%E6%BA%90/%E5%9C%A8-NET-%E9%80%8F%E9%81%8Enuget-config-%E8%87%AA%E8%A8%82NuGet-%E5%A5%97%E4%BB%B6%E4%BE%86%E6%BA%90/" rel="prev" title="【CI/CD實作】在 .NET 透過nuget.config 自訂NuGet 套件來源（番外篇）">
+      <i class="fa fa-chevron-left"></i> 【CI/CD實作】在 .NET 透過nuget.config 自訂NuGet 套件來源（番外篇）
     </a></div>
       <div class="post-nav-item">
-    <a href="/2023/02/10/%E8%AE%8A%E6%9B%B4Jenkins%E5%AE%B6%E7%9B%AE%E9%8C%84(%E4%BA%8C)/" rel="next" title="【CI/CD實作】變更Jenkins家目錄(二)">
-      【CI/CD實作】變更Jenkins家目錄(二) <i class="fa fa-chevron-right"></i>
+    <a href="/2023/02/11/%E5%BF%AB%E9%80%9F%E6%9E%B6%E8%A8%AD%E7%A7%81%E6%9C%89%E7%9A%84Nuget-Server/%E5%BF%AB%E9%80%9F%E6%9E%B6%E8%A8%AD%E7%A7%81%E6%9C%89%E7%9A%84Nuget-Server/" rel="next" title="快速架設私有的Nuget Server">
+      快速架設私有的Nuget Server <i class="fa fa-chevron-right"></i>
     </a></div>
     </div>
       </footer>
@@ -348,7 +321,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#JAVA-%E5%AE%89%E8%A3%9D"><span class="nav-number">1.</span> <span class="nav-text">JAVA 安裝</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Jenkins%E4%B8%8B%E8%BC%89%E8%88%87%E5%AE%89%E8%A3%9D"><span class="nav-number">2.</span> <span class="nav-text">Jenkins下載與安裝</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%92%B0%E5%A2%83%E5%AE%89%E8%A3%9D"><span class="nav-number">2.</span> <span class="nav-text">環境安裝</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%8B%E8%BC%89-NETCore-3-1-SDK"><span class="nav-number">2.1.</span> <span class="nav-text">下載.NETCore 3.1 SDK</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%BB%BA%E7%AB%8Bdotnet%E6%A0%B9%E7%9B%AE%E9%8C%84-amp-%E8%A7%A3%E5%A3%93sdk"><span class="nav-number">2.2.</span> <span class="nav-text">建立dotnet根目錄&amp;解壓sdk</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9F%B7%E8%A1%8C-NET%E5%89%8D%E9%9C%80%E8%A6%81%E5%85%88%E5%AE%89%E8%A3%9D%E4%BE%9D%E8%B3%B4%E5%A5%97%E4%BB%B6"><span class="nav-number">2.3.</span> <span class="nav-text">執行.NET前需要先安裝依賴套件</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BB%BA%E7%AB%8B-NETCore%E7%92%B0%E5%A2%83%E8%AE%8A%E6%95%B8"><span class="nav-number">3.</span> <span class="nav-text">建立.NETCore環境變數</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%A9%97%E8%AD%89%E7%89%88%E6%9C%AC"><span class="nav-number">4.</span> <span class="nav-text">驗證版本</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 

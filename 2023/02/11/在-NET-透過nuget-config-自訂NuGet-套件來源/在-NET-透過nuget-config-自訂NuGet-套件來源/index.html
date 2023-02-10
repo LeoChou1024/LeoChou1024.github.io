@@ -25,26 +25,22 @@
     var CONFIG = {"hostname":"blog.zhenghui.idv.tw","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="一直以來耳聞Jenkins的大名，知道可以用它來做CI&#x2F;CD以及跑專案排程等等，能做到的事情非常的多。 但由於筆者先前的公司過去一直都是使用GitLab作為 Repository Server，而GitLab本身的CI Server - GitLab Runner 又很有名，因此一直沒機會可以好好探究，直到現在換了新公司，改採用Gitgub後終於有機會好好一探究竟。 本篇環境主要是在Ub">
+  <meta name="description" content="前言通常我們在開發.NET專案時，若因為專案中有使用到公司內部的Library時，通常都會架設Private Nuget Server來進行套件添加。而一般來說添加套件來源的方式大多都是在 Nuget管理員的介面中選擇添加的目錄夾或是Url來操作。但這樣的方式如果實現CI&#x2F;CD時，則會遇到找不到套件來源的問題，原因是Jenkins是直接將Github上的專案Clone下來進行建置與部署。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="【CI&#x2F;CD實作】安裝Jenkins(一)">
-<meta property="og:url" content="https://blog.zhenghui.idv.tw/2023/02/09/%E5%AE%89%E8%A3%9DJenkins(%E4%B8%80)/index.html">
+<meta property="og:title" content="【CI&#x2F;CD實作】在 .NET 透過nuget.config 自訂NuGet 套件來源（番外篇）">
+<meta property="og:url" content="https://blog.zhenghui.idv.tw/2023/02/11/%E5%9C%A8-NET-%E9%80%8F%E9%81%8Enuget-config-%E8%87%AA%E8%A8%82NuGet-%E5%A5%97%E4%BB%B6%E4%BE%86%E6%BA%90/%E5%9C%A8-NET-%E9%80%8F%E9%81%8Enuget-config-%E8%87%AA%E8%A8%82NuGet-%E5%A5%97%E4%BB%B6%E4%BE%86%E6%BA%90/index.html">
 <meta property="og:site_name" content="Leo程式筆記">
-<meta property="og:description" content="一直以來耳聞Jenkins的大名，知道可以用它來做CI&#x2F;CD以及跑專案排程等等，能做到的事情非常的多。 但由於筆者先前的公司過去一直都是使用GitLab作為 Repository Server，而GitLab本身的CI Server - GitLab Runner 又很有名，因此一直沒機會可以好好探究，直到現在換了新公司，改採用Gitgub後終於有機會好好一探究竟。 本篇環境主要是在Ub">
+<meta property="og:description" content="前言通常我們在開發.NET專案時，若因為專案中有使用到公司內部的Library時，通常都會架設Private Nuget Server來進行套件添加。而一般來說添加套件來源的方式大多都是在 Nuget管理員的介面中選擇添加的目錄夾或是Url來操作。但這樣的方式如果實現CI&#x2F;CD時，則會遇到找不到套件來源的問題，原因是Jenkins是直接將Github上的專案Clone下來進行建置與部署。">
 <meta property="og:locale" content="zh_TW">
-<meta property="og:image" content="https://miro.medium.com/v2/resize:fit:1400/format:webp/1*9Y_JwWoGh2ZXzJ94zLpPLw.png">
-<meta property="og:image" content="https://miro.medium.com/v2/resize:fit:1400/format:webp/1*jcluDo-52PTdpydzApvUzQ.png">
-<meta property="og:image" content="https://miro.medium.com/v2/resize:fit:1400/format:webp/1*dBGZe7LSGZAVhgol-kQRVA.png">
-<meta property="og:image" content="https://miro.medium.com/v2/resize:fit:1400/format:webp/1*X32QycUdoUS74x6E5pKytg.png">
-<meta property="og:image" content="https://miro.medium.com/v2/resize:fit:1400/format:webp/1*SqqCK5W-cS-pcWrW0EkqSw.png">
-<meta property="article:published_time" content="2023-02-08T20:04:29.000Z">
-<meta property="article:modified_time" content="2023-02-09T21:13:37.913Z">
+<meta property="og:image" content="https://blog.zhenghui.idv.tw/nuget.png">
+<meta property="article:published_time" content="2023-02-10T16:03:15.000Z">
+<meta property="article:modified_time" content="2023-02-10T16:32:20.025Z">
 <meta property="article:author" content="Leo Zhou">
 <meta property="article:tag" content="CI&#x2F;CD">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://miro.medium.com/v2/resize:fit:1400/format:webp/1*9Y_JwWoGh2ZXzJ94zLpPLw.png">
+<meta name="twitter:image" content="https://blog.zhenghui.idv.tw/nuget.png">
 
-<link rel="canonical" href="https://blog.zhenghui.idv.tw/2023/02/09/%E5%AE%89%E8%A3%9DJenkins(%E4%B8%80)/">
+<link rel="canonical" href="https://blog.zhenghui.idv.tw/2023/02/11/%E5%9C%A8-NET-%E9%80%8F%E9%81%8Enuget-config-%E8%87%AA%E8%A8%82NuGet-%E5%A5%97%E4%BB%B6%E4%BE%86%E6%BA%90/%E5%9C%A8-NET-%E9%80%8F%E9%81%8Enuget-config-%E8%87%AA%E8%A8%82NuGet-%E5%A5%97%E4%BB%B6%E4%BE%86%E6%BA%90/">
 
 
 <script id="page-configurations">
@@ -57,7 +53,7 @@
   };
 </script>
 
-  <title>【CI/CD實作】安裝Jenkins(一) | Leo程式筆記</title>
+  <title>【CI/CD實作】在 .NET 透過nuget.config 自訂NuGet 套件來源（番外篇） | Leo程式筆記</title>
   
 
 
@@ -163,7 +159,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-TW">
-    <link itemprop="mainEntityOfPage" href="https://blog.zhenghui.idv.tw/2023/02/09/%E5%AE%89%E8%A3%9DJenkins(%E4%B8%80)/">
+    <link itemprop="mainEntityOfPage" href="https://blog.zhenghui.idv.tw/2023/02/11/%E5%9C%A8-NET-%E9%80%8F%E9%81%8Enuget-config-%E8%87%AA%E8%A8%82NuGet-%E5%A5%97%E4%BB%B6%E4%BE%86%E6%BA%90/%E5%9C%A8-NET-%E9%80%8F%E9%81%8Enuget-config-%E8%87%AA%E8%A8%82NuGet-%E5%A5%97%E4%BB%B6%E4%BE%86%E6%BA%90/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/uploads/avatar.jpg">
@@ -176,7 +172,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          【CI/CD實作】安裝Jenkins(一)
+          【CI/CD實作】在 .NET 透過nuget.config 自訂NuGet 套件來源（番外篇）
         </h1>
 
         <div class="post-meta">
@@ -185,16 +181,10 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">發表於</span>
+              
 
-              <time title="創建時間：2023-02-09 04:04:29" itemprop="dateCreated datePublished" datetime="2023-02-09T04:04:29+08:00">2023-02-09</time>
+              <time title="創建時間：2023-02-11 00:03:15 / 修改時間：00:32:20" itemprop="dateCreated datePublished" datetime="2023-02-11T00:03:15+08:00">2023-02-11</time>
             </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新於</span>
-                <time title="修改時間：2023-02-10 05:13:37" itemprop="dateModified" datetime="2023-02-10T05:13:37+08:00">2023-02-10</time>
-              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -230,35 +220,21 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>一直以來耳聞Jenkins的大名，知道可以用它來做CI&#x2F;CD以及跑專案排程等等，能做到的事情非常的多。</p>
-<p>但由於筆者先前的公司過去一直都是使用GitLab作為 Repository Server，而GitLab本身的CI Server - <strong>GitLab Runner</strong> 又很有名，因此一直沒機會可以好好探究，直到現在換了新公司，改採用Gitgub後終於有機會好好一探究竟。</p>
-<p>本篇環境主要是在Ubuntu環境上建置的，因此以下操作指令都是以Ubuntu為主。</p>
-<h3 id="JAVA-安裝"><a href="#JAVA-安裝" class="headerlink" title="JAVA 安裝"></a>JAVA 安裝</h3><p>首先一如往常需要先更新套件。<br>由於jenkins是用java編寫的, 所以必須先安裝java執行環境，確認完成後，再下載Jenkins進行安裝。</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get update</span><br><span class="line">sudo apt-get install default-jre</span><br><span class="line">sudo apt-get install default-jdk</span><br></pre></td></tr></table></figure>
+        <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>通常我們在開發.NET專案時，若因為專案中有使用到公司內部的Library時，通常都會架設Private Nuget Server來進行套件添加。<br>而一般來說添加套件來源的方式大多都是在 Nuget管理員的介面中選擇添加的目錄夾或是Url來操作。<br>但這樣的方式如果實現CI&#x2F;CD時，則會遇到找不到套件來源的問題，原因是Jenkins是直接將Github上的專案Clone下來進行建置與部署。<br>但我們設定套件來源的時機則是在專案Clone後手動開啟Nuget管理員添加的。<br>因此本篇主要會教學如何透過幾種方式讓Jenkins能夠讀的到自訂的Nuget套件來源。</p>
+<h3 id="建立Nuget-config"><a href="#建立Nuget-config" class="headerlink" title="建立Nuget.config"></a>建立Nuget.config</h3><p>我們可以在方案的根目錄下輸入以下指令進行Nuget範本建立(或直接新增檔案輸入也可以)</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dotnet new nugetconfig</span><br></pre></td></tr></table></figure>
 
-<h3 id="Jenkins下載與安裝"><a href="#Jenkins下載與安裝" class="headerlink" title="Jenkins下載與安裝"></a>Jenkins下載與安裝</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">下載Jenkins並將Jenkins加入到套件清單中</span><br><span class="line"></span><br><span class="line">wget -q -O - https://pkg.jenkins.io/debian/jenkins-ci.org.key | sudo apt-key add -</span><br><span class="line">sudo sh -c &#x27;echo deb http://pkg.jenkins.io/debian-stable binary/ &gt; /etc/apt/sources.list.d/jenkins.list&#x27;</span><br><span class="line">sudo apt-get update</span><br><span class="line"></span><br><span class="line">安裝jenkins</span><br><span class="line">sudo apt-get install jenkins</span><br></pre></td></tr></table></figure>
+<p>這時候會在當前目錄下建立一個 nuget.config 其內容如下：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=<span class="string">&quot;1.0&quot;</span> encoding=<span class="string">&quot;utf-8&quot;</span>?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">configuration</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">packageSources</span>&gt;</span></span><br><span class="line">    <span class="comment">&lt;!--如果想要取消繼承在 %AppData%\NuGet\nuget.config的設定，可以加上 &lt;clear/&gt; --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">clear</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">add</span> <span class="attr">key</span>=<span class="string">&quot;nuget&quot;</span> <span class="attr">value</span>=<span class="string">&quot;https://api.nuget.org/v3/index.json&quot;</span> /&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">packageSources</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>因此我們可以透過 add的方式，手動將私有的套件來源加上</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;add key=&quot;來源名稱&quot; value=&quot;來源網址&quot; /&gt;</span><br></pre></td></tr></table></figure>
 
-<p>當安裝一切就緒後，Jenkins會自動監聽8080port，因此可以透過該網址前往設定。</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://localhost:8080</span><br></pre></td></tr></table></figure>
-<div style="color:red;font-weight:900;margin-bottom:10px;">
-註：Jenkins預設為開機自動啟動，已經有寫好服務腳本了，可以透過 systemctl status jenkins查看
-</div>
+<p>完成後關閉專案再重新啟動，就會發現Nuget的套件來源已經自動補上在config設定的自訂來源了。<br><img src="/./nuget.png"></p>
+<h3 id="在機器上手動添加全域套件來源"><a href="#在機器上手動添加全域套件來源" class="headerlink" title="在機器上手動添加全域套件來源"></a>在機器上手動添加全域套件來源</h3><p>剛剛有提到.NET其實預設在 <code>%AppData%\NuGet\nuget.config</code> 有全域的設定檔<br>這也就是為什麼 Jenkins可以直接執行那些Nuget的套件，但是自訂來源的套件卻無法執行的原因。</p>
+<p>因此我們也可以在部署的機器上手動添加自訂來源：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dotnet nuget add source &lt;來源網址&gt; -n &lt;自訂名稱&gt;</span><br></pre></td></tr></table></figure>
 
-<p>當連線後，我們需要先解鎖Jenkins，到圖中指定的目錄下找到密碼後，貼上來：<br><img src="https://miro.medium.com/v2/resize:fit:1400/format:webp/1*9Y_JwWoGh2ZXzJ94zLpPLw.png"></p>
-<div style="color:red;font-weight:900;margin-bottom:10px;">
-註：Jenkins預設安裝路徑為 /var/lib/jenkins
-下一篇會教如何更改預設路徑
-</div>
-
-<p>解鎖後，會詢問我們選擇套件安裝，直接選擇左邊按鈕，讓他按照推薦套件安裝即可。</p>
-<p><img src="https://miro.medium.com/v2/resize:fit:1400/format:webp/1*jcluDo-52PTdpydzApvUzQ.png"></p>
-<p>其中套件有包含 Git Plugin，因此我們不再需要手動安裝相關套件就可以開始實現CI&#x2F;CD</p>
-<p><img src="https://miro.medium.com/v2/resize:fit:1400/format:webp/1*dBGZe7LSGZAVhgol-kQRVA.png"></p>
-<p>安裝完成後，接下來會要求要輸入帳號&#x2F;密碼，這組帳號密碼未來將為作為我們切換jenkins身份，下指令要操作其他行為的時候將會用到，並且登入平台的時候預設也是採用該身份進行登入。</p>
-<p><img src="https://miro.medium.com/v2/resize:fit:1400/format:webp/1*X32QycUdoUS74x6E5pKytg.png"></p>
-<p>全部完成後，我們就可以看到登入的畫面了。</p>
-<p><img src="https://miro.medium.com/v2/resize:fit:1400/format:webp/1*SqqCK5W-cS-pcWrW0EkqSw.png"></p>
-<p>下一篇將會先介紹該如何變更Jenkins的位置，避免當硬碟空間不足的時候，Jenkins會有故障的情況發生。</p>
+<p><font color="red">但這個方式不太建議，除了每一台機器都要手動添加以外，也需要同步管理每一個的Nuget package list，因此如果都用config的話，就可以一目瞭然了。<br></font></p>
 <div>
 以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
 
@@ -283,12 +259,12 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2023/01/24/C-LINQ-to-Entities-%E6%9F%A5%E8%A9%A2%E4%B8%AD%E7%84%A1%E6%B3%95%E5%BB%BA%E6%A7%8B%E5%AF%A6%E9%AB%94%E6%88%96%E8%A4%87%E9%9B%9C%E9%A1%9E%E5%9E%8B/" rel="prev" title="C# - LINQ to Entities 查詢中無法建構實體或複雜類型">
-      <i class="fa fa-chevron-left"></i> C# - LINQ to Entities 查詢中無法建構實體或複雜類型
+    <a href="/2023/02/10/Webhook%E8%A7%B8%E7%99%BCJenkins%E5%AF%A6%E7%8F%BECI-CD/" rel="prev" title="【CI/CD實作】透過Github Webhook觸發Jenkins實現CI/CD(四)">
+      <i class="fa fa-chevron-left"></i> 【CI/CD實作】透過Github Webhook觸發Jenkins實現CI/CD(四)
     </a></div>
       <div class="post-nav-item">
-    <a href="/2023/02/10/%E8%AE%8A%E6%9B%B4Jenkins%E5%AE%B6%E7%9B%AE%E9%8C%84(%E4%BA%8C)/" rel="next" title="【CI/CD實作】變更Jenkins家目錄(二)">
-      【CI/CD實作】變更Jenkins家目錄(二) <i class="fa fa-chevron-right"></i>
+    <a href="/2023/02/11/%E5%A6%82%E4%BD%95%E5%9C%A8Ubuntu%E5%AE%89%E8%A3%9D%E5%A4%9A%E5%80%8B-NET%E7%89%88%E6%9C%AC%E7%92%B0%E5%A2%83/%E5%A6%82%E4%BD%95%E5%9C%A8Ubuntu%E5%AE%89%E8%A3%9D%E5%A4%9A%E5%80%8B-NET%E7%89%88%E6%9C%AC%E7%92%B0%E5%A2%83/" rel="next" title="如何在Ubuntu安裝多個.NET版本環境">
+      如何在Ubuntu安裝多個.NET版本環境 <i class="fa fa-chevron-right"></i>
     </a></div>
     </div>
       </footer>
@@ -348,7 +324,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#JAVA-%E5%AE%89%E8%A3%9D"><span class="nav-number">1.</span> <span class="nav-text">JAVA 安裝</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Jenkins%E4%B8%8B%E8%BC%89%E8%88%87%E5%AE%89%E8%A3%9D"><span class="nav-number">2.</span> <span class="nav-text">Jenkins下載與安裝</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BB%BA%E7%AB%8BNuget-config"><span class="nav-number">2.</span> <span class="nav-text">建立Nuget.config</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9C%A8%E6%A9%9F%E5%99%A8%E4%B8%8A%E6%89%8B%E5%8B%95%E6%B7%BB%E5%8A%A0%E5%85%A8%E5%9F%9F%E5%A5%97%E4%BB%B6%E4%BE%86%E6%BA%90"><span class="nav-number">3.</span> <span class="nav-text">在機器上手動添加全域套件來源</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
