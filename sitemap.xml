@@ -117,7 +117,7 @@
   </url>
   
   <url>
-    <loc>https://blog.zhenghui.idv.tw/tags/LINQ/</loc>
+    <loc>https://blog.zhenghui.idv.tw/tags/CI-CD/</loc>
     <lastmod>2023-02-10</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -125,13 +125,6 @@
   
   <url>
     <loc>https://blog.zhenghui.idv.tw/tags/NETCore/</loc>
-    <lastmod>2023-02-10</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://blog.zhenghui.idv.tw/tags/CI-CD/</loc>
     <lastmod>2023-02-10</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -153,6 +146,13 @@
   
   <url>
     <loc>https://blog.zhenghui.idv.tw/tags/%E8%A1%A8%E5%8D%95%E9%AA%8C%E8%AF%81/</loc>
+    <lastmod>2023-02-10</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://blog.zhenghui.idv.tw/tags/LINQ/</loc>
     <lastmod>2023-02-10</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
