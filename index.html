@@ -177,7 +177,7 @@
               <span class="post-meta-item-text">發表於</span>
               
 
-              <time title="創建時間：2023-02-11 00:53:21 / 修改時間：01:07:23" itemprop="dateCreated datePublished" datetime="2023-02-11T00:53:21+08:00">2023-02-11</time>
+              <time title="創建時間：2023-02-11 00:53:21 / 修改時間：11:53:36" itemprop="dateCreated datePublished" datetime="2023-02-11T00:53:21+08:00">2023-02-11</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -215,22 +215,14 @@
 
       
           <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>大部分在開發的時候，都是直接在Nuget上搜尋開發者release的套件安裝來用，但通常公司的不同專案上總會有相似的專案會需要使用相同的功能。<br>但這些套件又牽涉公司機密，也不方便直接上傳到Nuget公開平台上，因此本篇主要介紹 <code>BaGet</code> 這個方便又強大的 Private Nuget Server，讓我們可以輕鬆管理這些私密的Library。</p>
-<h3 id="BaGet安裝"><a href="#BaGet安裝" class="headerlink" title="BaGet安裝"></a>BaGet安裝</h3><p>Baget這個專案，非常方便簡單，但是有一個缺點——採用 .NET Core 3.1建置<br>而在2023年的今天，要去哪邊生 .NET3.1的環境呢？<br>如果沒有的讀者，可以參考<a href="../%E5%A6%82%E4%BD%95%E5%9C%A8Ubuntu%E5%AE%89%E8%A3%9D%E5%A4%9A%E5%80%8B-NET%E7%89%88%E6%9C%AC%E7%92%B0%E5%A2%83/%E5%A6%82%E4%BD%95%E5%9C%A8Ubuntu%E5%AE%89%E8%A3%9D%E5%A4%9A%E5%80%8B-NET%E7%89%88%E6%9C%AC%E7%92%B0%E5%A2%83.md">此篇</a> 教學，來安裝 .NET 3.1 環境。</p>
-<p>當我們擁有 .NET 3.1環境之後，我們只需要下載 Baget Relese 的版本即可：<br><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/loic-sharma/BaGet/releases">BaGet Release</a></p>
-<p>下載完成後，我們就可以透過以下指令將專案進行建置</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">筆者本身是額外安裝3.1環境，因此在我的環境下指令為 dotnet3.1</span><br><span class="line">dotnet3.1 BaGet.dll </span><br></pre></td></tr></table></figure>
-
-<p>建置完成後，我們就可以看到一個與Nuget官網一模ㄧ樣的網站了：<br><img src="/./nuget.png"></p>
-<p>切換到Upload頁面我們就可以查看上傳語法，以及得到套件的來源網址<br><img src="/./upload.png"></p>
-<p>最後我們只需要將來源網址添加到 Nuget管理員，這樣就可以找到部署在 Baget上的Library囉！</p>
-<p><img src="/./nuget%EF%BC%ADanager.png"></p>
-<div>
-以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
-
-<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
-<p><a target="_blank" rel="external nofollow noopener noreferrer" href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
-</div>
-
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2023/02/11/%E5%BF%AB%E9%80%9F%E6%9E%B6%E8%A8%AD%E7%A7%81%E6%9C%89%E7%9A%84Nuget-Server/%E5%BF%AB%E9%80%9F%E6%9E%B6%E8%A8%AD%E7%A7%81%E6%9C%89%E7%9A%84Nuget-Server/#more" rel="contents">
+                閱讀全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -274,7 +266,7 @@
               <span class="post-meta-item-text">發表於</span>
               
 
-              <time title="創建時間：2023-02-11 00:34:11 / 修改時間：00:51:25" itemprop="dateCreated datePublished" datetime="2023-02-11T00:34:11+08:00">2023-02-11</time>
+              <time title="創建時間：2023-02-11 00:34:11 / 修改時間：11:55:45" itemprop="dateCreated datePublished" datetime="2023-02-11T00:34:11+08:00">2023-02-11</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -313,25 +305,14 @@
       
           <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>最近筆者在架設<code>BaGet</code>這套 private Nuget Server時，發現由於Baget是採用 .NET Core3.1的環境進行建置的，而在2023年的今天，.NETCore3.1早已被微軟淘汰不再支援了，因此無法從官網上直接安裝想要的版本。</p>
 <p>因此本篇教學主要介紹如何在Ubuntu上安裝多個.NET版本環境。</p>
-<h3 id="環境安裝"><a href="#環境安裝" class="headerlink" title="環境安裝"></a>環境安裝</h3><p>由於.NETCore 3.1 已經不被微軟所維護了，因此我們無法直接透過 <code>apt-get install</code> 進行安裝。</p>
-<p>因此我們需要手動下載並加入到環境變數以利未來我們可以在任何地方直接呼叫：</p>
-<h4 id="下載-NETCore-3-1-SDK"><a href="#下載-NETCore-3-1-SDK" class="headerlink" title="下載.NETCore 3.1 SDK"></a>下載.NETCore 3.1 SDK</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">sudo mkdir -p /home/download &amp;&amp;  cd /home/download</span><br><span class="line"></span><br><span class="line">sudo wget --no-check-certificate -O dotnet-3.1.tar.gz https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/sdk-3.1.426-linux-x64-binaries</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-<h4 id="建立dotnet根目錄-amp-解壓sdk"><a href="#建立dotnet根目錄-amp-解壓sdk" class="headerlink" title="建立dotnet根目錄&amp;解壓sdk"></a>建立dotnet根目錄&amp;解壓sdk</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">sudo mkdir /usr/dotnet</span><br><span class="line"></span><br><span class="line">#解壓縮.NET Core 3.1到指定目錄</span><br><span class="line">sudo mkdir /usr/dotnet/dotnet-3.1</span><br><span class="line">sudo tar zvxf dotnet-3.1.tar.gz -C /usr/dotnet/dotnet-3.1</span><br></pre></td></tr></table></figure>
-
-<h4 id="執行-NET前需要先安裝依賴套件"><a href="#執行-NET前需要先安裝依賴套件" class="headerlink" title="執行.NET前需要先安裝依賴套件"></a>執行.NET前需要先安裝依賴套件</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get install -y libunwind8 apt-transport-https</span><br></pre></td></tr></table></figure>
-
-<h3 id="建立-NETCore環境變數"><a href="#建立-NETCore環境變數" class="headerlink" title="建立.NETCore環境變數"></a>建立.NETCore環境變數</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo ln -s /usr/dotnet/dotnet-3.1/dotnet /usr/bin/dotnet3.1</span><br></pre></td></tr></table></figure>
-
-<h3 id="驗證版本"><a href="#驗證版本" class="headerlink" title="驗證版本"></a>驗證版本</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dotnet3.1 --info</span><br></pre></td></tr></table></figure>
-
-<p>如果能看到歡迎的訊息就代表成功完成了。</p>
-<div>
-以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
-
-<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
-<p><a target="_blank" rel="external nofollow noopener noreferrer" href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
-</div>
-
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2023/02/11/%E5%A6%82%E4%BD%95%E5%9C%A8Ubuntu%E5%AE%89%E8%A3%9D%E5%A4%9A%E5%80%8B-NET%E7%89%88%E6%9C%AC%E7%92%B0%E5%A2%83/%E5%A6%82%E4%BD%95%E5%9C%A8Ubuntu%E5%AE%89%E8%A3%9D%E5%A4%9A%E5%80%8B-NET%E7%89%88%E6%9C%AC%E7%92%B0%E5%A2%83/#more" rel="contents">
+                閱讀全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -375,7 +356,7 @@
               <span class="post-meta-item-text">發表於</span>
               
 
-              <time title="創建時間：2023-02-11 00:03:15 / 修改時間：11:47:57" itemprop="dateCreated datePublished" datetime="2023-02-11T00:03:15+08:00">2023-02-11</time>
+              <time title="創建時間：2023-02-11 00:03:15 / 修改時間：11:55:53" itemprop="dateCreated datePublished" datetime="2023-02-11T00:03:15+08:00">2023-02-11</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -412,7 +393,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>&amp;nbsp;</p>
+          <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>通常我們在開發.NET專案時，若因為專案中有使用到公司內部的Library時，通常都會架設Private Nuget Server來進行套件添加。<br>而一般來說添加套件來源的方式大多都是在 Nuget管理員的介面中選擇添加的目錄夾或是Url來操作。<br>但這樣的方式如果實現CI&#x2F;CD時，則會遇到找不到套件來源的問題，原因是Jenkins是直接將Github上的專案Clone下來進行建置與部署。<br>但我們設定套件來源的時機則是在專案Clone後手動開啟Nuget管理員添加的。<br>因此本篇主要會教學如何透過幾種方式讓Jenkins能夠讀的到自訂的Nuget套件來源。</p>
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2023/02/11/%E5%9C%A8-NET-%E9%80%8F%E9%81%8Enuget-config-%E8%87%AA%E8%A8%82NuGet-%E5%A5%97%E4%BB%B6%E4%BE%86%E6%BA%90/%E5%9C%A8-NET-%E9%80%8F%E9%81%8Enuget-config-%E8%87%AA%E8%A8%82NuGet-%E5%A5%97%E4%BB%B6%E4%BE%86%E6%BA%90/#more" rel="contents">
@@ -462,10 +443,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">發表於</span>
-              
 
-              <time title="創建時間：2023-02-10 06:37:23 / 修改時間：06:17:56" itemprop="dateCreated datePublished" datetime="2023-02-10T06:37:23+08:00">2023-02-10</time>
+              <time title="創建時間：2023-02-10 06:37:23" itemprop="dateCreated datePublished" datetime="2023-02-10T06:37:23+08:00">2023-02-10</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新於</span>
+                <time title="修改時間：2023-02-11 11:54:49" itemprop="dateModified" datetime="2023-02-11T11:54:49+08:00">2023-02-11</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -502,41 +489,14 @@
 
       
           <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>在前面的文章中，我們已經成功設置好了Jenkins並讓Jenkins擁有sudo權限能更讓我們做更多事情了。<br>接下來就準備進到重頭戲，開始設定GitHub Webhook並觸發Jenkins來將專案Clone下來後，實現CI&#x2F;CD吧！</p>
-<h3 id="設定Github-Webhook"><a href="#設定Github-Webhook" class="headerlink" title="設定Github Webhook"></a>設定Github Webhook</h3><p>首先登入到 GitHub，點選你希望更新時能透過 GitHub Webhook 觸發 Jenkins 的 Repository，點選 Settings 選取 Webhooks，再點選「add webhook」後輸入 &lt;你的Jenkins Server&gt;&#x2F;github-webhook&#x2F;</p>
-<div style="color:red;font-weight:900;margin-bottom:10px;">
-註：網址最後面一定要加上/github-webhook/
-</div>
-
-<p><img src="https://miro.medium.com/v2/resize:fit:1400/format:webp/1*z_W3UfV_fa9aCbsshvstGw.png"></p>
-<p>這時候設定完後，返回後會發現會有一個錯誤的圖案，這是因為Github還沒有跟我們的Jenkins進行連接，等到第一次Clone後就會是綠燈了，請放心。</p>
-<p>接著我們回到Jenkins</p>
-<h2 id="Jenkins-設定"><a href="#Jenkins-設定" class="headerlink" title="Jenkins 設定"></a>Jenkins 設定</h2><p>首先在 Jenkins 首頁點選「New Item」：</p>
-<p><img src="https://miro.medium.com/v2/resize:fit:1400/format:webp/1*62IikWEmw6AxRnlK94j-hA.png"></p>
-<p>點選 Pipeline 後輸入你的Pipeline名稱：</p>
-<p><img src="https://miro.medium.com/v2/resize:fit:1400/format:webp/1*lxXyir5SnVKq1xQ67HSwzw.png"></p>
-<p>接著進入<strong>Configure</strong>後，我們先找到 <strong>General</strong><br>勾選「GitHub project」然後貼上你的 GitHub Repository URL<br><img src="https://miro.medium.com/v2/resize:fit:1400/format:webp/1*CWS0wqzOqfED3qTwcjm2Jg.png"></p>
-<p><strong>Configure — Build Triggers:</strong><br>選取「GitHub hook trigger for GITScm polling」<br><img src="https://miro.medium.com/v2/resize:fit:1400/format:webp/1*ZSHr-XSmKWSo6HePHNRSUw.png"></p>
-<p><strong>Configure — Pipeline:</strong><br>接下來就可以開始設定當觸發Jenkins將專案拉下來之後，我們要做哪些事情。<br>Pipeline一般來說我們可以分為三個階段：Buid、Test、Deploy<br>當然你也可以自定義各種階段，基本上每一個階段就只是將內容分離出來，讓你比較好知道現在執行到哪裡，以及每一階段執行所需時間如何。</p>
-<div style="color:red;font-weight:900;margin-bottom:10px;">
-這裡與GitLab Runner最大不同在於每一階段產生的檔案都會保留，非常方便，不用再寫多餘的Code
-</div>
-
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">pipeline &#123;</span><br><span class="line">    agent any</span><br><span class="line"></span><br><span class="line">    stages &#123;</span><br><span class="line">        stage(&#x27;Build&#x27;) &#123;</span><br><span class="line">            steps &#123;</span><br><span class="line">                echo &#x27;打包專案&#x27;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        stage(&#x27;Test&#x27;) &#123;</span><br><span class="line">            steps &#123;</span><br><span class="line">                echo &#x27;可以執行一些自動化測試項目&#x27;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        stage(&#x27;Deploy&#x27;) &#123;</span><br><span class="line">            steps &#123;</span><br><span class="line">                echo &#x27;最後執行遠端部署指令&#x27;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-
-<p>而由於筆者本身使用.NET6進行API開發，因此這邊同時也放上.NET版本給各位參考一下。但由於礙於公司機密，所以拿掉不少東西，再請各位多多包涵</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">pipeline &#123;</span><br><span class="line">    agent any</span><br><span class="line">    stages &#123;</span><br><span class="line">        stage(&#x27;Build&#x27;) &#123;</span><br><span class="line">            steps &#123;</span><br><span class="line">                sh &#x27;cd API&#x27;</span><br><span class="line">                sh &#x27;dotnet build&#x27;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        stage(&#x27;Deploy&#x27;) &#123;</span><br><span class="line">            steps &#123;</span><br><span class="line">                sh &#x27;sudo systemctl stop API.service&#x27;</span><br><span class="line">                sh &#x27;sudo rm -rf /專案存放位置&#x27;</span><br><span class="line">                sh &#x27;sudo mkdir /專案存放位置&#x27;</span><br><span class="line">                sh &#x27;sudo cp -r /專案存放位置. /Server 目錄位置&#x27;</span><br><span class="line">                sh &#x27;sudo systemctl start API.service&#x27;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>到這裡基本上就完成的差不多了，最後我們實際上將Code推倒Github試試看：<br>我們可以注意到整體速度滿快的，從Build、Deploy 平均只花了10秒就完成。</p>
-<p><img src="https://t45009037.p.clickup-attachments.com/t45009037/8e542c8d-3201-4607-b807-760a835e64f9/Screen%20Shot%202023-02-09%20at%202.47.17%20AM.png"></p>
-<div>
-以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
-
-<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
-<p><a target="_blank" rel="external nofollow noopener noreferrer" href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
-</div>
-
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2023/02/10/Webhook%E8%A7%B8%E7%99%BCJenkins%E5%AF%A6%E7%8F%BECI-CD/#more" rel="contents">
+                閱讀全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -578,10 +538,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">發表於</span>
-              
 
-              <time title="創建時間：2023-02-10 05:37:23 / 修改時間：05:53:41" itemprop="dateCreated datePublished" datetime="2023-02-10T05:37:23+08:00">2023-02-10</time>
+              <time title="創建時間：2023-02-10 05:37:23" itemprop="dateCreated datePublished" datetime="2023-02-10T05:37:23+08:00">2023-02-10</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新於</span>
+                <time title="修改時間：2023-02-11 11:54:42" itemprop="dateModified" datetime="2023-02-11T11:54:42+08:00">2023-02-11</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -620,21 +586,14 @@
           <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>由於我們要利用Jenkins來實作CI&#x2F;CD，因此部署上的操作上往往免不了會需要sudo的權限讓我們能做一些事情，如：建立資料夾、刪除資料夾、搬遷檔案等各種操作。</p>
 <p>因此本篇主要介紹如何允許Jenkins有sudo權限</p>
 <p>下面來描述在CentOS7上配置的具體步驟。</p>
-<h3 id="配置步驟"><a href="#配置步驟" class="headerlink" title="配置步驟"></a>配置步驟</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">讓root 有權限可以編輯sudoers權限</span><br><span class="line">chmod 600 /etc/sudoers </span><br><span class="line">運行 vim /etc/sudoers 來修改該文件，允許root組下的用戶不需要密碼運行任何命令：</span><br><span class="line">## Same thing without a password</span><br><span class="line">%root        ALL=(ALL)       NOPASSWD: ALL</span><br><span class="line">在Defaults requiretty 後面添加一行Defaults:jenkins !requiretty</span><br></pre></td></tr></table></figure>
-
-<p>接著將jenkins帳號加入到root的Group中：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">usermod -a -G root jenkins</span><br></pre></td></tr></table></figure>
-
-<p>重啟Jenkins</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">systemctl restart jenkins</span><br></pre></td></tr></table></figure>
-
-<div>
-以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
-
-<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
-<p><a target="_blank" rel="external nofollow noopener noreferrer" href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
-</div>
-
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2023/02/10/%E5%85%81%E8%A8%B1Jenkins%E6%9C%89sudo%E6%AC%8A%E9%99%90/#more" rel="contents">
+                閱讀全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -684,7 +643,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新於</span>
-                <time title="修改時間：2023-02-11 11:47:15" itemprop="dateModified" datetime="2023-02-11T11:47:15+08:00">2023-02-11</time>
+                <time title="修改時間：2023-02-11 11:54:25" itemprop="dateModified" datetime="2023-02-11T11:54:25+08:00">2023-02-11</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -702,7 +661,7 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">文章字數：</span>
-              <span>802</span>
+              <span>794</span>
             </span>
             <span class="post-meta-item" title="所需閱讀時間">
               <span class="post-meta-item-icon">
@@ -721,7 +680,8 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>&amp;nbsp;</p>
+          <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>根據上篇所述，由於我們的Jenkins預設是安裝在 &#x2F;var&#x2F;lib&#x2F;jenkins底下<br>而當時筆者遇到的狀況是，當時沒有注意到AWS的EC2空間快用滿了，而當安裝Jenkins後硬生生將硬碟空間吃到100%，以至於我們沒有多餘的空間可以進行其他操作。</p>
+<p>因此本篇主要來介紹，當硬碟空間擴展後我們要如何搬遷位置，確保Jenkins有多餘的空間可以儲存。</p>
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2023/02/10/%E8%AE%8A%E6%9B%B4Jenkins%E5%AE%B6%E7%9B%AE%E9%8C%84(%E4%BA%8C)/#more" rel="contents">
@@ -779,7 +739,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新於</span>
-                <time title="修改時間：2023-02-10 05:13:37" itemprop="dateModified" datetime="2023-02-10T05:13:37+08:00">2023-02-10</time>
+                <time title="修改時間：2023-02-11 11:54:38" itemprop="dateModified" datetime="2023-02-11T11:54:38+08:00">2023-02-11</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -816,42 +776,17 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>一直以來耳聞Jenkins的大名，知道可以用它來做CI&#x2F;CD以及跑專案排程等等，能做到的事情非常的多。</p>
+          <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>一直以來耳聞Jenkins的大名，知道可以用它來做CI&#x2F;CD以及跑專案排程等等，能做到的事情非常的多。</p>
 <p>但由於筆者先前的公司過去一直都是使用GitLab作為 Repository Server，而GitLab本身的CI Server - <strong>GitLab Runner</strong> 又很有名，因此一直沒機會可以好好探究，直到現在換了新公司，改採用Gitgub後終於有機會好好一探究竟。</p>
 <p>本篇環境主要是在Ubuntu環境上建置的，因此以下操作指令都是以Ubuntu為主。</p>
-<h3 id="JAVA-安裝"><a href="#JAVA-安裝" class="headerlink" title="JAVA 安裝"></a>JAVA 安裝</h3><p>首先一如往常需要先更新套件。<br>由於jenkins是用java編寫的, 所以必須先安裝java執行環境，確認完成後，再下載Jenkins進行安裝。</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get update</span><br><span class="line">sudo apt-get install default-jre</span><br><span class="line">sudo apt-get install default-jdk</span><br></pre></td></tr></table></figure>
-
-<h3 id="Jenkins下載與安裝"><a href="#Jenkins下載與安裝" class="headerlink" title="Jenkins下載與安裝"></a>Jenkins下載與安裝</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">下載Jenkins並將Jenkins加入到套件清單中</span><br><span class="line"></span><br><span class="line">wget -q -O - https://pkg.jenkins.io/debian/jenkins-ci.org.key | sudo apt-key add -</span><br><span class="line">sudo sh -c &#x27;echo deb http://pkg.jenkins.io/debian-stable binary/ &gt; /etc/apt/sources.list.d/jenkins.list&#x27;</span><br><span class="line">sudo apt-get update</span><br><span class="line"></span><br><span class="line">安裝jenkins</span><br><span class="line">sudo apt-get install jenkins</span><br></pre></td></tr></table></figure>
-
-<p>當安裝一切就緒後，Jenkins會自動監聽8080port，因此可以透過該網址前往設定。</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://localhost:8080</span><br></pre></td></tr></table></figure>
-<div style="color:red;font-weight:900;margin-bottom:10px;">
-註：Jenkins預設為開機自動啟動，已經有寫好服務腳本了，可以透過 systemctl status jenkins查看
-</div>
-
-<p>當連線後，我們需要先解鎖Jenkins，到圖中指定的目錄下找到密碼後，貼上來：<br><img src="https://miro.medium.com/v2/resize:fit:1400/format:webp/1*9Y_JwWoGh2ZXzJ94zLpPLw.png"></p>
-<div style="color:red;font-weight:900;margin-bottom:10px;">
-註：Jenkins預設安裝路徑為 /var/lib/jenkins
-下一篇會教如何更改預設路徑
-</div>
-
-<p>解鎖後，會詢問我們選擇套件安裝，直接選擇左邊按鈕，讓他按照推薦套件安裝即可。</p>
-<p><img src="https://miro.medium.com/v2/resize:fit:1400/format:webp/1*jcluDo-52PTdpydzApvUzQ.png"></p>
-<p>其中套件有包含 Git Plugin，因此我們不再需要手動安裝相關套件就可以開始實現CI&#x2F;CD</p>
-<p><img src="https://miro.medium.com/v2/resize:fit:1400/format:webp/1*dBGZe7LSGZAVhgol-kQRVA.png"></p>
-<p>安裝完成後，接下來會要求要輸入帳號&#x2F;密碼，這組帳號密碼未來將為作為我們切換jenkins身份，下指令要操作其他行為的時候將會用到，並且登入平台的時候預設也是採用該身份進行登入。</p>
-<p><img src="https://miro.medium.com/v2/resize:fit:1400/format:webp/1*X32QycUdoUS74x6E5pKytg.png"></p>
-<p>全部完成後，我們就可以看到登入的畫面了。</p>
-<p><img src="https://miro.medium.com/v2/resize:fit:1400/format:webp/1*SqqCK5W-cS-pcWrW0EkqSw.png"></p>
-<p>下一篇將會先介紹該如何變更Jenkins的位置，避免當硬碟空間不足的時候，Jenkins會有故障的情況發生。</p>
-<div>
-以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
-
-<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
-<p><a target="_blank" rel="external nofollow noopener noreferrer" href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
-</div>
-
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2023/02/09/%E5%AE%89%E8%A3%9DJenkins(%E4%B8%80)/#more" rel="contents">
+                閱讀全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -901,7 +836,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新於</span>
-                <time title="修改時間：2023-02-09 04:03:28" itemprop="dateModified" datetime="2023-02-09T04:03:28+08:00">2023-02-09</time>
+                <time title="修改時間：2023-02-11 11:55:20" itemprop="dateModified" datetime="2023-02-11T11:55:20+08:00">2023-02-11</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -938,58 +873,21 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>在ORM盛行的時代，很多人都學會了使用LINQ來進行資料庫的撈取與操作</p>
+          <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>在ORM盛行的時代，很多人都學會了使用LINQ來進行資料庫的撈取與操作</p>
 <p>但是LINQ在操作時，有些地方需要額外注意的。否則就會產上如標題上所說的：</p>
 <div style="color:red">
 LINQ to Entities 查詢中無法建構實體或複雜類型
 </div>
 
 <p>因此今天來跟大家談談，關於這問題，以及該如何解決。</p>
-<p>一般來說，我們在撰寫LINQ撈取資料庫的時候，我們會這樣寫：</p>
-<figure class="highlight c#"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> data = db.Store.<span class="keyword">select</span>(x=&gt; &#123;</span><br><span class="line">   x.StoreId,</span><br><span class="line">   x.StoreName</span><br><span class="line">&#125;).ToList();</span><br></pre></td></tr></table></figure>
-<p>但是筆者在撰寫Window Form的時候，由於想要將資料庫撈取出來的值，自動Binding到Combox上</p>
-<p>並且可以針對這個資料集合做後續的操作，好讓我的Combox資料可以即時變動。</p>
-<p>因此腦筋一轉，想著在Select的時候，為什麼總是建立一個匿名類別來儲存，而不是一開始就指定為一個強型別來做操作。</p>
-<p>於是我在select後面，加上了由Entity映射所產生的類別：</p>
-<figure class="highlight c#"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">List&lt;Store&gt; list = <span class="keyword">new</span> List&lt;Store&gt;();</span><br><span class="line"></span><br><span class="line">list = db.Store.<span class="keyword">select</span>(x=&gt; <span class="keyword">new</span> Store&#123;</span><br><span class="line"></span><br><span class="line">   Store.Id = x.StoreId,</span><br><span class="line">   Store.Name = x.Store.Name</span><br><span class="line">&#125;).ToList();</span><br></pre></td></tr></table></figure>
-<p>結果這麼一寫，發現程式居然報錯了，原因為：</p>
-<div style="color:red"> LINQ to Entities 查詢中無法建構實體或複雜類型
-</div>
-
-<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/de0c2f99-0e51-4977-91db-9ad994206191/1500539000_96484.png"></p>
-<p>此時筆者開始好奇，是什麼樣的原因會導致這樣的錯誤發生？</p>
-<p>後來在某一篇的<a target="_blank" rel="external nofollow noopener noreferrer" href="https://stackoverflow.com/questions/5325797/the-entity-cannot-be-constructed-in-a-linq-to-entities-query">stackoverflow</a> 當中，找到了解答：</p>
-<div class="note success">
-    <p>
-    Well, mapped entities in EF basically represent database tables. If you project onto a mapped entity, what you basically do is partially load an entity, which is not a valid state. EF won't have any clue how to e.g. handle an update of such an entity in the future (the default behaviour would be probably overwriting the non-loaded fields with nulls or whatever you'll have in your object). This would be a dangerous operation, since you would risk losing some of your data in the DB, therefore it is not allowed to partially load entities (or project onto mapped entities) in EF
-    </p>
-</div>
-
-<p>主要原因是說，由Entity映射產生出來的類別，是用來表示定義資料庫的欄位，並不是一個有效的實體</p>
-<p>也就是說，裡面的定義是為了資料庫而生，因此裡面有著許多定義資料庫的欄位、屬性 等等</p>
-<p>而這些東西，並沒辦法轉換為SQL去執行，因此如果後面採用映射出來的類別，可能會造成資料庫的數據遺失等問題存在。</p>
-<p>那…既然如此，我們應該如何解決這個問題？</p>
-<p>這邊筆者提出兩種方式來解決：</p>
-<ul>
-<li>利用匿名類別將資料從資料庫讀取並轉換為LIST，接著再下一次Select，將LIST當中的內容讀出並且轉換為強型別</li>
-<li>利用ViewModel將內容讀取出來</li>
-</ul>
-<p>首先第一種方式筆者個人比較不推薦，因為寫法來說相較並不直觀：</p>
-<figure class="highlight c#"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">List&lt;Store&gt; list = <span class="keyword">new</span> List&lt;Store&gt;();</span><br><span class="line"></span><br><span class="line">list = db.Store.<span class="keyword">select</span>(x=&gt; <span class="keyword">new</span> &#123;</span><br><span class="line"></span><br><span class="line">   x.StoreId,</span><br><span class="line">   x.StoreName</span><br><span class="line">&#125;).ToList().<span class="keyword">select</span>(x =&gt; <span class="keyword">new</span> Store &#123;</span><br><span class="line"></span><br><span class="line">   StoreId = x.StoreId,</span><br><span class="line">   StoreName = x.StoreName,</span><br><span class="line">&#125;).ToList();</span><br></pre></td></tr></table></figure>
-
-<p>利用以上的方式，等於我們相同的程式碼要再寫一次。雖然邏輯上來說完全不一樣，但是對開發者來說，卻要select兩次，相當不直觀。</p>
-<p>因此筆者這邊推薦採用ViewModel的方式來去接值。</p>
-<p>我們先建立一個ViewModel，裡面的欄位就是你想從資料庫當中撈取的欄位。</p>
-<p>接著我們只需要這樣做就可以了：</p>
-<figure class="highlight c#"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">List&lt;StoreViewModel&gt; list = <span class="keyword">new</span> List&lt;StoreViewModel&gt;();</span><br><span class="line"></span><br><span class="line">list = db.Store.<span class="keyword">select</span>(x=&gt; <span class="keyword">new</span> StoreViewModel&#123;</span><br><span class="line"></span><br><span class="line">   StoreId = x.StoreId,</span><br><span class="line">   StoreName = x.StoreName,</span><br><span class="line">&#125;).ToList();</span><br></pre></td></tr></table></figure>
-<p>透過這樣的方式，我們將資料庫撈出來的內容 Binding到我們的ViewModel上，就可以解決這樣的問題了。</p>
-<div>
-以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
-
-<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
-<p><a target="_blank" rel="external nofollow noopener noreferrer" href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
-</div>
-
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2023/01/24/C-LINQ-to-Entities-%E6%9F%A5%E8%A9%A2%E4%B8%AD%E7%84%A1%E6%B3%95%E5%BB%BA%E6%A7%8B%E5%AF%A6%E9%AB%94%E6%88%96%E8%A4%87%E9%9B%9C%E9%A1%9E%E5%9E%8B/#more" rel="contents">
+                閱讀全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -1031,10 +929,16 @@ LINQ to Entities 查詢中無法建構實體或複雜類型
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">發表於</span>
-              
 
-              <time title="創建時間：2023-01-24 11:47:04 / 修改時間：11:52:56" itemprop="dateCreated datePublished" datetime="2023-01-24T11:47:04+08:00">2023-01-24</time>
+              <time title="創建時間：2023-01-24 11:47:04" itemprop="dateCreated datePublished" datetime="2023-01-24T11:47:04+08:00">2023-01-24</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新於</span>
+                <time title="修改時間：2023-02-11 11:55:36" itemprop="dateModified" datetime="2023-02-11T11:55:36+08:00">2023-02-11</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -1070,56 +974,16 @@ LINQ to Entities 查詢中無法建構實體或複雜類型
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>關於Dapper的介紹，其實多到可以算月經文了XD</p>
+          <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>關於Dapper的介紹，其實多到可以算月經文了XD</p>
 <p>不過剛好有機會使用到，所以就順著介紹一下。</p>
-<p>Dapper是一個輕量型的ORM工具，著重在效能與速度，所以他也只有一個Dll檔而已</p>
-<p>非常輕量。</p>
-<p>有興趣的讀者們可以到<a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/StackExchange/Dapper">GitHub</a>上看一下SouceCode，都是公開的。</p>
-<p>雖然耳聞Dapper這個神器很久了，只是由於筆者是EF派的，所以已經很少會接觸到純下SQL的部分。</p>
-<p>不過最近，筆者剛好需要撰寫SQL Command，於是又重新投入 DataReader、DataSet、DataTable的懷抱。</p>
-<p>只是在使用的過程中，由於不想要讓程式碼看起來太過骯髒，於是在上層多包了一層父類來減少重複的程式碼</p>
-<p>不過在撰寫查詢的時候卻發現到一個問題：</p>
-<p>以下由DataReader做一個簡單的示範。<br>片段程式碼：</p>
-<figure class="highlight c#"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 設定相關資料庫連線參數</span></span><br><span class="line">String connection = System.Configuration.ConfigurationManager.ConnectionStrings[<span class="string">&quot;OrderDB&quot;</span>].ConnectionString;</span><br><span class="line"><span class="keyword">protected</span> SqlConnection sc = <span class="keyword">new</span> SqlConnection(connection);</span><br><span class="line"><span class="keyword">protected</span> SqlCommand sqlcommand = <span class="keyword">new</span> SqlCommand();</span><br><span class="line">String sql = <span class="string">&quot;select Student_Id,Student_Name from Student&quot;</span>;</span><br><span class="line"></span><br><span class="line">sqlcommand.Connection = sc;</span><br><span class="line"><span class="comment">// 開啟連線</span></span><br><span class="line">sc.Open();</span><br><span class="line">SqlCommand command = <span class="keyword">new</span> SqlCommand(sql,connection);</span><br><span class="line"><span class="comment">// 讀取資料</span></span><br><span class="line">SqlDataReader reader = command.ExecuteReader();</span><br><span class="line"></span><br><span class="line"><span class="keyword">while</span> (reader.Read())</span><br><span class="line"> &#123;</span><br><span class="line">   Console.WriteLine(<span class="string">&quot;StudentId: &#123;0&#125;, StudentName: &#123;1&#125;&quot;</span>, reader[<span class="string">&quot;Student_Id&quot;</span>],reader[<span class="string">&quot;Student_Name&quot;</span>]);</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
-<p>由於已經習慣寫EF的我，對於這樣的操作方式會覺得顯得不夠直觀。</p>
-<p>明明已經在Select當中定義了要讀取哪些欄位，但是在最後DataReader的時候，還是需要再次手動撈取欄位</p>
-<div style="color:red">
-假設如果要塞到自定義的List中，還需要一個一個把欄位給放進去。
-</div>
-於是開始思考，該怎麼做才能最快解決這個問題。
-
-<p>後來研究了許久，還是決定投入EF的懷抱，即使是透過SQL Command的方式。</p>
-<p>Dapper的使用方式相當簡單：</p>
-<p>首先在NuGet當中先安裝Dapper工具</p>
-<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/5b0420fd-8581-417e-a5b7-ae1be16e13fc/1512487109_34179.png" alt="Dapper"></p>
-<p>接著就可以直接撰寫啦！</p>
-<p>Dapper主要是透過 Extension Method 來擴充 SqlConnection的類別</p>
-<p>因此當你在最上層 using了 Dapper後</p>
-<figure class="highlight c#"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> Dapper;</span><br></pre></td></tr></table></figure>
-<p>你會發現SqlConnection多了以下東西：</p>
-<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/5b0420fd-8581-417e-a5b7-ae1be16e13fc/1512487331_02624.png"></p>
-<p>主要是針對Query來去做擴充。</p>
-<p>後來了解後發現原理其實很簡單</p>
-<p>就是先取得泛型的類別，並透過for迴圈的方式，將每一個的欄位資料，Mapping到指定的類別當中，</p>
-<p>最後再裝回List，結束。</p>
-<figure class="highlight c#"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">object</span> obj;</span><br><span class="line">Type type = obj.GetType();</span><br><span class="line"><span class="keyword">var</span> ps = type.GetProperties();</span><br></pre></td></tr></table></figure>
-<p>而Dapper使用方法呢其實就是這樣子：</p>
-<figure class="highlight c#"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 設定相關資料庫連線參數</span></span><br><span class="line">String connection = System.Configuration.ConfigurationManager.ConnectionStrings[<span class="string">&quot;OrderDB&quot;</span>].ConnectionString;</span><br><span class="line"><span class="keyword">protected</span> SqlConnection sc = <span class="keyword">new</span> SqlConnection(connection);</span><br><span class="line"><span class="keyword">protected</span> SqlCommand sqlcommand = <span class="keyword">new</span> SqlCommand();</span><br><span class="line">String sql = <span class="string">&quot;select Student_Id,Student_Name from Student&quot;</span>;</span><br><span class="line"></span><br><span class="line">sqlcommand.Connection = sc;</span><br><span class="line"><span class="comment">// 開啟連線</span></span><br><span class="line">sc.Open();</span><br><span class="line"><span class="comment">// 資料讀取</span></span><br><span class="line">String sql = <span class="string">&quot;select Student_Id,Student_Name from Student&quot;</span>;</span><br><span class="line"><span class="keyword">var</span> result =  sc.Query&lt;Student&gt;(sql);</span><br></pre></td></tr></table></figure>
-<p>這裡使用泛型版本的 Query 方法，以便將查詢結果自動對應至先前定義好的 Student 物件的屬性。</p>
-<p>如此一來就可以快速的取得資料了。</p>
-<p>結果如下：<br><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/5b0420fd-8581-417e-a5b7-ae1be16e13fc/1512488053_3285.png"></p>
-<p>另外，Dapper本身也支援具名參數，主要是為了防止 sql injection</p>
-<p>使用方法也相當的簡單：</p>
-<figure class="highlight c#"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">String sql = <span class="string">&quot;select Student_Id,Student_Name from Student where Student_Name=@Name&quot;</span>;</span><br><span class="line"><span class="keyword">var</span> result =  sc.Query&lt;Student&gt;(sql,<span class="keyword">new</span> &#123; Name=<span class="string">&quot;Leo&quot;</span>&#125;);</span><br></pre></td></tr></table></figure>
-
-<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/5b0420fd-8581-417e-a5b7-ae1be16e13fc/1512488567_67889.png"></p>
-<div>
-以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
-
-<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
-<p><a target="_blank" rel="external nofollow noopener noreferrer" href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
-</div>
-
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2023/01/24/C-Dapper-SQL%E4%B8%AD%E7%9A%84Entity-Framework/#more" rel="contents">
+                閱讀全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -1161,10 +1025,16 @@ LINQ to Entities 查詢中無法建構實體或複雜類型
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">發表於</span>
-              
 
-              <time title="創建時間：2023-01-24 11:39:29 / 修改時間：11:45:25" itemprop="dateCreated datePublished" datetime="2023-01-24T11:39:29+08:00">2023-01-24</time>
+              <time title="創建時間：2023-01-24 11:39:29" itemprop="dateCreated datePublished" datetime="2023-01-24T11:39:29+08:00">2023-01-24</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新於</span>
+                <time title="修改時間：2023-02-11 11:54:15" itemprop="dateModified" datetime="2023-02-11T11:54:15+08:00">2023-02-11</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -1200,41 +1070,16 @@ LINQ to Entities 查詢中無法建構實體或複雜類型
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>在 ASP.Net FrameWork 中，我們可以透過 CodeFirst 的方式，自動幫我們建立資料庫中每一個Table，並轉換成Entity，讓我們有Model可以做對應。</p>
+          <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>在 ASP.Net FrameWork 中，我們可以透過 CodeFirst 的方式，自動幫我們建立資料庫中每一個Table，並轉換成Entity，讓我們有Model可以做對應。</p>
 <p>但是在 .Net Core 中，可就沒有辦法那麼方便點一點就可以完成了。我們得需要額外安裝其他套件，並透過下指令的方式才能自動幫我們產生。</p>
-<p>在過去 .Net FrameWork中，我們可以透過 加入&gt;新增項目&gt;資料 中，找到 ADO.NET 實體資料模型</p>
-<p>透過裡面的CodeFirst可以幫助我們快速將Table內的欄位轉換成Entity的Model作為使用，非常方便。</p>
-<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/fd6263e3-7315-43ba-b592-a3076b15027a/1597291465.png" alt="實體資料模型精靈"></p>
-<p>但在 .Net Core 中，並沒有提供介面可以讓我們進行點選。</p>
-<p>因此我們必須要透過安裝套件，並輸入指令才能將資料庫中的Table產生對應的Enriry作為Model讓我們使用。</p>
-<p>而在輸入指令之前，我們需要先至Nuget中，安裝以下兩個套件。</p>
-<p>分別是：</p>
-<p><strong>「Microsoft.EntityFrameworkCore.SqlServer」、「Microsoft.EntityFrameworkCore.Tools」</strong></p>
-<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/fd6263e3-7315-43ba-b592-a3076b15027a/1597291842.png"></p>
-<p>注意：安裝套件時，請記得兩者套件版本要一致，否則可能會發生問題。</p>
-<p>接著打開　工具＞Nuget套件管理員&gt;套件管理器主控台</p>
-<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/fd6263e3-7315-43ba-b592-a3076b15027a/1597292040.png"></p>
-<p>在主控台Consoel中就可以下指令：<br><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/fd6263e3-7315-43ba-b592-a3076b15027a/1597292120.png"></p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Scaffold-DbContext &quot;資料庫連線字串&quot; Microsoft.EntityFrameworkCore.SqlServer -OutputDir Models -Force -TableName -Tables 資料表</span><br></pre></td></tr></table></figure>
-
-<p>Scaffold-DbContext 為剛剛安裝Tools套件的指令，雙引號後面就是放入該資料庫連線字串</p>
-<p>-OutputDir 指定要輸出到專案的哪個資料夾，本文為Models資料夾</p>
-<p>-Force 強制複寫，若Table欄位異動，會自動修改該Entity內的欄位</p>
-<p>-Tables ，決定要將那些資料表轉成Entity。若有多張表要匯入，則需要以逗號區隔。</p>
-<div style="color:red">
-註:沒給-Tables參數的話，預設抓DB全部的Table
-</div>
-匯入成功後，會自動產生 CeptContxt物件。裡面會有Entity的欄位
-
-<p>而在entity資料夾中，則會存放剛剛從Table轉出來Entity。</p>
-<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/fd6263e3-7315-43ba-b592-a3076b15027a/1597292632.png"></p>
-<div>
-以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
-
-<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
-<p><a target="_blank" rel="external nofollow noopener noreferrer" href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
-</div>
-
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2023/01/24/%E8%87%AA%E5%8B%95%E5%BB%BA%E7%AB%8BEntity/#more" rel="contents">
+                閱讀全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 

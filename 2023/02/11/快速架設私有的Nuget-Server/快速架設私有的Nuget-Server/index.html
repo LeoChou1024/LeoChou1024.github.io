@@ -25,18 +25,18 @@
     var CONFIG = {"hostname":"blog.zhenghui.idv.tw","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="前言大部分在開發的時候，都是直接在Nuget上搜尋開發者release的套件安裝來用，但通常公司的不同專案上總會有相似的專案會需要使用相同的功能。但這些套件又牽涉公司機密，也不方便直接上傳到Nuget公開平台上，因此本篇主要介紹 BaGet 這個方便又強大的 Private Nuget Server，讓我們可以輕鬆管理這些私密的Library。 BaGet安裝Baget這個專案，非常方便簡單，但是">
+  <meta name="description" content="前言大部分在開發的時候，都是直接在Nuget上搜尋開發者release的套件安裝來用，但通常公司的不同專案上總會有相似的專案會需要使用相同的功能。但這些套件又牽涉公司機密，也不方便直接上傳到Nuget公開平台上，因此本篇主要介紹 BaGet 這個方便又強大的 Private Nuget Server，讓我們可以輕鬆管理這些私密的Library。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="快速架設私有的Nuget Server">
 <meta property="og:url" content="https://blog.zhenghui.idv.tw/2023/02/11/%E5%BF%AB%E9%80%9F%E6%9E%B6%E8%A8%AD%E7%A7%81%E6%9C%89%E7%9A%84Nuget-Server/%E5%BF%AB%E9%80%9F%E6%9E%B6%E8%A8%AD%E7%A7%81%E6%9C%89%E7%9A%84Nuget-Server/index.html">
 <meta property="og:site_name" content="Leo程式筆記">
-<meta property="og:description" content="前言大部分在開發的時候，都是直接在Nuget上搜尋開發者release的套件安裝來用，但通常公司的不同專案上總會有相似的專案會需要使用相同的功能。但這些套件又牽涉公司機密，也不方便直接上傳到Nuget公開平台上，因此本篇主要介紹 BaGet 這個方便又強大的 Private Nuget Server，讓我們可以輕鬆管理這些私密的Library。 BaGet安裝Baget這個專案，非常方便簡單，但是">
+<meta property="og:description" content="前言大部分在開發的時候，都是直接在Nuget上搜尋開發者release的套件安裝來用，但通常公司的不同專案上總會有相似的專案會需要使用相同的功能。但這些套件又牽涉公司機密，也不方便直接上傳到Nuget公開平台上，因此本篇主要介紹 BaGet 這個方便又強大的 Private Nuget Server，讓我們可以輕鬆管理這些私密的Library。">
 <meta property="og:locale" content="zh_TW">
 <meta property="og:image" content="https://blog.zhenghui.idv.tw/nuget.png">
 <meta property="og:image" content="https://blog.zhenghui.idv.tw/upload.png">
 <meta property="og:image" content="https://blog.zhenghui.idv.tw/nuget%EF%BC%ADanager.png">
 <meta property="article:published_time" content="2023-02-10T16:53:21.000Z">
-<meta property="article:modified_time" content="2023-02-10T17:07:23.340Z">
+<meta property="article:modified_time" content="2023-02-11T03:53:36.469Z">
 <meta property="article:author" content="Leo Zhou">
 <meta property="article:tag" content=".NET">
 <meta name="twitter:card" content="summary">
@@ -185,7 +185,7 @@
               <span class="post-meta-item-text">發表於</span>
               
 
-              <time title="創建時間：2023-02-11 00:53:21 / 修改時間：01:07:23" itemprop="dateCreated datePublished" datetime="2023-02-11T00:53:21+08:00">2023-02-11</time>
+              <time title="創建時間：2023-02-11 00:53:21 / 修改時間：11:53:36" itemprop="dateCreated datePublished" datetime="2023-02-11T00:53:21+08:00">2023-02-11</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -223,6 +223,8 @@
 
       
         <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>大部分在開發的時候，都是直接在Nuget上搜尋開發者release的套件安裝來用，但通常公司的不同專案上總會有相似的專案會需要使用相同的功能。<br>但這些套件又牽涉公司機密，也不方便直接上傳到Nuget公開平台上，因此本篇主要介紹 <code>BaGet</code> 這個方便又強大的 Private Nuget Server，讓我們可以輕鬆管理這些私密的Library。</p>
+<span id="more"></span>
+
 <h3 id="BaGet安裝"><a href="#BaGet安裝" class="headerlink" title="BaGet安裝"></a>BaGet安裝</h3><p>Baget這個專案，非常方便簡單，但是有一個缺點——採用 .NET Core 3.1建置<br>而在2023年的今天，要去哪邊生 .NET3.1的環境呢？<br>如果沒有的讀者，可以參考<a href="../%E5%A6%82%E4%BD%95%E5%9C%A8Ubuntu%E5%AE%89%E8%A3%9D%E5%A4%9A%E5%80%8B-NET%E7%89%88%E6%9C%AC%E7%92%B0%E5%A2%83/%E5%A6%82%E4%BD%95%E5%9C%A8Ubuntu%E5%AE%89%E8%A3%9D%E5%A4%9A%E5%80%8B-NET%E7%89%88%E6%9C%AC%E7%92%B0%E5%A2%83.md">此篇</a> 教學，來安裝 .NET 3.1 環境。</p>
 <p>當我們擁有 .NET 3.1環境之後，我們只需要下載 Baget Relese 的版本即可：<br><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/loic-sharma/BaGet/releases">BaGet Release</a></p>
 <p>下載完成後，我們就可以透過以下指令將專案進行建置</p>

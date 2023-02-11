@@ -25,15 +25,15 @@
     var CONFIG = {"hostname":"blog.zhenghui.idv.tw","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="前言最近筆者在架設BaGet這套 private Nuget Server時，發現由於Baget是採用 .NET Core3.1的環境進行建置的，而在2023年的今天，.NETCore3.1早已被微軟淘汰不再支援了，因此無法從官網上直接安裝想要的版本。 因此本篇教學主要介紹如何在Ubuntu上安裝多個.NET版本環境。 環境安裝由於.NETCore 3.1 已經不被微軟所維護了，因此我們無法直接透">
+  <meta name="description" content="前言最近筆者在架設BaGet這套 private Nuget Server時，發現由於Baget是採用 .NET Core3.1的環境進行建置的，而在2023年的今天，.NETCore3.1早已被微軟淘汰不再支援了，因此無法從官網上直接安裝想要的版本。 因此本篇教學主要介紹如何在Ubuntu上安裝多個.NET版本環境。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="如何在Ubuntu安裝多個.NET版本環境">
 <meta property="og:url" content="https://blog.zhenghui.idv.tw/2023/02/11/%E5%A6%82%E4%BD%95%E5%9C%A8Ubuntu%E5%AE%89%E8%A3%9D%E5%A4%9A%E5%80%8B-NET%E7%89%88%E6%9C%AC%E7%92%B0%E5%A2%83/%E5%A6%82%E4%BD%95%E5%9C%A8Ubuntu%E5%AE%89%E8%A3%9D%E5%A4%9A%E5%80%8B-NET%E7%89%88%E6%9C%AC%E7%92%B0%E5%A2%83/index.html">
 <meta property="og:site_name" content="Leo程式筆記">
-<meta property="og:description" content="前言最近筆者在架設BaGet這套 private Nuget Server時，發現由於Baget是採用 .NET Core3.1的環境進行建置的，而在2023年的今天，.NETCore3.1早已被微軟淘汰不再支援了，因此無法從官網上直接安裝想要的版本。 因此本篇教學主要介紹如何在Ubuntu上安裝多個.NET版本環境。 環境安裝由於.NETCore 3.1 已經不被微軟所維護了，因此我們無法直接透">
+<meta property="og:description" content="前言最近筆者在架設BaGet這套 private Nuget Server時，發現由於Baget是採用 .NET Core3.1的環境進行建置的，而在2023年的今天，.NETCore3.1早已被微軟淘汰不再支援了，因此無法從官網上直接安裝想要的版本。 因此本篇教學主要介紹如何在Ubuntu上安裝多個.NET版本環境。">
 <meta property="og:locale" content="zh_TW">
 <meta property="article:published_time" content="2023-02-10T16:34:11.000Z">
-<meta property="article:modified_time" content="2023-02-10T16:51:25.430Z">
+<meta property="article:modified_time" content="2023-02-11T03:55:45.626Z">
 <meta property="article:author" content="Leo Zhou">
 <meta property="article:tag" content=".NET">
 <meta name="twitter:card" content="summary">
@@ -181,7 +181,7 @@
               <span class="post-meta-item-text">發表於</span>
               
 
-              <time title="創建時間：2023-02-11 00:34:11 / 修改時間：00:51:25" itemprop="dateCreated datePublished" datetime="2023-02-11T00:34:11+08:00">2023-02-11</time>
+              <time title="創建時間：2023-02-11 00:34:11 / 修改時間：11:55:45" itemprop="dateCreated datePublished" datetime="2023-02-11T00:34:11+08:00">2023-02-11</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -220,6 +220,8 @@
       
         <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>最近筆者在架設<code>BaGet</code>這套 private Nuget Server時，發現由於Baget是採用 .NET Core3.1的環境進行建置的，而在2023年的今天，.NETCore3.1早已被微軟淘汰不再支援了，因此無法從官網上直接安裝想要的版本。</p>
 <p>因此本篇教學主要介紹如何在Ubuntu上安裝多個.NET版本環境。</p>
+<span id="more"></span>
+
 <h3 id="環境安裝"><a href="#環境安裝" class="headerlink" title="環境安裝"></a>環境安裝</h3><p>由於.NETCore 3.1 已經不被微軟所維護了，因此我們無法直接透過 <code>apt-get install</code> 進行安裝。</p>
 <p>因此我們需要手動下載並加入到環境變數以利未來我們可以在任何地方直接呼叫：</p>
 <h4 id="下載-NETCore-3-1-SDK"><a href="#下載-NETCore-3-1-SDK" class="headerlink" title="下載.NETCore 3.1 SDK"></a>下載.NETCore 3.1 SDK</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">sudo mkdir -p /home/download &amp;&amp;  cd /home/download</span><br><span class="line"></span><br><span class="line">sudo wget --no-check-certificate -O dotnet-3.1.tar.gz https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/sdk-3.1.426-linux-x64-binaries</span><br><span class="line"></span><br></pre></td></tr></table></figure>

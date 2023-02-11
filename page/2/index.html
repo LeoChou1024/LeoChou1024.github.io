@@ -175,10 +175,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">發表於</span>
-              
 
-              <time title="創建時間：2023-01-24 11:24:19 / 修改時間：11:32:32" itemprop="dateCreated datePublished" datetime="2023-01-24T11:24:19+08:00">2023-01-24</time>
+              <time title="創建時間：2023-01-24 11:24:19" itemprop="dateCreated datePublished" datetime="2023-01-24T11:24:19+08:00">2023-01-24</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新於</span>
+                <time title="修改時間：2023-02-11 11:55:07" itemprop="dateModified" datetime="2023-02-11T11:55:07+08:00">2023-02-11</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -214,7 +220,9 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>前陣子同事在寫 WebAPI的時候，發現 Controller內的函數無法傳入超過一個以上的參數</p>
+          <span id="more"></span>
+
+<p>前陣子同事在寫 WebAPI的時候，發現 Controller內的函數無法傳入超過一個以上的參數</p>
 <p>只要傳超過一個以上，就會在Runtime當下直接噴錯，錯誤訊息為：</p>
 <figure class="highlight c#"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">has more than one parameter that was specified <span class="keyword">or</span> inferred <span class="keyword">as</span> bound <span class="keyword">from</span> request body. Only one parameter per action may be bound <span class="keyword">from</span> body. </span><br></pre></td></tr></table></figure>
 
