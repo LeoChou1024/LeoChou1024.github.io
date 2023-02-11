@@ -2,7 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
-    <loc>https://blog.zhenghui.idv.tw/2023/02/11/%E5%9C%A8-NET-%E9%80%8F%E9%81%8Enuget-config-%E8%87%AA%E8%A8%82NuGet-%E5%A5%97%E4%BB%B6%E4%BE%86%E6%BA%90/%E5%9C%A8-NET-%E9%80%8F%E9%81%8Enuget-config-%E8%87%AA%E8%A8%82NuGet-%E5%A5%97%E4%BB%B6%E4%BE%86%E6%BA%90/</loc>
+    <loc>https://blog.zhenghui.idv.tw/2023/02/11/%E5%BF%AB%E9%80%9F%E6%9E%B6%E8%A8%AD%E7%A7%81%E6%9C%89%E7%9A%84Nuget-Server/</loc>
     
     <lastmod>2023-02-11</lastmod>
     
@@ -11,7 +11,16 @@
   </url>
   
   <url>
-    <loc>https://blog.zhenghui.idv.tw/2023/02/11/%E5%A6%82%E4%BD%95%E5%9C%A8Ubuntu%E5%AE%89%E8%A3%9D%E5%A4%9A%E5%80%8B-NET%E7%89%88%E6%9C%AC%E7%92%B0%E5%A2%83/%E5%A6%82%E4%BD%95%E5%9C%A8Ubuntu%E5%AE%89%E8%A3%9D%E5%A4%9A%E5%80%8B-NET%E7%89%88%E6%9C%AC%E7%92%B0%E5%A2%83/</loc>
+    <loc>https://blog.zhenghui.idv.tw/2023/02/11/%E5%9C%A8-NET-%E9%80%8F%E9%81%8Enuget-config-%E8%87%AA%E8%A8%82NuGet-%E5%A5%97%E4%BB%B6%E4%BE%86%E6%BA%90/</loc>
+    
+    <lastmod>2023-02-11</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://blog.zhenghui.idv.tw/2023/02/11/%E5%A6%82%E4%BD%95%E5%9C%A8Ubuntu%E5%AE%89%E8%A3%9D%E5%A4%9A%E5%80%8B-NET%E7%89%88%E6%9C%AC%E7%92%B0%E5%A2%83/</loc>
     
     <lastmod>2023-02-11</lastmod>
     
@@ -92,15 +101,6 @@
   </url>
   
   <url>
-    <loc>https://blog.zhenghui.idv.tw/2023/02/11/%E5%BF%AB%E9%80%9F%E6%9E%B6%E8%A8%AD%E7%A7%81%E6%9C%89%E7%9A%84Nuget-Server/%E5%BF%AB%E9%80%9F%E6%9E%B6%E8%A8%AD%E7%A7%81%E6%9C%89%E7%9A%84Nuget-Server/</loc>
-    
-    <lastmod>2023-02-11</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
     <loc>https://blog.zhenghui.idv.tw/2023/01/23/hello-world/</loc>
     
     <lastmod>2023-01-24</lastmod>
@@ -144,27 +144,6 @@
   </url>
   
   <url>
-    <loc>https://blog.zhenghui.idv.tw/tags/LINQ/</loc>
-    <lastmod>2023-02-11</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://blog.zhenghui.idv.tw/tags/NETCore/</loc>
-    <lastmod>2023-02-11</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://blog.zhenghui.idv.tw/tags/CI-CD/</loc>
-    <lastmod>2023-02-11</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
     <loc>https://blog.zhenghui.idv.tw/tags/jQuery/</loc>
     <lastmod>2023-02-11</lastmod>
     <changefreq>weekly</changefreq>
@@ -186,7 +165,21 @@
   </url>
   
   <url>
-    <loc>https://blog.zhenghui.idv.tw/tags/EntityFrameWork/</loc>
+    <loc>https://blog.zhenghui.idv.tw/tags/NETCore/</loc>
+    <lastmod>2023-02-11</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://blog.zhenghui.idv.tw/tags/CI-CD/</loc>
+    <lastmod>2023-02-11</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://blog.zhenghui.idv.tw/tags/LINQ/</loc>
     <lastmod>2023-02-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -194,6 +187,13 @@
   
   <url>
     <loc>https://blog.zhenghui.idv.tw/tags/NET/</loc>
+    <lastmod>2023-02-11</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://blog.zhenghui.idv.tw/tags/EntityFrameWork/</loc>
     <lastmod>2023-02-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -209,14 +209,14 @@
   </url>
   
   <url>
-    <loc>https://blog.zhenghui.idv.tw/categories/Jenkins/</loc>
+    <loc>https://blog.zhenghui.idv.tw/categories/web%E5%89%8D%E7%AB%AF/</loc>
     <lastmod>2023-02-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://blog.zhenghui.idv.tw/categories/web%E5%89%8D%E7%AB%AF/</loc>
+    <loc>https://blog.zhenghui.idv.tw/categories/Jenkins/</loc>
     <lastmod>2023-02-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
