@@ -32,13 +32,13 @@
 <meta property="og:site_name" content="Leo程式筆記">
 <meta property="og:description" content="前言通常我們在開發.NET專案時，若因為專案中有使用到公司內部的Library時，通常都會架設Private Nuget Server來進行套件添加。而一般來說添加套件來源的方式大多都是在 Nuget管理員的介面中選擇添加的目錄夾或是Url來操作。但這樣的方式如果實現CI&#x2F;CD時，則會遇到找不到套件來源的問題，原因是Jenkins是直接將Github上的專案Clone下來進行建置與部署。">
 <meta property="og:locale" content="zh_TW">
-<meta property="og:image" content="https://blog.zhenghui.idv.tw/themes/next/source/images/%E5%9C%A8-NET-%E9%80%8F%E9%81%8Enuget-config-%E8%87%AA%E8%A8%82NuGet-%E5%A5%97%E4%BB%B6%E4%BE%86%E6%BA%90/nuget.png">
+<meta property="og:image" content="https://blog.zhenghui.idv.tw/images/%E5%9C%A8-NET-%E9%80%8F%E9%81%8Enuget-config-%E8%87%AA%E8%A8%82NuGet-%E5%A5%97%E4%BB%B6%E4%BE%86%E6%BA%90/nuget.png">
 <meta property="article:published_time" content="2023-02-10T16:03:15.000Z">
-<meta property="article:modified_time" content="2023-02-11T03:35:32.647Z">
+<meta property="article:modified_time" content="2023-02-11T03:38:51.407Z">
 <meta property="article:author" content="Leo Zhou">
 <meta property="article:tag" content="CI&#x2F;CD">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://blog.zhenghui.idv.tw/themes/next/source/images/%E5%9C%A8-NET-%E9%80%8F%E9%81%8Enuget-config-%E8%87%AA%E8%A8%82NuGet-%E5%A5%97%E4%BB%B6%E4%BE%86%E6%BA%90/nuget.png">
+<meta name="twitter:image" content="https://blog.zhenghui.idv.tw/images/%E5%9C%A8-NET-%E9%80%8F%E9%81%8Enuget-config-%E8%87%AA%E8%A8%82NuGet-%E5%A5%97%E4%BB%B6%E4%BE%86%E6%BA%90/nuget.png">
 
 <link rel="canonical" href="https://blog.zhenghui.idv.tw/2023/02/11/%E5%9C%A8-NET-%E9%80%8F%E9%81%8Enuget-config-%E8%87%AA%E8%A8%82NuGet-%E5%A5%97%E4%BB%B6%E4%BE%86%E6%BA%90/%E5%9C%A8-NET-%E9%80%8F%E9%81%8Enuget-config-%E8%87%AA%E8%A8%82NuGet-%E5%A5%97%E4%BB%B6%E4%BE%86%E6%BA%90/">
 
@@ -183,7 +183,7 @@
               <span class="post-meta-item-text">發表於</span>
               
 
-              <time title="創建時間：2023-02-11 00:03:15 / 修改時間：11:35:32" itemprop="dateCreated datePublished" datetime="2023-02-11T00:03:15+08:00">2023-02-11</time>
+              <time title="創建時間：2023-02-11 00:03:15 / 修改時間：11:38:51" itemprop="dateCreated datePublished" datetime="2023-02-11T00:03:15+08:00">2023-02-11</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -229,7 +229,7 @@
 <p>因此我們可以透過 add的方式，手動將私有的套件來源加上</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;add key=&quot;來源名稱&quot; value=&quot;來源網址&quot; /&gt;</span><br></pre></td></tr></table></figure>
 
-<p>完成後關閉專案再重新啟動，就會發現Nuget的套件來源已經自動補上在config設定的自訂來源了。<br><img src="/themes/next/source/images/%E5%9C%A8-NET-%E9%80%8F%E9%81%8Enuget-config-%E8%87%AA%E8%A8%82NuGet-%E5%A5%97%E4%BB%B6%E4%BE%86%E6%BA%90/nuget.png"></p>
+<p>完成後關閉專案再重新啟動，就會發現Nuget的套件來源已經自動補上在config設定的自訂來源了。<br><img src="/images/%E5%9C%A8-NET-%E9%80%8F%E9%81%8Enuget-config-%E8%87%AA%E8%A8%82NuGet-%E5%A5%97%E4%BB%B6%E4%BE%86%E6%BA%90/nuget.png"></p>
 <h3 id="在機器上手動添加全域套件來源"><a href="#在機器上手動添加全域套件來源" class="headerlink" title="在機器上手動添加全域套件來源"></a>在機器上手動添加全域套件來源</h3><p>剛剛有提到.NET其實預設在 <code>%AppData%\NuGet\nuget.config</code> 有全域的設定檔<br>這也就是為什麼 Jenkins可以直接執行那些Nuget的套件，但是自訂來源的套件卻無法執行的原因。</p>
 <p>因此我們也可以在部署的機器上手動添加自訂來源：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dotnet nuget add source &lt;來源網址&gt; -n &lt;自訂名稱&gt;</span><br></pre></td></tr></table></figure>
