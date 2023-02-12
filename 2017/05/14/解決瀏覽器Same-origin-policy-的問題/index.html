@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta http-equiv="Cache-Control" content="no-transform">
+  <meta http-equiv="Cache-Control" content="no-siteapp">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-undefined.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"blog.zhenghui.idv.tw","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="前言相信這個問題一直以來都困擾著開發者，因為很多時候我們不一定剛好可以都在Server上測試 很多時候我們可能只負責前端，而後端是其他人負責。當他們寫完WebApi 或是 WebService的時候就會上傳到測試Server上 那麼當我們在本地端撰寫的時候如果想要Request到網頁上就會有Same-origin policy 的問題要解決 好啦，我就是被雷的那一個，所以今天來跟大家談談Same-">
+<meta property="og:type" content="article">
+<meta property="og:title" content="解決瀏覽器Same-origin policy 的問題">
+<meta property="og:url" content="https://blog.zhenghui.idv.tw/2017/05/14/%E8%A7%A3%E6%B1%BA%E7%80%8F%E8%A6%BD%E5%99%A8Same-origin-policy-%E7%9A%84%E5%95%8F%E9%A1%8C/index.html">
+<meta property="og:site_name" content="Leo程式筆記">
+<meta property="og:description" content="前言相信這個問題一直以來都困擾著開發者，因為很多時候我們不一定剛好可以都在Server上測試 很多時候我們可能只負責前端，而後端是其他人負責。當他們寫完WebApi 或是 WebService的時候就會上傳到測試Server上 那麼當我們在本地端撰寫的時候如果想要Request到網頁上就會有Same-origin policy 的問題要解決 好啦，我就是被雷的那一個，所以今天來跟大家談談Same-">
+<meta property="og:locale" content="zh_TW">
+<meta property="og:image" content="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/fb774f00-340d-4e2d-8e68-143d3737bf95/1494726268_13117.png">
+<meta property="og:image" content="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/fb774f00-340d-4e2d-8e68-143d3737bf95/1494726448_70018.png">
+<meta property="og:image" content="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/fb774f00-340d-4e2d-8e68-143d3737bf95/1494727395_38813.png">
+<meta property="article:published_time" content="2017-05-13T19:22:24.000Z">
+<meta property="article:modified_time" content="2023-02-12T19:24:53.399Z">
+<meta property="article:author" content="Leo Zhou">
+<meta property="article:tag" content="WebAPI">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/fb774f00-340d-4e2d-8e68-143d3737bf95/1494726268_13117.png">
+
+<link rel="canonical" href="https://blog.zhenghui.idv.tw/2017/05/14/%E8%A7%A3%E6%B1%BA%E7%80%8F%E8%A6%BD%E5%99%A8Same-origin-policy-%E7%9A%84%E5%95%8F%E9%A1%8C/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-TW'
+  };
+</script>
+
+  <title>解決瀏覽器Same-origin policy 的問題 | Leo程式筆記</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切換導航欄">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Leo程式筆記</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首頁</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>歸檔</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-TW">
+    <link itemprop="mainEntityOfPage" href="https://blog.zhenghui.idv.tw/2017/05/14/%E8%A7%A3%E6%B1%BA%E7%80%8F%E8%A6%BD%E5%99%A8Same-origin-policy-%E7%9A%84%E5%95%8F%E9%A1%8C/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/avatar.jpg">
+      <meta itemprop="name" content="Leo Zhou">
+      <meta itemprop="description" content>
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Leo程式筆記">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          解決瀏覽器Same-origin policy 的問題
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">發表於</span>
+
+              <time title="創建時間：2017-05-14 03:22:24" itemprop="dateCreated datePublished" datetime="2017-05-14T03:22:24+08:00">2017-05-14</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新於</span>
+                <time title="修改時間：2023-02-13 03:24:53" itemprop="dateModified" datetime="2023-02-13T03:24:53+08:00">2023-02-13</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分類於</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/NET/" itemprop="url" rel="index"><span itemprop="name">.NET</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="文章字數">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">文章字數：</span>
+              <span>1.3k</span>
+            </span>
+            <span class="post-meta-item" title="所需閱讀時間">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">所需閱讀時間 &asymp;</span>
+              <span>1 分鐘</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>相信這個問題一直以來都困擾著開發者，因為很多時候我們不一定剛好可以都在Server上測試</p>
+<p>很多時候我們可能只負責前端，而後端是其他人負責。當他們寫完WebApi 或是 WebService的時候就會上傳到測試Server上</p>
+<p>那麼當我們在本地端撰寫的時候如果想要Request到網頁上就會有Same-origin policy 的問題要解決</p>
+<p>好啦，我就是被雷的那一個，所以今天來跟大家談談Same-origin policy 的問題。</p>
+<span id="more"></span>
+<p>Same-origin policy 同源政策是瀏覽器為了防止Cross Domain存取資料所產生的一個限制</p>
+<p>當你CrossDomain時瀏覽器會跳出通知告訴你：</p>
+<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/fb774f00-340d-4e2d-8e68-143d3737bf95/1494726268_13117.png"></p>
+<p>那…遇到這個問題該怎麼解決？我還是需要在本地端測試完才能夠上傳到測試Server上去做測試呀</p>
+<p>所以這時候我們該如何允許Cross Domain來進行存取？</p>
+<p>以WebApi為例：</p>
+<p>我們可以在WebApi上加上這一段Attribute來告訴我們的瀏覽器說，我這一支API是可以提供給部分domain來存取的</p>
+<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/fb774f00-340d-4e2d-8e68-143d3737bf95/1494726448_70018.png"></p>
+<p>那，這是一種解法。只是因為筆者昨天在測試的時候，明明其他Post的方法是可以CrossDoamin來進行存取的</p>
+<p>但是唯獨從前端 Post Json的格式，就會不給過。依然會跳出警示訊息。</p>
+<p>當時筆者卡了這個問題卡了一個多小時，因為覺得自己已經加上了允許CrossDomain的Code了，沒有理由不行(而且其他的Post是可以執行的 EX:傳送x-www-form-urlencoded格式</p>
+<p>所以自然不會去聯想到是這個問題，於是朝其他地方解決。</p>
+<p>後來最後發現，果然還是Cross Domain的問題….。</p>
+<p>因此如果上述的方法失效的時候，那我們該怎麼確保我們可以在不同的Domain底下存取資料呢？</p>
+<p>我們就必須要從瀏覽器下手，把瀏覽器的安全性認證給關閉，如此一來就不會有這樣的問題發生了。</p>
+<p>不過有一點需要非常注意：</p>
+<blockquote>
+<p>當Disable 瀏覽器的 Web Security 你的瀏覽器等同於沒有任何防護。因此很容易遭受攻擊，建議使用完就需要關閉。</p>
+</blockquote>
+<p>那以Chrome為例：<br>我們可以打開我們的Command Line 進行以下的輸入：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">//Mac OS:</span><br><span class="line">open -n -a /Applications/Google\ Chrome.app --args --user-data-dir=<span class="string">&quot;/tmp/someFolderName&quot;</span> --disable-web-security</span><br><span class="line"></span><br><span class="line">//Windows:</span><br><span class="line"></span><br><span class="line"><span class="string">&quot;C:\Program Files\Google\Chrome\Application\chrome.exe&quot;</span> --disable-web-security</span><br></pre></td></tr></table></figure>
+<p>如此一來就可以順利執行了。 那，如何查看自己有沒有成功呢？</p>
+<p>當你打開後你的瀏覽器有跳出這樣的警示框就算成功了：<br><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/fb774f00-340d-4e2d-8e68-143d3737bf95/1494727395_38813.png"></p>
+<font color="red">
+切記，使用完一定要關閉，不要拿來瀏覽其他網站。
+</font>
+
+<div>
+以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
+
+<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
+<p><a target="_blank" rel="external nofollow noopener noreferrer" href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
+</div>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/WebAPI/" rel="tag"># WebAPI</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2017/05/14/RxJS-%E5%BF%AB%E9%80%9F%E5%85%A5%E9%96%80-%E6%95%99%E4%BD%A0%E5%A6%82%E4%BD%95%E5%BF%AB%E9%80%9F%E7%90%86%E8%A7%A3RxJS%E7%94%A8%E9%80%94%E4%BB%A5%E5%8F%8A%E4%BD%BF%E7%94%A8%E6%96%B9%E5%BC%8F/" rel="prev" title="RxJS 快速入門 教你如何快速理解RxJS用途以及使用方式">
+      <i class="fa fa-chevron-left"></i> RxJS 快速入門 教你如何快速理解RxJS用途以及使用方式
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2017/06/03/%E3%80%90Design-Pattern%E3%80%91%E7%8D%A8%E9%AB%94%E6%A8%A1%E5%BC%8F-Singleton-Pattern-%E4%BB%8B%E7%B4%B9/" rel="next" title="【Design Pattern】獨體模式(Singleton Pattern)介紹">
+      【Design Pattern】獨體模式(Singleton Pattern)介紹 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目錄
+        </li>
+        <li class="sidebar-nav-overview">
+          本站概要
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Leo Zhou" src="/uploads/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Leo Zhou</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">34</span>
+          <span class="site-state-item-name">文章</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-name">分類</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">標籤</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="mailto:leo604leo604@gmail.com" title="E-Mail → mailto:leo604leo604@gmail.com" rel="external nofollow noopener noreferrer" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://zhenghui.idv.tw/" title="Weibo → https:&#x2F;&#x2F;zhenghui.idv.tw" rel="external nofollow noopener noreferrer" target="_blank"><i class="fab fa-chrome fa-fw"></i>Weibo</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Leo Zhou</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+      <span class="post-meta-item-text">總字數：</span>
+    <span title="總字數">66k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span class="post-meta-item-text">所需總閱讀時間 &asymp;</span>
+    <span title="所需總閱讀時間">1:01</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="external nofollow noopener noreferrer" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="external nofollow noopener noreferrer" target="_blank">NexT.Pisces</a> 強力驅動
+  </div><script color="45,115,227" opacity="0.7" zindex="-1" count="150" src="https://cdn.jsdelivr.net/npm/canvas-nest.js@1/dist/canvas-nest.js"></script>
+
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  
+  <script color="0,0,255" opacity="0.5" zindex="-1" count="99" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

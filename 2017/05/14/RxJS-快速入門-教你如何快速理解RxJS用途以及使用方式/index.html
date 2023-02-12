@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta http-equiv="Cache-Control" content="no-transform">
+  <meta http-equiv="Cache-Control" content="no-siteapp">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-undefined.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"blog.zhenghui.idv.tw","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="前言前陣子的高雄前端開發者大會，因為有其他工作要忙沒機會過去聽 後來聽到有去的朋友表示很難懂，發現聽不太懂 剛好昨天看完保哥介紹的影片趕緊寫下筆記複習一下 也順便分享給各位，讓更多人了解RxJS好用的地方">
+<meta property="og:type" content="article">
+<meta property="og:title" content="RxJS 快速入門 教你如何快速理解RxJS用途以及使用方式">
+<meta property="og:url" content="https://blog.zhenghui.idv.tw/2017/05/14/RxJS-%E5%BF%AB%E9%80%9F%E5%85%A5%E9%96%80-%E6%95%99%E4%BD%A0%E5%A6%82%E4%BD%95%E5%BF%AB%E9%80%9F%E7%90%86%E8%A7%A3RxJS%E7%94%A8%E9%80%94%E4%BB%A5%E5%8F%8A%E4%BD%BF%E7%94%A8%E6%96%B9%E5%BC%8F/index.html">
+<meta property="og:site_name" content="Leo程式筆記">
+<meta property="og:description" content="前言前陣子的高雄前端開發者大會，因為有其他工作要忙沒機會過去聽 後來聽到有去的朋友表示很難懂，發現聽不太懂 剛好昨天看完保哥介紹的影片趕緊寫下筆記複習一下 也順便分享給各位，讓更多人了解RxJS好用的地方">
+<meta property="og:locale" content="zh_TW">
+<meta property="og:image" content="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/3f35f351-f0c8-43a3-8762-0cb653a6fd2b/1494566605_73479.png">
+<meta property="og:image" content="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/3f35f351-f0c8-43a3-8762-0cb653a6fd2b/1494566845_87209.png">
+<meta property="article:published_time" content="2017-05-13T19:17:58.000Z">
+<meta property="article:modified_time" content="2023-02-12T19:22:04.443Z">
+<meta property="article:author" content="Leo Zhou">
+<meta property="article:tag" content="Angular,.NET,C#,後端,WebApi,System Design">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/3f35f351-f0c8-43a3-8762-0cb653a6fd2b/1494566605_73479.png">
+
+<link rel="canonical" href="https://blog.zhenghui.idv.tw/2017/05/14/RxJS-%E5%BF%AB%E9%80%9F%E5%85%A5%E9%96%80-%E6%95%99%E4%BD%A0%E5%A6%82%E4%BD%95%E5%BF%AB%E9%80%9F%E7%90%86%E8%A7%A3RxJS%E7%94%A8%E9%80%94%E4%BB%A5%E5%8F%8A%E4%BD%BF%E7%94%A8%E6%96%B9%E5%BC%8F/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-TW'
+  };
+</script>
+
+  <title>RxJS 快速入門 教你如何快速理解RxJS用途以及使用方式 | Leo程式筆記</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切換導航欄">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Leo程式筆記</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首頁</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>歸檔</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-TW">
+    <link itemprop="mainEntityOfPage" href="https://blog.zhenghui.idv.tw/2017/05/14/RxJS-%E5%BF%AB%E9%80%9F%E5%85%A5%E9%96%80-%E6%95%99%E4%BD%A0%E5%A6%82%E4%BD%95%E5%BF%AB%E9%80%9F%E7%90%86%E8%A7%A3RxJS%E7%94%A8%E9%80%94%E4%BB%A5%E5%8F%8A%E4%BD%BF%E7%94%A8%E6%96%B9%E5%BC%8F/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/avatar.jpg">
+      <meta itemprop="name" content="Leo Zhou">
+      <meta itemprop="description" content>
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Leo程式筆記">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          RxJS 快速入門 教你如何快速理解RxJS用途以及使用方式
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">發表於</span>
+
+              <time title="創建時間：2017-05-14 03:17:58" itemprop="dateCreated datePublished" datetime="2017-05-14T03:17:58+08:00">2017-05-14</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新於</span>
+                <time title="修改時間：2023-02-13 03:22:04" itemprop="dateModified" datetime="2023-02-13T03:22:04+08:00">2023-02-13</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分類於</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/RxJS/" itemprop="url" rel="index"><span itemprop="name">RxJS</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="文章字數">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">文章字數：</span>
+              <span>4.2k</span>
+            </span>
+            <span class="post-meta-item" title="所需閱讀時間">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">所需閱讀時間 &asymp;</span>
+              <span>4 分鐘</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>前陣子的高雄前端開發者大會，因為有其他工作要忙沒機會過去聽</p>
+<p>後來聽到有去的朋友表示很難懂，發現聽不太懂</p>
+<p>剛好昨天看完保哥介紹的影片趕緊寫下筆記複習一下</p>
+<p>也順便分享給各位，讓更多人了解RxJS好用的地方</p>
+<span id="more"></span>
+<p>首先，在學RxJS之前我們要先理解到一件事</p>
+<blockquote>
+<p>為什麼我需要學習RxJS? 他有什麼好用的地方值得我去學習？<br>很多人在學習技術的時候，總是一窩蜂的直接學習，但是卻沒理解這個技術存在的原因，以及他解決了什麼樣的問題。</p>
+</blockquote>
+<p>因此在這邊跟大家快速講解一下RxJS為什麼那麼好用。</p>
+<p>RxJS是一組可以用來處理非同步、以及同步事件的一個JavaScript Library</p>
+<p>他能幫助你快速地使用像是Ajax、Server Work、SetTimeout 等其他非同步的事件</p>
+<p>而它主要可以分為兩大類：</p>
+<p>非同步的程式處理類，以及畫面事件處理類這兩種。</p>
+<p>傳統上我們在使用非同步的時候，會需要確保我們的程式執行順序不會被打亂</p>
+<p>因此在非同步的程式開發上，我們多半會採用 CallBack Function來解決問題，讓我們執行順序能正常Work</p>
+<p>但是有些情況下你可能很常會遇到一些特殊的需求：<br><font color="red"><br>我需要先發送一個非同步的請求來處理使用者的資料，接著在資料回傳後使用者操作過後，又再發一個請求給Server<br></font></p>
+<p>這時候我們的程式就會透過CallBack Function來幫助我們發送第二個請求</p>
+<p>其中由於第二個請求你是寫在CallBack Function當中，因此你的程式碼大概會長得像這樣子：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//以jQuery Ajax為例：</span></span><br><span class="line"></span><br><span class="line"> $.<span class="title function_">ajax</span>(&#123;</span><br><span class="line">            <span class="attr">url</span>: <span class="title class_">URLs</span>,</span><br><span class="line">            <span class="attr">type</span>:<span class="string">&quot;GET&quot;</span>,</span><br><span class="line">            <span class="attr">dataType</span>:<span class="string">&#x27;text&#x27;</span>,</span><br><span class="line"></span><br><span class="line">            <span class="attr">success</span>: <span class="keyword">function</span>(<span class="params">msg</span>)&#123;</span><br><span class="line">                    <span class="comment">//將msg丟回前端做處理 處理完成之後 再發一個request回存資料庫</span></span><br><span class="line">                    <span class="comment">//這邊我就直接不寫處理的code 直接將msg做回傳</span></span><br><span class="line"></span><br><span class="line">                     $.<span class="title function_">ajax</span>(&#123;</span><br><span class="line">                            <span class="attr">url</span>: <span class="title class_">URLs</span>,</span><br><span class="line">                            <span class="attr">data</span>: $(<span class="string">&#x27;#sentToBack&#x27;</span>).<span class="title function_">serialize</span>(),</span><br><span class="line">                            <span class="attr">type</span>:<span class="string">&quot;POST&quot;</span>,</span><br><span class="line">                            <span class="attr">dataType</span>:<span class="string">&#x27;text&#x27;</span>,</span><br><span class="line">  </span><br><span class="line">                            <span class="attr">success</span>: <span class="keyword">function</span>(<span class="params">msg</span>)&#123;</span><br><span class="line">                              <span class="title function_">alert</span>(msg);</span><br><span class="line">                   </span><br><span class="line">                            &#125;,</span><br><span class="line"></span><br><span class="line">                           <span class="attr">error</span>:<span class="keyword">function</span>(<span class="params">xhr, ajaxOptions, thrownError</span>)&#123; </span><br><span class="line">                           <span class="title function_">alert</span>(xhr.<span class="property">status</span>); </span><br><span class="line">                           <span class="title function_">alert</span>(thrownError); </span><br><span class="line">                           &#125;</span><br><span class="line">                     &#125;);</span><br><span class="line">                   </span><br><span class="line">            &#125;,</span><br><span class="line"></span><br><span class="line">            <span class="attr">error</span>:<span class="keyword">function</span>(<span class="params">xhr, ajaxOptions, thrownError</span>)&#123; </span><br><span class="line">                   <span class="title function_">alert</span>(xhr.<span class="property">status</span>); </span><br><span class="line">                   <span class="title function_">alert</span>(thrownError); </span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br></pre></td></tr></table></figure>
+<p> 我們會發現這樣的寫法非常之亂，而且一直寫在CallBack Function當中不是一件好事。</p>
+<p>這時候可能有些人會採用ES5當中 promise() 來幫助我們完成這些事情。</p>
+<p>不過現在我們有RxJS來快速幫助我們做資料上的存取。</p>
+<p>但是今天主要是帶各位快速認識RxJS的部分，因此發送請求的方式我們就留在Angular2 當中與Rxjs做搭配來介紹給各位。</p>
+<p>＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝<br>首先當我們在學RxJS的時候，我們需要先認識這幾個東西：</p>
+<p><strong>• Observable 可觀察的物件</strong> – 代表一個觀察者，他可以去幫助我們持續監聽某一個事件或是做一件事情</p>
+<p><strong>• Observer 觀察者物件</strong> – 代表一個接收觀察者情報的人，他可以得到觀察者所觀察的內容。其中有 next,error,complete 三個參數來幫助你在監聽到事件的時候可以做的事情</p>
+<p><strong>• Subscription 訂閱物件</strong> – 代表發布命令請觀察者開始監聽</p>
+<p><strong>• Operators 運算子</strong> – 在RxJS當中，有一百多個Operators可以使用，其中像是filter 他可以幫我們去過濾資料</p>
+<p><strong>• Subject 主體物件</strong> – ，主要用來廣播收到的事件資料給多個 Observer (觀察者) 讓我們不需要一直執行Subscribe</p>
+<p>好了，說了那麼多或許大家還是聽的霧煞煞的，因此我們直接上例子來看看吧！</p>
+<p>我們可以到RxJS的官網上打開 開發人員工具 裡面就有載入了RxJS的套件供我們練習。</p>
+<p>首先我們可以分為以下的步驟：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//我們寫一個監聽事件讓使用者可以在畫面中任意點選，並回傳其事件的方法與內容輸出在console.log當中</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/*1.首先需要先建立 可以觀察的Observable 物件</span></span><br><span class="line"><span class="comment">有點類似 觀察者持續監聽某一個事件*/</span></span><br><span class="line"><span class="keyword">var</span> click  = <span class="title class_">Rx</span>.<span class="property">Observable</span>.<span class="title function_">fromEvent</span>(<span class="variable language_">document</span>,<span class="string">&#x27;click&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">/*2.接著建立觀察者物件</span></span><br><span class="line"><span class="comment">簡單來說就是 當監聽到事件發生的時候 會需要做的事情/*</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">var Observer = &#123;next:(x)=&gt; console.log(x)&#125;</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">/* 訂閱這個監聽者 讓他開始持續做監聽*/</span></span><br><span class="line"><span class="number">3.</span> subs.<span class="title function_">subscribe</span>(<span class="title class_">Observer</span>)</span><br></pre></td></tr></table></figure>
+<p>這時候我們就可以發現到在畫面當中可以截取到資訊：</p>
+<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/3f35f351-f0c8-43a3-8762-0cb653a6fd2b/1494566605_73479.png"><br>那當你想要終止這個監聽，不讓它在畫面上點選時，會回傳資訊到console中時，我們可以打上這樣的程式碼：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//在執行subscribe的時候，利用一個變數來去接他</span></span><br><span class="line"><span class="comment">//subscribe 本身會回傳一個Observer的型別，這時候我們就可以使用unsubscribe()來停止監聽</span></span><br><span class="line"><span class="keyword">var</span> subs = click.<span class="title function_">subscribe</span>(<span class="title class_">Observer</span>);</span><br><span class="line">subs.<span class="title function_">unsubscribe</span>()</span><br></pre></td></tr></table></figure>
+<p>這樣一來在畫面上點選，我們的資訊就不會出現了。</p>
+<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/3f35f351-f0c8-43a3-8762-0cb653a6fd2b/1494566845_87209.png"></p>
+<p>OK!到了這邊各位如果都能了解的話，那麼恭喜各位在RxJS這邊的概念呢各位已經學習的差不多了</p>
+<p>接下來我們可以來介紹一下關於 <strong>Operators</strong>運算子</p>
+<p>剛剛前面有提到在RxJS當中有一百多個 <strong>Operators</strong> 可以使用</p>
+<p>其中我大概列舉幾個簡單的來跟大家做個說明：</p>
+<p><strong>filter</strong>  過濾條件  在建立Observable 物件的時候 可以使用filter 將觀察到的物件先做一些條件的過濾以及篩選</p>
+<p><strong>take</strong>  取得次數  在建立Observable 物件的時候 可以使用take 限定觀察到的物件只回傳兩次後就停止監聽</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> subs = <span class="title class_">Rx</span>.<span class="property">Observable</span>.<span class="title function_">fromEvent</span>(<span class="variable language_">document</span>,<span class="string">&#x27;click&#x27;</span>)</span><br><span class="line">		.<span class="title function_">filter</span>(<span class="function"><span class="params">x</span>=&gt;</span>x.<span class="property">clientX</span>&gt;<span class="number">100</span>)  <span class="comment">//條件要X&gt;100</span></span><br><span class="line">		.<span class="title function_">take</span>(<span class="number">2</span>) <span class="comment">//取兩筆</span></span><br><span class="line">		.<span class="title function_">subscribe</span>(<span class="function"><span class="params">x</span>=&gt;</span><span class="title function_">alert</span>(x)); 執行程式 </span><br></pre></td></tr></table></figure>
+
+<p>那麼這樣的方式就可以發現到我們Observer只會回傳clientX超過100的數值的資料，並且回傳兩次後結束這個subscribe()</p>
+<p>最後，如果這樣的一行到底的寫法不太能理解的話，那麼它完整的流程大概會長這樣：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//整體流程長這樣：</span></span><br><span class="line"><span class="keyword">var</span> click = <span class="title class_">Rx</span>.<span class="property">Observable</span>.<span class="title function_">fromEvent</span>(<span class="variable language_">document</span>,<span class="string">&#x27;click&#x27;</span>)</span><br><span class="line">click = click.<span class="title function_">filter</span>(<span class="function"><span class="params">x</span>=&gt;</span>x.<span class="property">clientX</span>&gt;<span class="number">100</span>) <span class="comment">// 要用click 再去接他 因為他會回傳篩選過後的結果</span></span><br><span class="line">click = click.<span class="title function_">take</span>(<span class="number">2</span>)</span><br><span class="line"><span class="keyword">var</span> sub = click.<span class="title function_">subscribe</span>(&#123;</span><br><span class="line"></span><br><span class="line">	<span class="attr">next</span>: <span class="function"><span class="params">x</span>=&gt;</span> <span class="title function_">alert</span>(x),</span><br><span class="line">	<span class="attr">error</span>: <span class="function"><span class="params">err</span> =&gt;</span> <span class="title function_">alert</span>(err),</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>而RxJS的Operators 有太多太多了，在這邊我就不繼續介紹了，有興趣的可以看一下官方網站學習一下RxJS</p>
+<p>另外，如果對於RxJS的Operators操作方式與流程想更近一步了解的，可以到RxMarbles看一下彈珠圖流程的變化</p>
+<p>在這裡就不再多做額外說明了。</p>
+<p>以上簡單的RxJS就介紹到這邊，其餘關於RxJS詳細實作的方式，我們留到Angular2時候再多做介紹。</p>
+<p>今天帶完大家認識RxJS這個被眾多人喜愛的Library後，希望大家對於他的認知與理解可以更深一層。</p>
+<div>
+以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
+
+<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
+<p><a target="_blank" rel="external nofollow noopener noreferrer" href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
+</div>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2017/05/09/NET-%E5%A6%82%E4%BD%95%E8%AE%93-WebAPI-%E6%94%AF%E6%8F%B4-Session/" rel="prev" title=".NET 如何讓 WebAPI 支援 Session ?">
+      <i class="fa fa-chevron-left"></i> .NET 如何讓 WebAPI 支援 Session ?
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2017/05/14/%E8%A7%A3%E6%B1%BA%E7%80%8F%E8%A6%BD%E5%99%A8Same-origin-policy-%E7%9A%84%E5%95%8F%E9%A1%8C/" rel="next" title="解決瀏覽器Same-origin policy 的問題">
+      解決瀏覽器Same-origin policy 的問題 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目錄
+        </li>
+        <li class="sidebar-nav-overview">
+          本站概要
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Leo Zhou" src="/uploads/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Leo Zhou</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">34</span>
+          <span class="site-state-item-name">文章</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-name">分類</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">標籤</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="mailto:leo604leo604@gmail.com" title="E-Mail → mailto:leo604leo604@gmail.com" rel="external nofollow noopener noreferrer" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://zhenghui.idv.tw/" title="Weibo → https:&#x2F;&#x2F;zhenghui.idv.tw" rel="external nofollow noopener noreferrer" target="_blank"><i class="fab fa-chrome fa-fw"></i>Weibo</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Leo Zhou</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+      <span class="post-meta-item-text">總字數：</span>
+    <span title="總字數">66k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span class="post-meta-item-text">所需總閱讀時間 &asymp;</span>
+    <span title="所需總閱讀時間">1:01</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="external nofollow noopener noreferrer" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="external nofollow noopener noreferrer" target="_blank">NexT.Pisces</a> 強力驅動
+  </div><script color="45,115,227" opacity="0.7" zindex="-1" count="150" src="https://cdn.jsdelivr.net/npm/canvas-nest.js@1/dist/canvas-nest.js"></script>
+
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  
+  <script color="0,0,255" opacity="0.5" zindex="-1" count="99" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

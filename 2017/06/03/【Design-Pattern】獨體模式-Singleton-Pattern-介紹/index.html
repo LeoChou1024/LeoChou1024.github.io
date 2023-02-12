@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta http-equiv="Cache-Control" content="no-transform">
+  <meta http-equiv="Cache-Control" content="no-siteapp">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-undefined.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"blog.zhenghui.idv.tw","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="前言獨體模式其實大家很常使用到，但或許大家不知道他叫獨體模式。 獨體模式又稱為單例模式，目的是為了讓該物件只能實體化一次，往後每次調用都是相同的物件而在介紹之前，我們先談談這個獨體模式，他可以使用在哪些情況下。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【Design Pattern】獨體模式(Singleton Pattern)介紹">
+<meta property="og:url" content="https://blog.zhenghui.idv.tw/2017/06/03/%E3%80%90Design-Pattern%E3%80%91%E7%8D%A8%E9%AB%94%E6%A8%A1%E5%BC%8F-Singleton-Pattern-%E4%BB%8B%E7%B4%B9/index.html">
+<meta property="og:site_name" content="Leo程式筆記">
+<meta property="og:description" content="前言獨體模式其實大家很常使用到，但或許大家不知道他叫獨體模式。 獨體模式又稱為單例模式，目的是為了讓該物件只能實體化一次，往後每次調用都是相同的物件而在介紹之前，我們先談談這個獨體模式，他可以使用在哪些情況下。">
+<meta property="og:locale" content="zh_TW">
+<meta property="article:published_time" content="2017-06-02T19:26:22.000Z">
+<meta property="article:modified_time" content="2023-02-12T19:29:25.825Z">
+<meta property="article:author" content="Leo Zhou">
+<meta property="article:tag" content="Design Pattern">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://blog.zhenghui.idv.tw/2017/06/03/%E3%80%90Design-Pattern%E3%80%91%E7%8D%A8%E9%AB%94%E6%A8%A1%E5%BC%8F-Singleton-Pattern-%E4%BB%8B%E7%B4%B9/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-TW'
+  };
+</script>
+
+  <title>【Design Pattern】獨體模式(Singleton Pattern)介紹 | Leo程式筆記</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切換導航欄">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Leo程式筆記</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首頁</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>歸檔</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-TW">
+    <link itemprop="mainEntityOfPage" href="https://blog.zhenghui.idv.tw/2017/06/03/%E3%80%90Design-Pattern%E3%80%91%E7%8D%A8%E9%AB%94%E6%A8%A1%E5%BC%8F-Singleton-Pattern-%E4%BB%8B%E7%B4%B9/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/avatar.jpg">
+      <meta itemprop="name" content="Leo Zhou">
+      <meta itemprop="description" content>
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Leo程式筆記">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          【Design Pattern】獨體模式(Singleton Pattern)介紹
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">發表於</span>
+
+              <time title="創建時間：2017-06-03 03:26:22" itemprop="dateCreated datePublished" datetime="2017-06-03T03:26:22+08:00">2017-06-03</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新於</span>
+                <time title="修改時間：2023-02-13 03:29:25" itemprop="dateModified" datetime="2023-02-13T03:29:25+08:00">2023-02-13</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分類於</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/NET/" itemprop="url" rel="index"><span itemprop="name">.NET</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="文章字數">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">文章字數：</span>
+              <span>2.8k</span>
+            </span>
+            <span class="post-meta-item" title="所需閱讀時間">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">所需閱讀時間 &asymp;</span>
+              <span>3 分鐘</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>獨體模式其實大家很常使用到，但或許大家不知道他叫獨體模式。</p>
+<p>獨體模式又稱為單例模式，目的是為了讓<br><strong>該物件只能實體化一次，往後每次調用都是相同的物件</strong><br>而在介紹之前，我們先談談這個獨體模式，他可以使用在哪些情況下。</p>
+<span id="more"></span>
+
+<h2 id="獨體模式使用場景"><a href="#獨體模式使用場景" class="headerlink" title="獨體模式使用場景"></a>獨體模式使用場景</h2><p>前面剛剛有說過，獨體模式相信有在寫程式的一定都有使用過，只是自己不知道它也是23種設計模式中的其中一種罷了。</p>
+<p>他的應用範圍相當廣泛，隨便舉幾個例子：</p>
+<p><strong>1.外部資源：</strong><br>在我們撰寫多執行緒的時候，一定都會遇到當資源有限的情況下，只能有一個Client可以取得該資源時，同一時間我們該如何去判斷只有一位Client可以獲取資源。<br>這就是獨體模式。</p>
+<p><strong>2. Windows的Task Manager（任務管理器）</strong><br>相信大家都有開啟過Windows的TaskManager吧？其實它就是很典型的獨體模式，我們可以操作看看，你會發現在同一時間內我們無法打開兩個windows task manager</p>
+<p>有興趣的可以自己試試看哦~  </p>
+<p><strong>3.網站的計數器</strong><br>一般我們在統計該網站的訪問人數時，也是採用獨體模式實現。</p>
+<p>假設該站總瀏覽次數為1000次，在同一時間內，有一個以上的Client瀏覽了該網站，如果我們不能及時的將總瀏覽次數進行Lock，那麼同一時間內我們該如何計算瀏覽次數+1呢是吧？</p>
+<p>簡單介紹完使用場景後，接下來我們來介紹一下該如何使用獨體模式呢？</p>
+<p>在這邊一樣透過幾個程式碼的範例來講解一下獨體模式的使用方式：</p>
+<h3 id="1-透過自訂函式來控制該物件的建立"><a href="#1-透過自訂函式來控制該物件的建立" class="headerlink" title="1.透過自訂函式來控制該物件的建立"></a>1.透過自訂函式來控制該物件的建立</h3><figure class="highlight c#"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;summary&gt;</span></span></span><br><span class="line">   <span class="comment"><span class="doctag">///</span> 透過自訂函數來初始化該物件</span></span><br><span class="line">   <span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;/summary&gt;</span></span></span><br><span class="line">   <span class="keyword">class</span> <span class="title">Singleton</span></span><br><span class="line">   &#123;</span><br><span class="line">       <span class="keyword">private</span> <span class="keyword">static</span> Singleton singleton;</span><br><span class="line"></span><br><span class="line">       <span class="function"><span class="keyword">private</span> <span class="title">Singleton</span>()<span class="comment">//禁止外部直接實體化該物件</span></span></span><br><span class="line">       &#123;</span><br><span class="line">       &#125;</span><br><span class="line"></span><br><span class="line">       <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Singleton <span class="title">GetInstance</span>()</span></span><br><span class="line">       &#123;</span><br><span class="line">           <span class="keyword">if</span> (singleton == <span class="literal">null</span>)</span><br><span class="line">           &#123;</span><br><span class="line">               singleton = <span class="keyword">new</span> Singleton();</span><br><span class="line">           &#125;</span><br><span class="line">           <span class="keyword">return</span> singleton;</span><br><span class="line">       &#125;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+<p>我們可以透過自訂函式來將該物件進行實體化，當物件尚未被實體化時，才執行 new 關鍵字</p>
+<p>這是第一種最基本的方式，我們禁止外部可以實體化該物件，並由自訂函式來實現，此種方式能確保在程式的生命週期中，只會有一個實體產生。</p>
+<h3 id="2-透過自訂函式來控制該物件的建立（使用sealed與readonly關鍵字限定物件多次建立）"><a href="#2-透過自訂函式來控制該物件的建立（使用sealed與readonly關鍵字限定物件多次建立）" class="headerlink" title="2.透過自訂函式來控制該物件的建立（使用sealed與readonly關鍵字限定物件多次建立）"></a>2.透過自訂函式來控制該物件的建立（使用sealed與readonly關鍵字限定物件多次建立）</h3><figure class="highlight c#"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;summary&gt;</span></span></span><br><span class="line"> <span class="comment"><span class="doctag">///</span> 利用sealed 限定該類別不能被繼承 透過readonly限定初始化時機</span></span><br><span class="line"> <span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;/summary&gt;</span></span></span><br><span class="line"> <span class="keyword">sealed</span> <span class="keyword">class</span> <span class="title">SealedSingleton</span></span><br><span class="line"> &#123;</span><br><span class="line">     <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">readonly</span> SealedSingleton instance = <span class="keyword">new</span> SealedSingleton();</span><br><span class="line">     <span class="function"><span class="keyword">private</span> <span class="title">SealedSingleton</span>()</span> &#123; &#125;</span><br><span class="line">     <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> SealedSingleton <span class="title">GetInstance</span>()</span></span><br><span class="line">     &#123;</span><br><span class="line">         <span class="keyword">return</span> instance;</span><br><span class="line">     &#125;</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+<p>這個例子與第一種相同，都是透過自訂函式來進行該物件的調用。不過唯一不一樣的是，在這邊我們利用了<code>sealed</code>與<code>readonly</code>關鍵字。</p>
+<p>我們都知道，類別一但被繼承的時候，會自動初始化父類別的欄位以及建構元的部分，因此我們加上<code>sealed</code>關鍵字，讓他不允許被繼承</p>
+<p>如此一來，我們能確保目前第一步的該物件只會有一個實體存在。</p>
+<p>接著在欄位變數的初始化上，我們將在物件前面加上了 <code>readonly</code> ，讓該變數只能在欄位或是建構元當中進行物件的初始化，其餘地方禁止進行初始化。</p>
+<p>會做這一步的用途在於，限定我們的物件在這一隻程式底下只會有一個instance產生。</p>
+<h3 id="3-在多執行緒上，確保只有一個物件實體存在"><a href="#3-在多執行緒上，確保只有一個物件實體存在" class="headerlink" title="3.在多執行緒上，確保只有一個物件實體存在"></a>3.在多執行緒上，確保只有一個物件實體存在</h3><figure class="highlight c#"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;summary&gt;</span></span></span><br><span class="line">    <span class="comment"><span class="doctag">///</span> 利用lock來確保同一時間只會有一個實體產生</span></span><br><span class="line">    <span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;/summary&gt;</span></span></span><br><span class="line">    <span class="keyword">class</span> <span class="title">SingletonLock</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> SingletonLock instance;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">readonly</span> <span class="built_in">object</span> syncRoot = <span class="keyword">new</span> <span class="built_in">object</span>();</span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">SingletonLock</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> SingletonLock <span class="title">GetInstance</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (instance == <span class="literal">null</span>) <span class="comment">//確保當前沒有這個物件存在</span></span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">lock</span> (syncRoot)<span class="comment">//鎖住當前狀態</span></span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">if</span> (instance == <span class="literal">null</span>)<span class="comment">//再次確認該物件不存在</span></span><br><span class="line">                &#123;</span><br><span class="line">                    instance = <span class="keyword">new</span> SingletonLock();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> instance;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p>最後一種方式則是在當我們使用  Multi-Thread 時，為了確保只會有一個物件實體存在，我們可以透過lock 這個關鍵字</p>
+<p>確保同一時間不會有一個以上的物件實體存在。</p>
+<p>使用方法與 java的<code>synchronized</code> 相同，在這邊就不多做說明了。<br>以上就是獨體模式的相關介紹以及各種的使用方式。</p>
+<div>
+以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
+
+<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
+<p><a target="_blank" rel="external nofollow noopener noreferrer" href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
+</div>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Design-Pattern/" rel="tag"># Design Pattern</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2017/05/14/%E8%A7%A3%E6%B1%BA%E7%80%8F%E8%A6%BD%E5%99%A8Same-origin-policy-%E7%9A%84%E5%95%8F%E9%A1%8C/" rel="prev" title="解決瀏覽器Same-origin policy 的問題">
+      <i class="fa fa-chevron-left"></i> 解決瀏覽器Same-origin policy 的問題
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2017/07/03/WebAPI-%E8%87%AA%E5%AE%9A%E7%BE%A9RequestModel-%E9%A9%97%E8%AD%89/" rel="next" title="WebAPI- 自定義RequestModel 驗證">
+      WebAPI- 自定義RequestModel 驗證 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目錄
+        </li>
+        <li class="sidebar-nav-overview">
+          本站概要
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%8D%A8%E9%AB%94%E6%A8%A1%E5%BC%8F%E4%BD%BF%E7%94%A8%E5%A0%B4%E6%99%AF"><span class="nav-number">2.</span> <span class="nav-text">獨體模式使用場景</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E9%80%8F%E9%81%8E%E8%87%AA%E8%A8%82%E5%87%BD%E5%BC%8F%E4%BE%86%E6%8E%A7%E5%88%B6%E8%A9%B2%E7%89%A9%E4%BB%B6%E7%9A%84%E5%BB%BA%E7%AB%8B"><span class="nav-number">2.1.</span> <span class="nav-text">1.透過自訂函式來控制該物件的建立</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E9%80%8F%E9%81%8E%E8%87%AA%E8%A8%82%E5%87%BD%E5%BC%8F%E4%BE%86%E6%8E%A7%E5%88%B6%E8%A9%B2%E7%89%A9%E4%BB%B6%E7%9A%84%E5%BB%BA%E7%AB%8B%EF%BC%88%E4%BD%BF%E7%94%A8sealed%E8%88%87readonly%E9%97%9C%E9%8D%B5%E5%AD%97%E9%99%90%E5%AE%9A%E7%89%A9%E4%BB%B6%E5%A4%9A%E6%AC%A1%E5%BB%BA%E7%AB%8B%EF%BC%89"><span class="nav-number">2.2.</span> <span class="nav-text">2.透過自訂函式來控制該物件的建立（使用sealed與readonly關鍵字限定物件多次建立）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E5%9C%A8%E5%A4%9A%E5%9F%B7%E8%A1%8C%E7%B7%92%E4%B8%8A%EF%BC%8C%E7%A2%BA%E4%BF%9D%E5%8F%AA%E6%9C%89%E4%B8%80%E5%80%8B%E7%89%A9%E4%BB%B6%E5%AF%A6%E9%AB%94%E5%AD%98%E5%9C%A8"><span class="nav-number">2.3.</span> <span class="nav-text">3.在多執行緒上，確保只有一個物件實體存在</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Leo Zhou" src="/uploads/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Leo Zhou</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">34</span>
+          <span class="site-state-item-name">文章</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-name">分類</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">標籤</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="mailto:leo604leo604@gmail.com" title="E-Mail → mailto:leo604leo604@gmail.com" rel="external nofollow noopener noreferrer" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://zhenghui.idv.tw/" title="Weibo → https:&#x2F;&#x2F;zhenghui.idv.tw" rel="external nofollow noopener noreferrer" target="_blank"><i class="fab fa-chrome fa-fw"></i>Weibo</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Leo Zhou</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+      <span class="post-meta-item-text">總字數：</span>
+    <span title="總字數">66k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span class="post-meta-item-text">所需總閱讀時間 &asymp;</span>
+    <span title="所需總閱讀時間">1:01</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="external nofollow noopener noreferrer" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="external nofollow noopener noreferrer" target="_blank">NexT.Pisces</a> 強力驅動
+  </div><script color="45,115,227" opacity="0.7" zindex="-1" count="150" src="https://cdn.jsdelivr.net/npm/canvas-nest.js@1/dist/canvas-nest.js"></script>
+
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  
+  <script color="0,0,255" opacity="0.5" zindex="-1" count="99" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

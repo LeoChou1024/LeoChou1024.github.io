@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta http-equiv="Cache-Control" content="no-transform">
+  <meta http-equiv="Cache-Control" content="no-siteapp">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-undefined.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"blog.zhenghui.idv.tw","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="前言這是筆者在大學期間修的一門手機應用課程。 而在去年在修這一門課的時候，筆者是使用Cordova 將JqueryMobile App 發行至 Android平台上 時隔一年，筆者也從Windows跳槽至Mac OSX了。 而一年後再修相同的課程感覺真的很不一樣，對於許多概念越來越能快速釐清。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【Cordova】 將開發好的WebApp部署至 ios">
+<meta property="og:url" content="https://blog.zhenghui.idv.tw/2020/07/27/%E3%80%90Cordova%E3%80%91-%E5%B0%87%E9%96%8B%E7%99%BC%E5%A5%BD%E7%9A%84WebApp%E9%83%A8%E7%BD%B2%E8%87%B3-ios/index.html">
+<meta property="og:site_name" content="Leo程式筆記">
+<meta property="og:description" content="前言這是筆者在大學期間修的一門手機應用課程。 而在去年在修這一門課的時候，筆者是使用Cordova 將JqueryMobile App 發行至 Android平台上 時隔一年，筆者也從Windows跳槽至Mac OSX了。 而一年後再修相同的課程感覺真的很不一樣，對於許多概念越來越能快速釐清。">
+<meta property="og:locale" content="zh_TW">
+<meta property="og:image" content="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/239e4358-f6d1-4d88-8da8-c195aaf03978/1497261148_83851.png">
+<meta property="og:image" content="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/239e4358-f6d1-4d88-8da8-c195aaf03978/1497261527_93629.png">
+<meta property="og:image" content="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/239e4358-f6d1-4d88-8da8-c195aaf03978/1497261977_01973.png">
+<meta property="og:image" content="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/239e4358-f6d1-4d88-8da8-c195aaf03978/1497263059_34018.png">
+<meta property="og:image" content="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/239e4358-f6d1-4d88-8da8-c195aaf03978/1497263200_54881.png">
+<meta property="og:image" content="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/239e4358-f6d1-4d88-8da8-c195aaf03978/1497263332_54288.png">
+<meta property="og:image" content="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/239e4358-f6d1-4d88-8da8-c195aaf03978/1497263404_66147.png">
+<meta property="og:image" content="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/239e4358-f6d1-4d88-8da8-c195aaf03978/1497263497_30806.png">
+<meta property="og:image" content="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/239e4358-f6d1-4d88-8da8-c195aaf03978/1497263904_95934.png">
+<meta property="og:image" content="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/239e4358-f6d1-4d88-8da8-c195aaf03978/1497264159_70272.png">
+<meta property="og:image" content="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/239e4358-f6d1-4d88-8da8-c195aaf03978/1497264438_98326.PNG">
+<meta property="article:published_time" content="2020-07-26T19:30:04.000Z">
+<meta property="article:modified_time" content="2023-02-12T19:35:16.396Z">
+<meta property="article:author" content="Leo Zhou">
+<meta property="article:tag" content="WebApp">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/239e4358-f6d1-4d88-8da8-c195aaf03978/1497261148_83851.png">
+
+<link rel="canonical" href="https://blog.zhenghui.idv.tw/2020/07/27/%E3%80%90Cordova%E3%80%91-%E5%B0%87%E9%96%8B%E7%99%BC%E5%A5%BD%E7%9A%84WebApp%E9%83%A8%E7%BD%B2%E8%87%B3-ios/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-TW'
+  };
+</script>
+
+  <title>【Cordova】 將開發好的WebApp部署至 ios | Leo程式筆記</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切換導航欄">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Leo程式筆記</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首頁</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>歸檔</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-TW">
+    <link itemprop="mainEntityOfPage" href="https://blog.zhenghui.idv.tw/2020/07/27/%E3%80%90Cordova%E3%80%91-%E5%B0%87%E9%96%8B%E7%99%BC%E5%A5%BD%E7%9A%84WebApp%E9%83%A8%E7%BD%B2%E8%87%B3-ios/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/avatar.jpg">
+      <meta itemprop="name" content="Leo Zhou">
+      <meta itemprop="description" content>
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Leo程式筆記">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          【Cordova】 將開發好的WebApp部署至 ios
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">發表於</span>
+
+              <time title="創建時間：2020-07-27 03:30:04" itemprop="dateCreated datePublished" datetime="2020-07-27T03:30:04+08:00">2020-07-27</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新於</span>
+                <time title="修改時間：2023-02-13 03:35:16" itemprop="dateModified" datetime="2023-02-13T03:35:16+08:00">2023-02-13</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分類於</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Cordova/" itemprop="url" rel="index"><span itemprop="name">Cordova</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="文章字數">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">文章字數：</span>
+              <span>2.7k</span>
+            </span>
+            <span class="post-meta-item" title="所需閱讀時間">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">所需閱讀時間 &asymp;</span>
+              <span>2 分鐘</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>這是筆者在大學期間修的一門手機應用課程。</p>
+<p>而在去年在修這一門課的時候，筆者是使用Cordova 將JqueryMobile App 發行至 Android平台上</p>
+<p>時隔一年，筆者也從Windows跳槽至Mac OSX了。</p>
+<p>而一年後再修相同的課程感覺真的很不一樣，對於許多概念越來越能快速釐清。</p>
+<span id="more"></span>
+<p>由於在網路上利用將Cordova 將 WebAPP 發行至Android的相關教學文件非常的多，而在過去筆者也曾經成功的將WebApp發行至Android</p>
+<p>因此難度的門檻其實是相當低的。</p>
+<p>可是換到ios的平台上，可就不是這麼一回事了。其中有許多眉眉角角是需要注意、且只發生在OSX上的。</p>
+<p>首先在開始之前我們需要先將我們的工具準備好，畢竟工欲善其事必先利其器嘛</p>
+<p>我們會需要以下的工具，因此請各位讀者先行安裝。</p>
+<p>需要的工具有以下三樣：</p>
+<p>1、<a target="_blank" rel="external nofollow noopener noreferrer" href="https://nodejs.org/en/download/">NodeJS</a></p>
+<p>2、<a target="_blank" rel="external nofollow noopener noreferrer" href="http://ant.apache.org/bindownload.cgi">Apache Ant</a></p>
+<p>3、<a target="_blank" rel="external nofollow noopener noreferrer" href="https://developer.apple.com/xcode/">Xcode</a></p>
+<p>其中1、3項目其實都快速安裝就可以了，不太需要繁雜的步驟。</p>
+<p>接下來主要會先跟各位講述關於第2項目的安裝。</p>
+<p>當Apache Ant下載下來後，各位會發現他是一個壓縮檔案，但是當解開來後我們會發現到他並沒有任何的執行檔可以供給我們安裝</p>
+<p>原因在於他並不是一個需要安裝的軟體，我們需要透過Command Line的方式，讓我們的系統能夠讀懂他</p>
+<p>所以此時你的Apache Ant 大致上會長這樣：<br><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/239e4358-f6d1-4d88-8da8-c195aaf03978/1497261148_83851.png"></p>
+<p>接著我們將壓縮過後的這個Ant資料夾移至Users&#x2F;{YourUserName}底下，方便待會我們比較好做事。</p>
+<p>接著我們在開啟Command Line的時候，我們必須先確保自己在UserName底下<br><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/239e4358-f6d1-4d88-8da8-c195aaf03978/1497261527_93629.png"></p>
+<p>接著 我們輸入以下指令：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vim .bash_profile</span><br></pre></td></tr></table></figure>
+<p>此時會進入到一整個空白的頁面，這時候我們按下鍵盤的 i 啟動插入模式</p>
+<p>接著輸入以下內容：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">export PATH=$&#123;PATH&#125;:/Users/Leo/ant/bin</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>注意：這裡的Leo 指的是自己使用者的名稱，所以請讀者自行更換為自己的使用者名稱</p>
+</blockquote>
+<p>之所以要做這一步主要是需要設定環境變數，讓我們的OSX系統能夠認識Apache Ant這個軟體。</p>
+<p>接著我們可以輸入以下的Command Line 來查看是否成功：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ant -v</span><br></pre></td></tr></table></figure>
+<p> 如果出現以下的訊息，就代表成功了。</p>
+<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/239e4358-f6d1-4d88-8da8-c195aaf03978/1497261977_01973.png"><br>接著呢，我們除了剛剛三種軟體需要安裝以及設定之外，我們還需要安裝最最重要的主角 Cordova</p>
+<p>我們一樣利用 Command Line 輸入以下指令安裝Cordova：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo npm install -g cordova</span><br></pre></td></tr></table></figure>
+<p>安裝完成之後，我們就可以透過Cordova 來建立我們的專案了。</p>
+<p>此時的指令有點多，我們一步步進行。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">// 建立一個名叫MyAPP的專案，在myApp這個資料夾底下。</span><br><span class="line">cordova create myAPP mis.kuas.edu.tw MyAPP</span><br><span class="line"></span><br><span class="line">//進入到此專案資料夾</span><br><span class="line"><span class="built_in">cd</span> myAPP</span><br><span class="line"></span><br><span class="line">//在myAPP的資料夾當中，建立想要部署的平台</span><br><span class="line">cordova platform add ios --save</span><br><span class="line"></span><br><span class="line">//將專案進行Build</span><br><span class="line">cordova build ios</span><br></pre></td></tr></table></figure>
+
+<p>此時我們可以到剛剛透過Cordova所產生的資料夾當中，我們會發現多了這些內容：</p>
+<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/239e4358-f6d1-4d88-8da8-c195aaf03978/1497263059_34018.png"></p>
+<p>接著進入到myApp&#x2F;platforms&#x2F;ios 底下</p>
+<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/239e4358-f6d1-4d88-8da8-c195aaf03978/1497263200_54881.png"></p>
+<p>此時會發現Cordova 已經將最基本的XCode專案給建立起來。</p>
+<p>接著我們打開我們的XCode，點選左上角的Open 找到 ios 這個資料夾直接按開啟就可以了。 不用特地點選專案</p>
+<p>此時會發現長這樣子：<br><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/239e4358-f6d1-4d88-8da8-c195aaf03978/1497263332_54288.png"></p>
+<p>而我們寫好的程式碼呢，則是需要存放至www底下。</p>
+<p>因此我們針對www按右鍵選擇 Show in Finder<br><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/239e4358-f6d1-4d88-8da8-c195aaf03978/1497263404_66147.png"></p>
+<p>接著將我們寫好的專案直接原封不動地貼上去就可以了。其中index.html可以直接覆蓋沒關係</p>
+<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/239e4358-f6d1-4d88-8da8-c195aaf03978/1497263497_30806.png"></p>
+<p>接著覆蓋好後我們就可以按下XCode上方的執行鈕，就可以開始我們部署了。</p>
+<p>部署完成後，我們會看到我們的JQueryMobile已經封裝到iphone上了。</p>
+<p>而在這邊基本上就告一個段落了。</p>
+<p>但是我們打開我們App時候會發現原本應該顯示地圖的地方改為了這個字樣：</p>
+<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/239e4358-f6d1-4d88-8da8-c195aaf03978/1497263904_95934.png"></p>
+<p>訊息上告訴我們Request Google Map API time out。</p>
+<p>顯然地，我們離成功還有一段距離要走。</p>
+<p>接著我們發現到Xcode上多了一段訊息。</p>
+<p>訊息上顯示：</p>
+<blockquote>
+<p>This app has attempted to access privacy-sensitive data without a usage description. The app’s Info.plist must contain an NSLocationWhenInUseUsageDescription key with a string value explaining to the user how the app uses this data</p>
+</blockquote>
+<p>因此從錯誤訊息當中我們知道，課堂上老師教我們的GPS 以及GoogleMap,這些都是需要權限的</p>
+<p>而筆者這邊已經將該App所需要的權限已經打好了，我們到Resources底下找到MyApp-Info.plist 這邊是存放權限的地方</p>
+<p>我們按右鍵選擇 Open As &gt; Source Code</p>
+<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/239e4358-f6d1-4d88-8da8-c195aaf03978/1497264159_70272.png"></p>
+<p>接著貼上以下程式碼：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&lt;key&gt;NSLocationUsageDescription&lt;/key&gt;</span><br><span class="line">  &lt;string&gt;App需要您的同意,才能訪問地點&lt;/string&gt;</span><br><span class="line">  &lt;!-- 在使用期間訪問位置 --&gt;</span><br><span class="line">  &lt;key&gt;NSLocationWhenInUseUsageDescription&lt;/key&gt;</span><br><span class="line">  &lt;string&gt;App需要您的同意,才能在使用期间訪問地點&lt;/string&gt;</span><br><span class="line">  &lt;!-- 始终訪問位置 --&gt;</span><br><span class="line">  &lt;key&gt;NSLocationAlwaysUsageDescription&lt;/key&gt;</span><br><span class="line">  &lt;string&gt;App需要您的同意,才能始终訪問地點&lt;/string&gt;</span><br></pre></td></tr></table></figure>
+<p>如此一來權限的問題就可以解決了。</p>
+<p>最後附上完成的畫面：</p>
+<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/239e4358-f6d1-4d88-8da8-c195aaf03978/1497264438_98326.PNG"></p>
+<blockquote>
+<p>PS: 如果使用模擬器進行定位的話，因為模擬器設定在國外，因此所抓到的距離會不準確，建議在實機上進行測試。</p>
+</blockquote>
+<div>
+以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
+
+<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
+<p><a target="_blank" rel="external nofollow noopener noreferrer" href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
+</div>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/WebApp/" rel="tag"># WebApp</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2018/08/21/%E3%80%90Cordova%E3%80%91-%E5%B0%87Angular-%E9%83%A8%E7%BD%B2%E8%87%B3-android%E6%89%8B%E6%A9%9F/" rel="prev" title="【Cordova】 將Angular 部署至 android手機">
+      <i class="fa fa-chevron-left"></i> 【Cordova】 將Angular 部署至 android手機
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2023/01/24/Controller%E7%9A%84%E5%87%BD%E6%95%B8%E7%84%A1%E6%B3%95%E5%82%B3%E5%85%A5%E5%A4%9A%E5%80%8B%E5%8F%83%E6%95%B8/" rel="next" title="Controller的函數無法傳入多個參數">
+      Controller的函數無法傳入多個參數 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目錄
+        </li>
+        <li class="sidebar-nav-overview">
+          本站概要
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Leo Zhou" src="/uploads/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Leo Zhou</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">34</span>
+          <span class="site-state-item-name">文章</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-name">分類</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">標籤</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="mailto:leo604leo604@gmail.com" title="E-Mail → mailto:leo604leo604@gmail.com" rel="external nofollow noopener noreferrer" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://zhenghui.idv.tw/" title="Weibo → https:&#x2F;&#x2F;zhenghui.idv.tw" rel="external nofollow noopener noreferrer" target="_blank"><i class="fab fa-chrome fa-fw"></i>Weibo</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Leo Zhou</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+      <span class="post-meta-item-text">總字數：</span>
+    <span title="總字數">66k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span class="post-meta-item-text">所需總閱讀時間 &asymp;</span>
+    <span title="所需總閱讀時間">1:01</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="external nofollow noopener noreferrer" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="external nofollow noopener noreferrer" target="_blank">NexT.Pisces</a> 強力驅動
+  </div><script color="45,115,227" opacity="0.7" zindex="-1" count="150" src="https://cdn.jsdelivr.net/npm/canvas-nest.js@1/dist/canvas-nest.js"></script>
+
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  
+  <script color="0,0,255" opacity="0.5" zindex="-1" count="99" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta http-equiv="Cache-Control" content="no-transform">
+  <meta http-equiv="Cache-Control" content="no-siteapp">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-undefined.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"blog.zhenghui.idv.tw","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="前言通常我們在後端接前端Request參數的時候，我們為了省事，會建立一個Model來將前後端Binding 儘管這樣的方式讓我們大幅減少了Action所需要的參數。 不過如果我們想要將每一個欄位都進行驗證的時候，此時光是Action內還沒寫主要程式碼，就先因為格式的驗證佔了一大半的程式碼 因此今天來介紹如何透過自定義Attribute來達到此目的。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="WebAPI- 自定義RequestModel 驗證">
+<meta property="og:url" content="https://blog.zhenghui.idv.tw/2017/07/03/WebAPI-%E8%87%AA%E5%AE%9A%E7%BE%A9RequestModel-%E9%A9%97%E8%AD%89/index.html">
+<meta property="og:site_name" content="Leo程式筆記">
+<meta property="og:description" content="前言通常我們在後端接前端Request參數的時候，我們為了省事，會建立一個Model來將前後端Binding 儘管這樣的方式讓我們大幅減少了Action所需要的參數。 不過如果我們想要將每一個欄位都進行驗證的時候，此時光是Action內還沒寫主要程式碼，就先因為格式的驗證佔了一大半的程式碼 因此今天來介紹如何透過自定義Attribute來達到此目的。">
+<meta property="og:locale" content="zh_TW">
+<meta property="article:published_time" content="2017-07-02T19:35:38.000Z">
+<meta property="article:modified_time" content="2023-02-12T19:38:08.149Z">
+<meta property="article:author" content="Leo Zhou">
+<meta property="article:tag" content="WebAPI">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://blog.zhenghui.idv.tw/2017/07/03/WebAPI-%E8%87%AA%E5%AE%9A%E7%BE%A9RequestModel-%E9%A9%97%E8%AD%89/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-TW'
+  };
+</script>
+
+  <title>WebAPI- 自定義RequestModel 驗證 | Leo程式筆記</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切換導航欄">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Leo程式筆記</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首頁</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>歸檔</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-TW">
+    <link itemprop="mainEntityOfPage" href="https://blog.zhenghui.idv.tw/2017/07/03/WebAPI-%E8%87%AA%E5%AE%9A%E7%BE%A9RequestModel-%E9%A9%97%E8%AD%89/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/avatar.jpg">
+      <meta itemprop="name" content="Leo Zhou">
+      <meta itemprop="description" content>
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Leo程式筆記">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          WebAPI- 自定義RequestModel 驗證
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">發表於</span>
+
+              <time title="創建時間：2017-07-03 03:35:38" itemprop="dateCreated datePublished" datetime="2017-07-03T03:35:38+08:00">2017-07-03</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新於</span>
+                <time title="修改時間：2023-02-13 03:38:08" itemprop="dateModified" datetime="2023-02-13T03:38:08+08:00">2023-02-13</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分類於</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/NET/" itemprop="url" rel="index"><span itemprop="name">.NET</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="文章字數">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">文章字數：</span>
+              <span>4.8k</span>
+            </span>
+            <span class="post-meta-item" title="所需閱讀時間">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">所需閱讀時間 &asymp;</span>
+              <span>4 分鐘</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>通常我們在後端接前端Request參數的時候，我們為了省事，會建立一個Model來將前後端Binding</p>
+<p>儘管這樣的方式讓我們大幅減少了Action所需要的參數。</p>
+<p>不過如果我們想要將每一個欄位都進行驗證的時候，此時光是Action內還沒寫主要程式碼，就先因為格式的驗證佔了一大半的程式碼</p>
+<p>因此今天來介紹如何透過自定義Attribute來達到此目的。</p>
+<span id="more"></span>
+<p>首先一般來說我們在Model當中會定義像這樣的欄位來去接值：</p>
+<figure class="highlight c#"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">Member</span></span><br><span class="line">&#123;</span><br><span class="line">   <span class="comment">// 必填資訊</span></span><br><span class="line">   <span class="keyword">public</span> <span class="built_in">string</span> Name &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</span><br><span class="line"></span><br><span class="line">   <span class="comment">// 需超過20歲才可註冊</span></span><br><span class="line">   <span class="keyword">public</span> DateTime Birthday &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</span><br><span class="line"></span><br><span class="line">   <span class="comment">// 身分證</span></span><br><span class="line">   <span class="keyword">public</span> String IDCard &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>假設今天我們想要定義一些簡單的驗證，例如：</p>
+<ul>
+<li>最小輸入長度</li>
+<li>最大輸入長度</li>
+<li>Email驗證<br>那麼你只需要在上方新增一個標籤：<figure class="highlight c#"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 必填資訊</span></span><br><span class="line">  [<span class="meta">MaxLength(10,ErrorMessage =<span class="string">&quot;超過最大長度&quot;</span>)</span>] <span class="comment">//設定最大只能輸入10個字，超過就回傳錯誤訊息</span></span><br><span class="line">  <span class="keyword">public</span> <span class="built_in">string</span> Name &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</span><br></pre></td></tr></table></figure>
+當標籤定義完之後，我們就可以在C#的程式讓他進行自動驗證</li>
+</ul>
+<p>我們只需要這樣寫就可以自動幫我們做完驗證</p>
+<figure class="highlight c#"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span>(ModelState.IsValid) <span class="comment">//當Model驗證通過時就做的事情</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="comment">//Success do something</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">else</span>&#123;</span><br><span class="line"><span class="comment">//Failure do something</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>這樣的方式，讓我們在Action當中不會看到任何的欄位驗證邏輯。</p>
+<p>不過這邊又有一個缺點：「官方預先寫好的太少」</p>
+<p>因此接下來才是我們要學的重頭戲：</p>
+<h3 id="如何自訂義RequestModel-驗證"><a href="#如何自訂義RequestModel-驗證" class="headerlink" title="如何自訂義RequestModel 驗證"></a>如何自訂義RequestModel 驗證</h3><p>首先，我們需要先建立一個類別</p>
+<p>根據<a target="_blank" rel="external nofollow noopener noreferrer" href="https://msdn.microsoft.com/zh-tw/library/cc668224(v=vs.100).aspx">官網文件</a>，我們需要繼承 <code>ValidationAttribute</code></p>
+<p>並且去複寫 <code>IsValid</code></p>
+<p>此時會產生這樣的Code出來：</p>
+<figure class="highlight c#"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">override</span> <span class="built_in">bool</span> <span class="title">IsValid</span>(<span class="params"><span class="built_in">object</span> <span class="keyword">value</span></span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">return</span>  <span class="keyword">base</span>.IsValid(<span class="keyword">value</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>接著我們就可以在裡面寫邏輯判斷拉！，其中這邊的value，是我們從前端傳進來的參數，因此我們就可以來寫判斷拉！</p>
+<p>接下來我們來實做看看如何自定義身分證驗證，以下是程式碼：</p>
+<figure class="highlight c#"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">override</span> <span class="built_in">bool</span> <span class="title">IsValid</span>(<span class="params"><span class="built_in">object</span> <span class="keyword">value</span></span>)</span></span><br><span class="line">        &#123;</span><br><span class="line">            String ID = <span class="keyword">value</span>.ToString().ToUpper();</span><br><span class="line">            List&lt;<span class="built_in">string</span>&gt; FirstEng = <span class="keyword">new</span> List&lt;<span class="built_in">string</span>&gt; &#123; <span class="string">&quot;A&quot;</span>, <span class="string">&quot;B&quot;</span>, <span class="string">&quot;C&quot;</span>, <span class="string">&quot;D&quot;</span>, <span class="string">&quot;E&quot;</span>, <span class="string">&quot;F&quot;</span>, <span class="string">&quot;G&quot;</span>, <span class="string">&quot;H&quot;</span>, <span class="string">&quot;J&quot;</span>, <span class="string">&quot;K&quot;</span>, <span class="string">&quot;L&quot;</span>, <span class="string">&quot;M&quot;</span>, <span class="string">&quot;N&quot;</span>, <span class="string">&quot;P&quot;</span>, <span class="string">&quot;Q&quot;</span>, <span class="string">&quot;R&quot;</span>, <span class="string">&quot;S&quot;</span>, <span class="string">&quot;T&quot;</span>, <span class="string">&quot;U&quot;</span>, <span class="string">&quot;V&quot;</span>, <span class="string">&quot;X&quot;</span>, <span class="string">&quot;Y&quot;</span>, <span class="string">&quot;W&quot;</span>, <span class="string">&quot;Z&quot;</span>, <span class="string">&quot;I&quot;</span>, <span class="string">&quot;O&quot;</span> &#125;;</span><br><span class="line">            <span class="built_in">bool</span> chackFirstEnd = <span class="literal">false</span>;</span><br><span class="line">            <span class="keyword">if</span> (ID.Trim().Length == <span class="number">10</span>)</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="built_in">byte</span> firstNo = Convert.ToByte(ID.Trim().Substring(<span class="number">1</span>, <span class="number">1</span>));</span><br><span class="line">                <span class="keyword">if</span> (firstNo &gt; <span class="number">2</span> || firstNo &lt; <span class="number">1</span>)</span><br><span class="line">                &#123;</span><br><span class="line">                    <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">else</span></span><br><span class="line">                &#123;</span><br><span class="line">                    <span class="built_in">int</span> x;</span><br><span class="line">                    <span class="keyword">for</span> (x = <span class="number">0</span>; x &lt; FirstEng.Count; x++)</span><br><span class="line">                    &#123;</span><br><span class="line">                        <span class="keyword">if</span> (ID.Substring(<span class="number">0</span>, <span class="number">1</span>) == FirstEng[x])</span><br><span class="line">                        &#123;</span><br><span class="line">                            ID = <span class="built_in">string</span>.Format(<span class="string">&quot;&#123;0&#125;&#123;1&#125;&quot;</span>, x + <span class="number">10</span>, ID.Substring(<span class="number">1</span>, <span class="number">9</span>));</span><br><span class="line">                            chackFirstEnd = <span class="literal">true</span>;</span><br><span class="line">                            <span class="keyword">break</span>;</span><br><span class="line">                        &#125;</span><br><span class="line"></span><br><span class="line">                    &#125;</span><br><span class="line">                    <span class="keyword">if</span> (!chackFirstEnd)</span><br><span class="line">                        <span class="keyword">return</span> <span class="literal">false</span>; </span><br><span class="line"></span><br><span class="line">                    <span class="built_in">int</span> i = <span class="number">1</span>;</span><br><span class="line">                    <span class="built_in">int</span> ss = <span class="built_in">int</span>.Parse(ID.Substring(<span class="number">0</span>, <span class="number">1</span>));</span><br><span class="line">                    <span class="keyword">while</span> (ID.Length &gt; i)</span><br><span class="line">                    &#123;</span><br><span class="line">                        ss = ss + (<span class="built_in">int</span>.Parse(ID.Substring(i, <span class="number">1</span>)) * (<span class="number">10</span> - i));</span><br><span class="line">                        i++;</span><br><span class="line">                    &#125;</span><br><span class="line">                    ID = ss.ToString();</span><br><span class="line">                    <span class="keyword">if</span> (<span class="keyword">value</span>.ToString().Substring(<span class="number">9</span>, <span class="number">1</span>) == <span class="string">&quot;0&quot;</span>)</span><br><span class="line">                    &#123;</span><br><span class="line">                        <span class="keyword">if</span> (ID.Substring(ID.Length - <span class="number">1</span>, <span class="number">1</span>) == <span class="string">&quot;0&quot;</span>)</span><br><span class="line">                        &#123;</span><br><span class="line">                            <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">                        &#125;</span><br><span class="line">                        <span class="keyword">else</span></span><br><span class="line">                        &#123;</span><br><span class="line">                            <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">                        &#125;</span><br><span class="line">                    &#125;</span><br><span class="line">                    <span class="keyword">else</span></span><br><span class="line">                    &#123;</span><br><span class="line">                        <span class="keyword">if</span> (<span class="keyword">value</span>.ToString().Substring(<span class="number">9</span>, <span class="number">1</span>) == (<span class="number">10</span> - <span class="built_in">int</span>.Parse(ID.Substring(ID.Length - <span class="number">1</span>, <span class="number">1</span>))).ToString())</span><br><span class="line">                        &#123;</span><br><span class="line"></span><br><span class="line">                            <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">                        &#125;</span><br><span class="line">                        <span class="keyword">else</span></span><br><span class="line">                        &#123;</span><br><span class="line">                            <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">                        &#125;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">else</span></span><br><span class="line">            &#123;</span><br><span class="line"></span><br><span class="line">                <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br></pre></td></tr></table></figure>
+<p>接著在Action我們就可以這樣做囉！</p>
+<figure class="highlight c#"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span>(ModelState.IsValid)</span><br><span class="line">          &#123;</span><br><span class="line">               <span class="keyword">return</span> <span class="keyword">this</span>.Json(<span class="string">&quot;Success&quot;</span>); <span class="comment">//驗證過後回傳成功</span></span><br><span class="line">           &#125;</span><br><span class="line">          <span class="keyword">else</span>&#123;</span><br><span class="line"></span><br><span class="line">               <span class="keyword">var</span> data = ModelState.Where(x =&gt; x.Value.Errors.Count &gt; <span class="number">0</span>) <span class="comment">//如果驗證失敗，則將錯誤訊息抓出來</span></span><br><span class="line">                            .Select(x =&gt; <span class="keyword">new</span></span><br><span class="line">                            &#123;</span><br><span class="line"></span><br><span class="line">                                x.Key,</span><br><span class="line">                                x.Value.Errors[<span class="number">0</span>].ErrorMessage</span><br><span class="line"></span><br><span class="line">                            &#125;).ToList();</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">               <span class="comment">//   List&lt;ModelState&gt; data = ModelState.Values.ToList();</span></span><br><span class="line">               <span class="keyword">return</span> <span class="keyword">this</span>.Json(data);</span><br><span class="line"></span><br><span class="line">           &#125;</span><br></pre></td></tr></table></figure>
+<p>這邊如果驗證失敗，我們則是採用linQ的方式，將ErrorMessage給取出來，至於細節部分在這邊就不攢述了</p>
+<p>各位有興趣可以下中斷點看看回傳的內容，就可以明白為什麼我會這樣寫了。</p>
+<div>
+以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
+
+<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
+<p><a target="_blank" rel="external nofollow noopener noreferrer" href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
+</div>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/WebAPI/" rel="tag"># WebAPI</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2017/06/03/%E3%80%90Design-Pattern%E3%80%91%E7%8D%A8%E9%AB%94%E6%A8%A1%E5%BC%8F-Singleton-Pattern-%E4%BB%8B%E7%B4%B9/" rel="prev" title="【Design Pattern】獨體模式(Singleton Pattern)介紹">
+      <i class="fa fa-chevron-left"></i> 【Design Pattern】獨體模式(Singleton Pattern)介紹
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2017/12/15/WinForm-%E8%A7%A3%E6%B1%BA%E7%84%A1%E6%B3%95%E5%B0%8D%E9%80%99%E5%80%8B%E6%AA%94%E6%A1%88%E9%A1%AF%E7%A4%BA%E8%A8%AD%E8%A8%88%E5%B7%A5%E5%85%B7%EF%BC%8C%E5%9B%A0%E7%82%BA%E6%AA%94%E6%A1%88%E4%B8%AD%E6%B2%92%E6%9C%89%E5%8F%AF%E4%BB%A5%E8%A8%AD%E8%A8%88%E7%9A%84%E9%A1%9E%E5%88%A5/" rel="next" title="WinForm - 解決無法對這個檔案顯示設計工具，因為檔案中沒有可以設計的類別">
+      WinForm - 解決無法對這個檔案顯示設計工具，因為檔案中沒有可以設計的類別 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目錄
+        </li>
+        <li class="sidebar-nav-overview">
+          本站概要
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E8%87%AA%E8%A8%82%E7%BE%A9RequestModel-%E9%A9%97%E8%AD%89"><span class="nav-number">2.</span> <span class="nav-text">如何自訂義RequestModel 驗證</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Leo Zhou" src="/uploads/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Leo Zhou</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">34</span>
+          <span class="site-state-item-name">文章</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-name">分類</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">標籤</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="mailto:leo604leo604@gmail.com" title="E-Mail → mailto:leo604leo604@gmail.com" rel="external nofollow noopener noreferrer" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://zhenghui.idv.tw/" title="Weibo → https:&#x2F;&#x2F;zhenghui.idv.tw" rel="external nofollow noopener noreferrer" target="_blank"><i class="fab fa-chrome fa-fw"></i>Weibo</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Leo Zhou</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+      <span class="post-meta-item-text">總字數：</span>
+    <span title="總字數">66k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span class="post-meta-item-text">所需總閱讀時間 &asymp;</span>
+    <span title="所需總閱讀時間">1:01</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="external nofollow noopener noreferrer" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="external nofollow noopener noreferrer" target="_blank">NexT.Pisces</a> 強力驅動
+  </div><script color="45,115,227" opacity="0.7" zindex="-1" count="150" src="https://cdn.jsdelivr.net/npm/canvas-nest.js@1/dist/canvas-nest.js"></script>
+
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  
+  <script color="0,0,255" opacity="0.5" zindex="-1" count="99" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
