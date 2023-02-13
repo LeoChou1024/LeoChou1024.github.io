@@ -11,7 +11,7 @@
 <p>簡單的說，使用了Firebase後，自己就不需要再額外寫後端程式與資料庫溝通來撈取資料，這部分Google已經幫你處理好了</p>
 <p>而他本身SDK可以幫你處理離線問題（斷線，重連，保留訊息重新發送…） 使用起來簡單，但在設計noSql資料需要比較多功夫</p>
 <p>畢竟資料上的key相較傳統的資料庫有所不同</p>
-<p>當你想要新增一筆資料時，會是像這個樣子：<br><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/c26ac24a-9b34-4dfe-aefd-53873f2d8acf/1483541322_69598.png"><br>藉由名稱來顯示層級，假設要輸入第五筆的資料，在名稱欄中則需寫上：</p>
+<p>當你想要新增一筆資料時，會是像這個樣子：<br><img data-src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/c26ac24a-9b34-4dfe-aefd-53873f2d8acf/1483541322_69598.png"><br>藉由名稱來顯示層級，假設要輸入第五筆的資料，在名稱欄中則需寫上：</p>
 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">5/name</span><br></pre></td></tr></table></figure>
 
 <p>而我們今天要介紹的主要是針對於Android當中，如果想要使用Firebase那該如何去進行調用</p>
@@ -88,7 +88,7 @@
 <p>而在使用上來說其實滿簡單的</p>
 <p>首先在自己的Activity頁面定義出一塊空的Layout(一定要是空的！否則你的程式碼將會無法被替換掉)</p>
 <p>接著在Layout的資料夾中New一個Fragment作為我們的抽換頁面</p>
-<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/c5d87a90-bdbb-47bd-8e62-859c6c4314a2/1472992022_82103.png"></p>
+<p><img data-src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/c5d87a90-bdbb-47bd-8e62-859c6c4314a2/1472992022_82103.png"></p>
 <p>接著就可以在自己的程式碼中的OnCreate中加上抽換的程式碼，如此一來就可以在畫面載入時跳轉到自己的其它頁面去了</p>
 <figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="type">FragmentTransaction</span> <span class="variable">transaction</span> <span class="operator">=</span> getSupportFragmentManager().beginTransaction();</span><br><span class="line">        transaction.replace(R.id.Content, <span class="string">&quot;你新建立好的Fragment&quot;</span>;</span><br><span class="line">        transaction.commitAllowingStateLoss(); <span class="comment">//這行一定要加，目的是要讓transaction能夠真正送出</span></span><br></pre></td></tr></table></figure>
 <p>第三行的Commit 如果是從某一個Fragment切換到其他Fragment的話，一定要改為以下程式碼，否則會造成App閃退</p>
@@ -119,7 +119,7 @@
 <p>因此就想出了可以直接將切換頁面的程式碼進行封裝</p>
 <p>利用靜態方法，讓底下的這串切換程式碼的功能能夠進行覆用</p>
 <figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="type">FragmentTransaction</span> <span class="variable">transaction</span> <span class="operator">=</span> getFragmentManager().beginTransaction();</span><br><span class="line">       transaction.replace(<span class="string">&quot;欲切換的頁面&quot;</span>);</span><br><span class="line">       transaction.commit();</span><br></pre></td></tr></table></figure>
-<p>但當你寫完後，你會發現…. Error!!<br><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/52059204-bcd9-4f90-9abb-0e95893eff98/1487149123_5901.png"></p>
+<p>但當你寫完後，你會發現…. Error!!<br><img data-src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/52059204-bcd9-4f90-9abb-0e95893eff98/1487149123_5901.png"></p>
 <p>他會告訴你，你的靜態方法Change當中，包含了非靜態的方法「getFragmentManager()」</p>
 <p>那…該怎麼辦？難道就註定無法將程式碼進行重複使用嗎？</p>
 <p>在跟高手討論過後，既然山不轉，就路轉</p>
@@ -218,13 +218,13 @@
 <p>後來研究了許久，還是決定投入EF的懷抱，即使是透過SQL Command的方式。</p>
 <p>Dapper的使用方式相當簡單：</p>
 <p>首先在NuGet當中先安裝Dapper工具</p>
-<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/5b0420fd-8581-417e-a5b7-ae1be16e13fc/1512487109_34179.png" alt="Dapper"></p>
+<p><img data-src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/5b0420fd-8581-417e-a5b7-ae1be16e13fc/1512487109_34179.png" alt="Dapper"></p>
 <p>接著就可以直接撰寫啦！</p>
 <p>Dapper主要是透過 Extension Method 來擴充 SqlConnection的類別</p>
 <p>因此當你在最上層 using了 Dapper後</p>
 <figure class="highlight c#"><table><tr><td class="code"><pre><span class="line"><span class="keyword">using</span> Dapper;</span><br></pre></td></tr></table></figure>
 <p>你會發現SqlConnection多了以下東西：</p>
-<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/5b0420fd-8581-417e-a5b7-ae1be16e13fc/1512487331_02624.png"></p>
+<p><img data-src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/5b0420fd-8581-417e-a5b7-ae1be16e13fc/1512487331_02624.png"></p>
 <p>主要是針對Query來去做擴充。</p>
 <p>後來了解後發現原理其實很簡單</p>
 <p>就是先取得泛型的類別，並透過for迴圈的方式，將每一個的欄位資料，Mapping到指定的類別當中，</p>
@@ -234,12 +234,12 @@
 <figure class="highlight c#"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 設定相關資料庫連線參數</span></span><br><span class="line">String connection = System.Configuration.ConfigurationManager.ConnectionStrings[<span class="string">&quot;OrderDB&quot;</span>].ConnectionString;</span><br><span class="line"><span class="keyword">protected</span> SqlConnection sc = <span class="keyword">new</span> SqlConnection(connection);</span><br><span class="line"><span class="keyword">protected</span> SqlCommand sqlcommand = <span class="keyword">new</span> SqlCommand();</span><br><span class="line">String sql = <span class="string">&quot;select Student_Id,Student_Name from Student&quot;</span>;</span><br><span class="line"></span><br><span class="line">sqlcommand.Connection = sc;</span><br><span class="line"><span class="comment">// 開啟連線</span></span><br><span class="line">sc.Open();</span><br><span class="line"><span class="comment">// 資料讀取</span></span><br><span class="line">String sql = <span class="string">&quot;select Student_Id,Student_Name from Student&quot;</span>;</span><br><span class="line"><span class="keyword">var</span> result =  sc.Query&lt;Student&gt;(sql);</span><br></pre></td></tr></table></figure>
 <p>這裡使用泛型版本的 Query 方法，以便將查詢結果自動對應至先前定義好的 Student 物件的屬性。</p>
 <p>如此一來就可以快速的取得資料了。</p>
-<p>結果如下：<br><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/5b0420fd-8581-417e-a5b7-ae1be16e13fc/1512488053_3285.png"></p>
+<p>結果如下：<br><img data-src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/5b0420fd-8581-417e-a5b7-ae1be16e13fc/1512488053_3285.png"></p>
 <p>另外，Dapper本身也支援具名參數，主要是為了防止 sql injection</p>
 <p>使用方法也相當的簡單：</p>
 <figure class="highlight c#"><table><tr><td class="code"><pre><span class="line">String sql = <span class="string">&quot;select Student_Id,Student_Name from Student where Student_Name=@Name&quot;</span>;</span><br><span class="line"><span class="keyword">var</span> result =  sc.Query&lt;Student&gt;(sql,<span class="keyword">new</span> &#123; Name=<span class="string">&quot;Leo&quot;</span>&#125;);</span><br></pre></td></tr></table></figure>
 
-<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/5b0420fd-8581-417e-a5b7-ae1be16e13fc/1512488567_67889.png"></p>
+<p><img data-src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/5b0420fd-8581-417e-a5b7-ae1be16e13fc/1512488567_67889.png"></p>
 <div>
 以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
 
@@ -277,7 +277,7 @@ LINQ to Entities 查詢中無法建構實體或複雜類型
 <div style="color:red"> LINQ to Entities 查詢中無法建構實體或複雜類型
 </div>
 
-<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/de0c2f99-0e51-4977-91db-9ad994206191/1500539000_96484.png"></p>
+<p><img data-src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/de0c2f99-0e51-4977-91db-9ad994206191/1500539000_96484.png"></p>
 <p>此時筆者開始好奇，是什麼樣的原因會導致這樣的錯誤發生？</p>
 <p>後來在某一篇的<a href="https://stackoverflow.com/questions/5325797/the-entity-cannot-be-constructed-in-a-linq-to-entities-query">stackoverflow</a> 當中，找到了解答：</p>
 <div class="note success">
@@ -330,7 +330,7 @@ LINQ to Entities 查詢中無法建構實體或複雜類型
 <p>這時候我們可能會搭配Enum這樣寫：</p>
 <figure class="highlight c#"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 讀取按鈕上的文字來執行功能：</span></span><br><span class="line"><span class="comment">// 如果不是讀取到功能按鈕，則將按鈕上的文字呈現在 文字方塊(Content)上</span></span><br><span class="line">Button btn = (Button)sender;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">switch</span> (btn.Text)</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">case</span> 功能.換行.toString():</span><br><span class="line">                    Content.Text += <span class="string">&quot;\r\n&quot;</span>;</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                <span class="keyword">case</span> 功能.全部複製.toString():</span><br><span class="line">                    Content.SelectAll();</span><br><span class="line">                    Content.Copy();</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                <span class="keyword">case</span> 功能.貼上.toString():</span><br><span class="line">                    Content.Paste();</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                <span class="keyword">case</span> 功能.清空.toString():</span><br><span class="line">                    Content.Text = <span class="string">&quot;&quot;</span>;</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                <span class="literal">default</span>:</span><br><span class="line">                    Content.Text += btn.Text;</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br></pre></td></tr></table></figure>
 <p>但是這時候我們會發現編譯器錯誤：</p>
-<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/a19e7345-ece9-452b-9fed-a20cd133e9ad/1517549981_67453.png"></p>
+<p><img data-src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/a19e7345-ece9-452b-9fed-a20cd133e9ad/1517549981_67453.png"></p>
 <p>錯誤訊息告訴我們必須是「常數值」，原因在於我們 Switch內的值以及 Case中的內容並不一致，儘管已經使用.toString()</p>
 <p>這時候我們可以使用 C# 6.0的功能- <code>nameof</code></p>
 <blockquote>
@@ -370,13 +370,13 @@ LINQ to Entities 查詢中無法建構實體或複雜類型
 <p>我們可以透過幾行簡單的語法，就可以將我們想要呈現的內容，存放在我們想要的區塊內。</p>
 <p>而其支援程度，也因為現在大部分的瀏覽器均已支援，所以掀起了一股熱潮。</p>
 <p>我們可以在 <a href="https://caniuse.com/#feat=flexbox">Caniuse</a> 網站看到目前各大瀏覽器所支援的程度：</p>
-<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/ca2fae2c-d1d1-443b-83a1-eb793a30581c/1525241272_99933.png"></p>
+<p><img data-src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/ca2fae2c-d1d1-443b-83a1-eb793a30581c/1525241272_99933.png"></p>
 <p>其支援程度高達 98%，這也就是為什麼大家非常喜歡 FlexBox的原因。</p>
 <p>除了簡單、好用以外，最重要的是：<font color="red">支援程度相當高，讓我們不必再為了某瀏覽器而傷透腦筋。</font></p>
 <p>那麼現在就來看一下FlexBox到底是什麼東西吧！</p>
 <h3 id="FlexBox-佈局模式示意圖"><a href="#FlexBox-佈局模式示意圖" class="headerlink" title="FlexBox 佈局模式示意圖"></a>FlexBox 佈局模式示意圖</h3><p>在使用FlexBox之前，我們需要先知道他的佈局模式，才能讓我們有效的運用。</p>
 <p>根據 W3C 的文章介紹，FlexBox的模型可以用下圖來解釋。</p>
-<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/ca2fae2c-d1d1-443b-83a1-eb793a30581c/1525241598_89066.png"></p>
+<p><img data-src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/ca2fae2c-d1d1-443b-83a1-eb793a30581c/1525241598_89066.png"></p>
 <p>在圖中，我們發現有許多條線相交，那麼每一條線各代表什麼意思？</p>
 <p>就讓讀者來帶你看看。</p>
 <p>首先我們會發現圖中最外面用了一層 Flex Container所包覆著，這代表要使用FlexBox之前，我們需要給定一個區塊，讓這個區塊內的元件具有 Flex的效果。</p>
@@ -386,7 +386,7 @@ LINQ to Entities 查詢中無法建構實體或複雜類型
 <p>至於Start、End應該就不用多說了，就是開始以及結束。</p>
 <p>所以你可以把FlexBox解釋成：在一個容器當中，我們將每一個區塊都視為一個 Item<br>其中每一個Item的擺放位置，我們可以透過 Main、Cross這兩條線來去劃分。最終將我們的區塊放入我們想要的位置當中。</p>
 <p>接下來我們來看，FlexBox到底有哪些屬性可以用吧！</p>
-<p>我們可以在 <a href="https://www.w3schools.com/css/css3_flexbox.asp">W3CSchool</a> 當中查到下表：<br><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/ca2fae2c-d1d1-443b-83a1-eb793a30581c/1525242242_70391.png"></p>
+<p>我們可以在 <a href="https://www.w3schools.com/css/css3_flexbox.asp">W3CSchool</a> 當中查到下表：<br><img data-src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/ca2fae2c-d1d1-443b-83a1-eb793a30581c/1525242242_70391.png"></p>
 <p>這些屬性看似很多，但其實實際了解之後你會發現：其實真的還好，而且很好用。</p>
 <p>那看完了屬性之後，我們來自己撰寫練習看看吧！</p>
 <p>首先我們可以先準備一段Html的Code：</p>
@@ -395,13 +395,13 @@ LINQ to Entities 查詢中無法建構實體或複雜類型
 <figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="comment">/*  宣告為 flex box */</span></span><br><span class="line"></span><br><span class="line"><span class="selector-class">.flex-container</span> &#123;</span><br><span class="line">  <span class="attribute">display</span>: flex;  </span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/*  將每一個items賦予border，讓我們比較好看出效果 */</span></span><br><span class="line"><span class="selector-class">.flex-container</span> &gt; * &#123;</span><br><span class="line">  <span class="attribute">width</span>: <span class="number">20%</span>; </span><br><span class="line">  <span class="attribute">border</span>: <span class="number">1px</span> solid black;</span><br><span class="line">  <span class="attribute">text-align</span>:center;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>這時候會呈現這樣的效果：</p>
-<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/ca2fae2c-d1d1-443b-83a1-eb793a30581c/1525243749_49765.png"></p>
+<p><img data-src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/ca2fae2c-d1d1-443b-83a1-eb793a30581c/1525243749_49765.png"></p>
 <p>這時候我們的Container已經是FlexBox了。這時候我們先來介紹幾個常用到的屬性：</p>
 <h3 id="flex-wrap"><a href="#flex-wrap" class="headerlink" title="flex-wrap"></a>flex-wrap</h3><p>flex-wrap可以讓我們決定當頁面寬度過窄，以致於內容無法完整呈現的時候，是否要進行換行。</p>
 <p>預設是 nowrap，也就是不換行。</p>
 <p>接下來我們在container中，加入flex-wrap</p>
 <figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="selector-class">.wrap</span> &#123;</span><br><span class="line">  <span class="attribute">flex-wrap</span>: wrap;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>這時候我們就會發現：當內容物不夠空間呈現的時候，就會自動換到下一行。就不會像以前一樣直接被遮住無法顯示。<br><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/ca2fae2c-d1d1-443b-83a1-eb793a30581c/1525244250_61934.png"></p>
+<p>這時候我們就會發現：當內容物不夠空間呈現的時候，就會自動換到下一行。就不會像以前一樣直接被遮住無法顯示。<br><img data-src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/ca2fae2c-d1d1-443b-83a1-eb793a30581c/1525244250_61934.png"></p>
 <p>接著我們來看第二個屬性：</p>
 <h3 id="Justify-Content"><a href="#Justify-Content" class="headerlink" title="Justify Content"></a>Justify Content</h3><p><code>Justify Content</code> 是決定我們每一個 Items的水平對齊方式，一共有五種水平對齊方式，我們可以透過以下的Code來展示一下：</p>
 <p>首先ㄧ樣先給一個html，這裡我們用三個items來看呈現效果。</p>
@@ -410,7 +410,7 @@ LINQ to Entities 查詢中無法建構實體或複雜類型
 <p>接著我們加上Justify Content 的屬性給Container</p>
 <figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="comment">/* Justify Content */</span></span><br><span class="line"></span><br><span class="line"><span class="selector-class">.jc-start</span> &#123;</span><br><span class="line">  <span class="attribute">justify-content</span>: flex-start; <span class="comment">/* 靠左對齊 */</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="selector-class">.jc-end</span> &#123; </span><br><span class="line">  <span class="attribute">justify-content</span>: flex-end; <span class="comment">/* 靠右對齊 */</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="selector-class">.jc-center</span> &#123;</span><br><span class="line">  <span class="attribute">justify-content</span>: center; <span class="comment">/* 置中對齊 */</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="selector-class">.jc-space-around</span> &#123;</span><br><span class="line">  <span class="attribute">justify-content</span>: space-around; <span class="comment">/* 分散對齊(前後留邊) */</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="selector-class">.jc-space-between</span> &#123;</span><br><span class="line">  <span class="attribute">justify-content</span>: space-between; <span class="comment">/* 分散對齊(前後不留邊) */</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>我們可以看看呈現的效果：</p>
-<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/ca2fae2c-d1d1-443b-83a1-eb793a30581c/1525245320_5845.png"></p>
+<p><img data-src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/ca2fae2c-d1d1-443b-83a1-eb793a30581c/1525245320_5845.png"></p>
 <p>看完水平之後，接下來我們來看垂直：</p>
 <h3 id="align-items"><a href="#align-items" class="headerlink" title="align-items"></a>align-items</h3><p><code>align-items</code>是決定我們每一個 Items的垂直對齊方式，一共有五種垂直對齊方式。其中比較特別的是，還可以針對內容長短來自動增加Div高度。</p>
 <p>我們可以透過以下的Code來展示一下：</p>
@@ -419,8 +419,8 @@ LINQ to Entities 查詢中無法建構實體或複雜類型
 <p>接著為了能夠顯示出效果，我們需要再針對每一個Div Item給予不一樣大小的內容：</p>
 <figure class="highlight html"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">section</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">h1</span>&gt;</span>Align Items<span class="tag">&lt;/<span class="name">h1</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;flex-container box-2 jc--between ai--start&quot;</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">div</span>&gt;</span>flexbox<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">div</span>&gt;</span>Basic concepts of flexbox</span><br><span class="line">            <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">div</span>&gt;</span></span><br><span class="line">                The Flexible Box Module, usually referred to as flexbox, was designed as a one-dimensional layout model, and as a method that could offer space distribution between items in an interface and powerful alignment capabilities. This article gives an outline of the main features of flexbox, which we will be exploring in more detail in the rest of these guides.</span><br><span class="line"></span><br><span class="line">            <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"></span><br><span class="line">        <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">section</span>&gt;</span></span><br></pre></td></tr></table></figure>
 <p>接下來我們來看一下呈現的效果：</p>
-<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/ca2fae2c-d1d1-443b-83a1-eb793a30581c/1525497063_57138.png"></p>
-<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/ca2fae2c-d1d1-443b-83a1-eb793a30581c/1525497077_06336.png"></p>
+<p><img data-src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/ca2fae2c-d1d1-443b-83a1-eb793a30581c/1525497063_57138.png"></p>
+<p><img data-src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/ca2fae2c-d1d1-443b-83a1-eb793a30581c/1525497077_06336.png"></p>
 <p>從結果圖來看，我們很清楚可以知道 Start、End、以及Center的效果。</p>
 <p>但其中比較特別的是Stretch這個屬性。</p>
 <p>這個屬性會自動去判斷我們每一個Items長度，並且給予每一個Items最大的高度位置，來讓我們的Items都維持相同的高度。</p>
@@ -432,7 +432,7 @@ LINQ to Entities 查詢中無法建構實體或複雜類型
 <p>是一款滿有趣又能學習FlexBox的小遊戲。</p>
 <p>有興趣的讀者們可以點選下方連結來開始遊玩：</p>
 <p><a href="https://flexboxfroggy.com/#zh-tw">FlexBox Froggy</a></p>
-<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/ca2fae2c-d1d1-443b-83a1-eb793a30581c/1525497917_65106.png"></p>
+<p><img data-src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/ca2fae2c-d1d1-443b-83a1-eb793a30581c/1525497917_65106.png"></p>
 <p>最後，希望大家都能快速上手這個超好用的FlexBox排版神器。</p>
 <div>
 以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
@@ -477,7 +477,7 @@ LINQ to Entities 查詢中無法建構實體或複雜類型
 
 <p>因此只需要加上就可以避免此問題。</p>
 <p>也可以使用停用推斷規則來解決此問題：</p>
-<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/16b3d44b-5058-4f14-ba9b-891d4f68b141/1606448097.png" alt="停用推斷規則"></p>
+<p><img data-src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/16b3d44b-5058-4f14-ba9b-891d4f68b141/1606448097.png" alt="停用推斷規則"></p>
 <font style="color:red">
 但筆者還是建議，若是複雜的商業邏輯，需要額外抽成函數來撰寫的話，應該要額外建立類別來處理業務邏輯(也就是BAL)
 
@@ -563,7 +563,7 @@ LINQ to Entities 查詢中無法建構實體或複雜類型
 <p>我們可以來試試看：</p>
 <figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="title class_">Hello</span>();</span><br><span class="line"><span class="keyword">var</span> <span class="title class_">Hello</span> = <span class="keyword">function</span>(<span class="params"></span>) &#123;</span><br><span class="line">	<span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;Hello&#x27;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>在我們寫完這一段Code，並執行時，我們會得到以下錯誤：</p>
-<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/127c9070-73bb-4aee-b3c4-1d903ac8333c/1525194410_18703.png"></p>
+<p><img data-src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/127c9070-73bb-4aee-b3c4-1d903ac8333c/1525194410_18703.png"></p>
 <p>錯誤訊息告訴我們：Hello不是一個function。</p>
 <p>而之所以會有這個錯誤訊息，正是呼應到剛剛上方的那一句話：</p>
 <blockquote>
@@ -704,59 +704,6 @@ LINQ to Entities 查詢中無法建構實體或複雜類型
       </tags>
   </entry>
   <entry>
-    <title>.NET - 在VS Code 中用.net core 安裝 Entity Framework</title>
-    <url>/2018/06/16/NET-%E5%9C%A8VS-Code-%E4%B8%AD%E7%94%A8-net-core-%E5%AE%89%E8%A3%9D-Entity-Framework/</url>
-    <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>.Net Core 出來了很久，作為一個.Net的忠實信徒，卻這麼久沒有去觸碰它，實在慚愧。</p>
-<p>最近，因為碩班實在忙碌，很多珍貴技術想碰卻苦無時間，甚至連發部落格的時間都少得可憐。</p>
-<p>一直想用 Angular6 + .NET Core 2 開發一套系統，於是花了一點時間鑽研一下文件。</p>
-<p>而身為.NET 愛好者，方便的工具肯定是少不了。以前在寫 WebAPI的時候，簡單的 EF + Code First就可以讓我省去大半開發時間</p>
-<p>於是現在轉換到了.NET Core，當然也要來好好利用這些工具。</p>
-<span id="more"></span>
-
-<p>基本安裝.NET Core的教學也很簡單，只需要安裝 <a href="https://www.microsoft.com/net/download/macos">.NET Core  SDK</a></p>
-<p>註：此連結為 MacOS SDK下載，Windows用戶請自行切換</p>
-<p>接著下一步到底就可以使用 .NET Cli了。</p>
-<p>如果有看到下圖就代表你安裝成功了。</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">dotnet --info</span><br></pre></td></tr></table></figure>
-<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/be4ed7ee-7296-4341-bd60-99a3fe6184f4/1529137632_94568.png"></p>
-<p>接下來我們來回歸到重點，要如何安裝 Entity framework (EF) ?</p>
-<p>在 .net Core SDK中，預設是沒有 EF的，因此需要額外安裝 packages 才可以使用。</p>
-<p>於是我們打開我們的 Command Line 輸入：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">dotnet add package Microsoft.EntityFrameworkCore.Design</span><br></pre></td></tr></table></figure>
-<p>這時會將 EntityFrameworkCore 的 package安裝到你的專案中。</p>
-<p>你以為這樣就可以使用了嗎？</p>
-<p>不，還沒完！</p>
-<p><del>如果光是這樣簡單我就不會寫這篇文章了。</del></p>
-<p>接著，打開你的 Project，找到 專案名稱.csproj</p>
-<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/be4ed7ee-7296-4341-bd60-99a3fe6184f4/1529138208_60082.png"></p>
-<p>點進去後，將這一段 XML加入進去，讓我們待會的 dotnet Cli 可以知道要去這裡面找到 EntityFrameworkCore的 packages。</p>
-<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"> <span class="tag">&lt;<span class="name">ItemGroup</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">DotNetCliToolReference</span> <span class="attr">Include</span>=<span class="string">&quot;Microsoft.EntityFrameworkCore.Tools.DotNet&quot;</span> <span class="attr">Version</span>=<span class="string">&quot;2.0.0&quot;</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">ItemGroup</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<p>按下存檔之後，我們繼續打開 Command Line 輸入dotnet ef 試試。</p>
-<p>如果是下圖，恭喜你，成功了一半了！</p>
-<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/be4ed7ee-7296-4341-bd60-99a3fe6184f4/1529138461_56441.png"></p>
-<p>但如果你跟我一樣不幸運，出現的是這一段紅字：</p>
-<font color="red"> 
-version for package `Microsoft.EntityFrameworkCore.Tools.DotNet` could not be resolved.
-</font>
-
-<p>不用擔心，我也解決了。我在這個網頁中找到的<a href="https://stackoverflow.com/questions/43375734/version-for-package-microsoft-entityframeworkcore-tools-dotnet-could-not-be-re">答案</a></p>
-<p>那麼你就需要再輸入 <code>dotnet restore</code></p>
-<p>就可以完成安裝。</p>
-<div>
-以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
-
-<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
-<p><a href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
-</div>
-]]></content>
-      <categories>
-        <category>.NET</category>
-      </categories>
-      <tags>
-        <tag>.net core  Entity Framework</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>.NET 如何讓 WebAPI 支援 Session ?</title>
     <url>/2017/05/09/NET-%E5%A6%82%E4%BD%95%E8%AE%93-WebAPI-%E6%94%AF%E6%8F%B4-Session/</url>
     <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>如果你有工作上的需求需要在WebAPI當中加入Session的功能</p>
@@ -786,6 +733,59 @@ version for package `Microsoft.EntityFrameworkCore.Tools.DotNet` could not be re
       </categories>
       <tags>
         <tag>WebAPI</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>.NET - 在VS Code 中用.net core 安裝 Entity Framework</title>
+    <url>/2018/06/16/NET-%E5%9C%A8VS-Code-%E4%B8%AD%E7%94%A8-net-core-%E5%AE%89%E8%A3%9D-Entity-Framework/</url>
+    <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>.Net Core 出來了很久，作為一個.Net的忠實信徒，卻這麼久沒有去觸碰它，實在慚愧。</p>
+<p>最近，因為碩班實在忙碌，很多珍貴技術想碰卻苦無時間，甚至連發部落格的時間都少得可憐。</p>
+<p>一直想用 Angular6 + .NET Core 2 開發一套系統，於是花了一點時間鑽研一下文件。</p>
+<p>而身為.NET 愛好者，方便的工具肯定是少不了。以前在寫 WebAPI的時候，簡單的 EF + Code First就可以讓我省去大半開發時間</p>
+<p>於是現在轉換到了.NET Core，當然也要來好好利用這些工具。</p>
+<span id="more"></span>
+
+<p>基本安裝.NET Core的教學也很簡單，只需要安裝 <a href="https://www.microsoft.com/net/download/macos">.NET Core  SDK</a></p>
+<p>註：此連結為 MacOS SDK下載，Windows用戶請自行切換</p>
+<p>接著下一步到底就可以使用 .NET Cli了。</p>
+<p>如果有看到下圖就代表你安裝成功了。</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">dotnet --info</span><br></pre></td></tr></table></figure>
+<p><img data-src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/be4ed7ee-7296-4341-bd60-99a3fe6184f4/1529137632_94568.png"></p>
+<p>接下來我們來回歸到重點，要如何安裝 Entity framework (EF) ?</p>
+<p>在 .net Core SDK中，預設是沒有 EF的，因此需要額外安裝 packages 才可以使用。</p>
+<p>於是我們打開我們的 Command Line 輸入：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">dotnet add package Microsoft.EntityFrameworkCore.Design</span><br></pre></td></tr></table></figure>
+<p>這時會將 EntityFrameworkCore 的 package安裝到你的專案中。</p>
+<p>你以為這樣就可以使用了嗎？</p>
+<p>不，還沒完！</p>
+<p><del>如果光是這樣簡單我就不會寫這篇文章了。</del></p>
+<p>接著，打開你的 Project，找到 專案名稱.csproj</p>
+<p><img data-src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/be4ed7ee-7296-4341-bd60-99a3fe6184f4/1529138208_60082.png"></p>
+<p>點進去後，將這一段 XML加入進去，讓我們待會的 dotnet Cli 可以知道要去這裡面找到 EntityFrameworkCore的 packages。</p>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"> <span class="tag">&lt;<span class="name">ItemGroup</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">DotNetCliToolReference</span> <span class="attr">Include</span>=<span class="string">&quot;Microsoft.EntityFrameworkCore.Tools.DotNet&quot;</span> <span class="attr">Version</span>=<span class="string">&quot;2.0.0&quot;</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">ItemGroup</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>按下存檔之後，我們繼續打開 Command Line 輸入dotnet ef 試試。</p>
+<p>如果是下圖，恭喜你，成功了一半了！</p>
+<p><img data-src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/be4ed7ee-7296-4341-bd60-99a3fe6184f4/1529138461_56441.png"></p>
+<p>但如果你跟我一樣不幸運，出現的是這一段紅字：</p>
+<font color="red"> 
+version for package `Microsoft.EntityFrameworkCore.Tools.DotNet` could not be resolved.
+</font>
+
+<p>不用擔心，我也解決了。我在這個網頁中找到的<a href="https://stackoverflow.com/questions/43375734/version-for-package-microsoft-entityframeworkcore-tools-dotnet-could-not-be-re">答案</a></p>
+<p>那麼你就需要再輸入 <code>dotnet restore</code></p>
+<p>就可以完成安裝。</p>
+<div>
+以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
+
+<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
+<p><a href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
+</div>
+]]></content>
+      <categories>
+        <category>.NET</category>
+      </categories>
+      <tags>
+        <tag>.net core  Entity Framework</tag>
       </tags>
   </entry>
   <entry>
@@ -826,10 +826,10 @@ version for package `Microsoft.EntityFrameworkCore.Tools.DotNet` could not be re
 <p>首先我們可以分為以下的步驟：</p>
 <figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">//我們寫一個監聽事件讓使用者可以在畫面中任意點選，並回傳其事件的方法與內容輸出在console.log當中</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/*1.首先需要先建立 可以觀察的Observable 物件</span></span><br><span class="line"><span class="comment">有點類似 觀察者持續監聽某一個事件*/</span></span><br><span class="line"><span class="keyword">var</span> click  = <span class="title class_">Rx</span>.<span class="property">Observable</span>.<span class="title function_">fromEvent</span>(<span class="variable language_">document</span>,<span class="string">&#x27;click&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">/*2.接著建立觀察者物件</span></span><br><span class="line"><span class="comment">簡單來說就是 當監聽到事件發生的時候 會需要做的事情/*</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">var Observer = &#123;next:(x)=&gt; console.log(x)&#125;</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">/* 訂閱這個監聽者 讓他開始持續做監聽*/</span></span><br><span class="line"><span class="number">3.</span> subs.<span class="title function_">subscribe</span>(<span class="title class_">Observer</span>)</span><br></pre></td></tr></table></figure>
 <p>這時候我們就可以發現到在畫面當中可以截取到資訊：</p>
-<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/3f35f351-f0c8-43a3-8762-0cb653a6fd2b/1494566605_73479.png"><br>那當你想要終止這個監聽，不讓它在畫面上點選時，會回傳資訊到console中時，我們可以打上這樣的程式碼：</p>
+<p><img data-src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/3f35f351-f0c8-43a3-8762-0cb653a6fd2b/1494566605_73479.png"><br>那當你想要終止這個監聽，不讓它在畫面上點選時，會回傳資訊到console中時，我們可以打上這樣的程式碼：</p>
 <figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">//在執行subscribe的時候，利用一個變數來去接他</span></span><br><span class="line"><span class="comment">//subscribe 本身會回傳一個Observer的型別，這時候我們就可以使用unsubscribe()來停止監聽</span></span><br><span class="line"><span class="keyword">var</span> subs = click.<span class="title function_">subscribe</span>(<span class="title class_">Observer</span>);</span><br><span class="line">subs.<span class="title function_">unsubscribe</span>()</span><br></pre></td></tr></table></figure>
 <p>這樣一來在畫面上點選，我們的資訊就不會出現了。</p>
-<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/3f35f351-f0c8-43a3-8762-0cb653a6fd2b/1494566845_87209.png"></p>
+<p><img data-src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/3f35f351-f0c8-43a3-8762-0cb653a6fd2b/1494566845_87209.png"></p>
 <p>OK!到了這邊各位如果都能了解的話，那麼恭喜各位在RxJS這邊的概念呢各位已經學習的差不多了</p>
 <p>接下來我們可以來介紹一下關於 <strong>Operators</strong>運算子</p>
 <p>剛剛前面有提到在RxJS當中有一百多個 <strong>Operators</strong> 可以使用</p>
@@ -917,15 +917,15 @@ version for package `Microsoft.EntityFrameworkCore.Tools.DotNet` could not be re
 註：網址最後面一定要加上/github-webhook/
 </div>
 
-<p><img src="https://miro.medium.com/v2/resize:fit:1400/format:webp/1*z_W3UfV_fa9aCbsshvstGw.png"></p>
+<p><img data-src="https://miro.medium.com/v2/resize:fit:1400/format:webp/1*z_W3UfV_fa9aCbsshvstGw.png"></p>
 <p>這時候設定完後，返回後會發現會有一個錯誤的圖案，這是因為Github還沒有跟我們的Jenkins進行連接，等到第一次Clone後就會是綠燈了，請放心。</p>
 <p>接著我們回到Jenkins</p>
 <h2 id="Jenkins-設定"><a href="#Jenkins-設定" class="headerlink" title="Jenkins 設定"></a>Jenkins 設定</h2><p>首先在 Jenkins 首頁點選「New Item」：</p>
-<p><img src="https://miro.medium.com/v2/resize:fit:1400/format:webp/1*62IikWEmw6AxRnlK94j-hA.png"></p>
+<p><img data-src="https://miro.medium.com/v2/resize:fit:1400/format:webp/1*62IikWEmw6AxRnlK94j-hA.png"></p>
 <p>點選 Pipeline 後輸入你的Pipeline名稱：</p>
-<p><img src="https://miro.medium.com/v2/resize:fit:1400/format:webp/1*lxXyir5SnVKq1xQ67HSwzw.png"></p>
-<p>接著進入<strong>Configure</strong>後，我們先找到 <strong>General</strong><br>勾選「GitHub project」然後貼上你的 GitHub Repository URL<br><img src="https://miro.medium.com/v2/resize:fit:1400/format:webp/1*CWS0wqzOqfED3qTwcjm2Jg.png"></p>
-<p><strong>Configure — Build Triggers:</strong><br>選取「GitHub hook trigger for GITScm polling」<br><img src="https://miro.medium.com/v2/resize:fit:1400/format:webp/1*ZSHr-XSmKWSo6HePHNRSUw.png"></p>
+<p><img data-src="https://miro.medium.com/v2/resize:fit:1400/format:webp/1*lxXyir5SnVKq1xQ67HSwzw.png"></p>
+<p>接著進入<strong>Configure</strong>後，我們先找到 <strong>General</strong><br>勾選「GitHub project」然後貼上你的 GitHub Repository URL<br><img data-src="https://miro.medium.com/v2/resize:fit:1400/format:webp/1*CWS0wqzOqfED3qTwcjm2Jg.png"></p>
+<p><strong>Configure — Build Triggers:</strong><br>選取「GitHub hook trigger for GITScm polling」<br><img data-src="https://miro.medium.com/v2/resize:fit:1400/format:webp/1*ZSHr-XSmKWSo6HePHNRSUw.png"></p>
 <p><strong>Configure — Pipeline:</strong><br>接下來就可以開始設定當觸發Jenkins將專案拉下來之後，我們要做哪些事情。<br>Pipeline一般來說我們可以分為三個階段：Buid、Test、Deploy<br>當然你也可以自定義各種階段，基本上每一個階段就只是將內容分離出來，讓你比較好知道現在執行到哪裡，以及每一階段執行所需時間如何。</p>
 <div style="color:red;font-weight:900;margin-bottom:10px;">
 這裡與GitLab Runner最大不同在於每一階段產生的檔案都會保留，非常方便，不用再寫多餘的Code
@@ -939,7 +939,7 @@ version for package `Microsoft.EntityFrameworkCore.Tools.DotNet` could not be re
 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">pipeline &#123;</span><br><span class="line">    agent any</span><br><span class="line">    stages &#123;</span><br><span class="line">        stage(&#x27;Build&#x27;) &#123;</span><br><span class="line">            steps &#123;</span><br><span class="line">                sh &#x27;cd API&#x27;</span><br><span class="line">                sh &#x27;dotnet build&#x27;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        stage(&#x27;Deploy&#x27;) &#123;</span><br><span class="line">            steps &#123;</span><br><span class="line">                sh &#x27;sudo systemctl stop API.service&#x27;</span><br><span class="line">                sh &#x27;sudo rm -rf /專案存放位置&#x27;</span><br><span class="line">                sh &#x27;sudo mkdir /專案存放位置&#x27;</span><br><span class="line">                sh &#x27;sudo cp -r /專案存放位置. /Server 目錄位置&#x27;</span><br><span class="line">                sh &#x27;sudo systemctl start API.service&#x27;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>到這裡基本上就完成的差不多了，最後我們實際上將Code推倒Github試試看：<br>我們可以注意到整體速度滿快的，從Build、Deploy 平均只花了10秒就完成。</p>
-<p><img src="https://t45009037.p.clickup-attachments.com/t45009037/8e542c8d-3201-4607-b807-760a835e64f9/Screen%20Shot%202023-02-09%20at%202.47.17%20AM.png"></p>
+<p><img data-src="https://t45009037.p.clickup-attachments.com/t45009037/8e542c8d-3201-4607-b807-760a835e64f9/Screen%20Shot%202023-02-09%20at%202.47.17%20AM.png"></p>
 <div>
 以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
 
@@ -960,12 +960,12 @@ version for package `Microsoft.EntityFrameworkCore.Tools.DotNet` could not be re
     <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>當我們在針對WindowsForm設計的時候，如果我們想要針對原本的Form表單增加一些功能等等，我們會需要透過繼承Form表單來實作。</p>
 <p>此時當我們繼承原本的Form頁面時，我們會發現當前繼承的頁面會出現以下錯誤訊息：</p>
 <span id="more"></span>
-<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/747b607f-21d2-4185-b73d-9f525f5daf2e/1513316793_69472.png"></p>
+<p><img data-src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/747b607f-21d2-4185-b73d-9f525f5daf2e/1513316793_69472.png"></p>
 <p>這問題是因為 Visual Studio <font>找不到基底類別的設計工具或是基底類別是找不到或無法載入的類別。</font> </p>
 <p>因此，只需要將專案進行建置：</p>
-<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/747b607f-21d2-4185-b73d-9f525f5daf2e/1513316869_29036.png"></p>
+<p><img data-src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/747b607f-21d2-4185-b73d-9f525f5daf2e/1513316869_29036.png"></p>
 <p>此時會發現輸出訊息欄會有建置成功的訊息：</p>
-<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/747b607f-21d2-4185-b73d-9f525f5daf2e/1513316900_48037.png"></p>
+<p><img data-src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/747b607f-21d2-4185-b73d-9f525f5daf2e/1513316900_48037.png"></p>
 <p>當建置成功後，再次開啟頁面，就會發現錯誤訊息已經消失了。</p>
 <div>
 以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
@@ -979,98 +979,6 @@ version for package `Microsoft.EntityFrameworkCore.Tools.DotNet` could not be re
       </categories>
       <tags>
         <tag>WinForm</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>【Cordova】 將開發好的WebApp部署至 ios</title>
-    <url>/2020/07/27/%E3%80%90Cordova%E3%80%91-%E5%B0%87%E9%96%8B%E7%99%BC%E5%A5%BD%E7%9A%84WebApp%E9%83%A8%E7%BD%B2%E8%87%B3-ios/</url>
-    <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>這是筆者在大學期間修的一門手機應用課程。</p>
-<p>而在去年在修這一門課的時候，筆者是使用Cordova 將JqueryMobile App 發行至 Android平台上</p>
-<p>時隔一年，筆者也從Windows跳槽至Mac OSX了。</p>
-<p>而一年後再修相同的課程感覺真的很不一樣，對於許多概念越來越能快速釐清。</p>
-<span id="more"></span>
-<p>由於在網路上利用將Cordova 將 WebAPP 發行至Android的相關教學文件非常的多，而在過去筆者也曾經成功的將WebApp發行至Android</p>
-<p>因此難度的門檻其實是相當低的。</p>
-<p>可是換到ios的平台上，可就不是這麼一回事了。其中有許多眉眉角角是需要注意、且只發生在OSX上的。</p>
-<p>首先在開始之前我們需要先將我們的工具準備好，畢竟工欲善其事必先利其器嘛</p>
-<p>我們會需要以下的工具，因此請各位讀者先行安裝。</p>
-<p>需要的工具有以下三樣：</p>
-<p>1、<a href="https://nodejs.org/en/download/">NodeJS</a></p>
-<p>2、<a href="http://ant.apache.org/bindownload.cgi">Apache Ant</a></p>
-<p>3、<a href="https://developer.apple.com/xcode/">Xcode</a></p>
-<p>其中1、3項目其實都快速安裝就可以了，不太需要繁雜的步驟。</p>
-<p>接下來主要會先跟各位講述關於第2項目的安裝。</p>
-<p>當Apache Ant下載下來後，各位會發現他是一個壓縮檔案，但是當解開來後我們會發現到他並沒有任何的執行檔可以供給我們安裝</p>
-<p>原因在於他並不是一個需要安裝的軟體，我們需要透過Command Line的方式，讓我們的系統能夠讀懂他</p>
-<p>所以此時你的Apache Ant 大致上會長這樣：<br><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/239e4358-f6d1-4d88-8da8-c195aaf03978/1497261148_83851.png"></p>
-<p>接著我們將壓縮過後的這個Ant資料夾移至Users&#x2F;{YourUserName}底下，方便待會我們比較好做事。</p>
-<p>接著我們在開啟Command Line的時候，我們必須先確保自己在UserName底下<br><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/239e4358-f6d1-4d88-8da8-c195aaf03978/1497261527_93629.png"></p>
-<p>接著 我們輸入以下指令：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">vim .bash_profile</span><br></pre></td></tr></table></figure>
-<p>此時會進入到一整個空白的頁面，這時候我們按下鍵盤的 i 啟動插入模式</p>
-<p>接著輸入以下內容：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">export PATH=$&#123;PATH&#125;:/Users/Leo/ant/bin</span><br></pre></td></tr></table></figure>
-<blockquote>
-<p>注意：這裡的Leo 指的是自己使用者的名稱，所以請讀者自行更換為自己的使用者名稱</p>
-</blockquote>
-<p>之所以要做這一步主要是需要設定環境變數，讓我們的OSX系統能夠認識Apache Ant這個軟體。</p>
-<p>接著我們可以輸入以下的Command Line 來查看是否成功：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">ant -v</span><br></pre></td></tr></table></figure>
-<p> 如果出現以下的訊息，就代表成功了。</p>
-<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/239e4358-f6d1-4d88-8da8-c195aaf03978/1497261977_01973.png"><br>接著呢，我們除了剛剛三種軟體需要安裝以及設定之外，我們還需要安裝最最重要的主角 Cordova</p>
-<p>我們一樣利用 Command Line 輸入以下指令安裝Cordova：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">sudo npm install -g cordova</span><br></pre></td></tr></table></figure>
-<p>安裝完成之後，我們就可以透過Cordova 來建立我們的專案了。</p>
-<p>此時的指令有點多，我們一步步進行。</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">// 建立一個名叫MyAPP的專案，在myApp這個資料夾底下。</span><br><span class="line">cordova create myAPP mis.kuas.edu.tw MyAPP</span><br><span class="line"></span><br><span class="line">//進入到此專案資料夾</span><br><span class="line"><span class="built_in">cd</span> myAPP</span><br><span class="line"></span><br><span class="line">//在myAPP的資料夾當中，建立想要部署的平台</span><br><span class="line">cordova platform add ios --save</span><br><span class="line"></span><br><span class="line">//將專案進行Build</span><br><span class="line">cordova build ios</span><br></pre></td></tr></table></figure>
-
-<p>此時我們可以到剛剛透過Cordova所產生的資料夾當中，我們會發現多了這些內容：</p>
-<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/239e4358-f6d1-4d88-8da8-c195aaf03978/1497263059_34018.png"></p>
-<p>接著進入到myApp&#x2F;platforms&#x2F;ios 底下</p>
-<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/239e4358-f6d1-4d88-8da8-c195aaf03978/1497263200_54881.png"></p>
-<p>此時會發現Cordova 已經將最基本的XCode專案給建立起來。</p>
-<p>接著我們打開我們的XCode，點選左上角的Open 找到 ios 這個資料夾直接按開啟就可以了。 不用特地點選專案</p>
-<p>此時會發現長這樣子：<br><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/239e4358-f6d1-4d88-8da8-c195aaf03978/1497263332_54288.png"></p>
-<p>而我們寫好的程式碼呢，則是需要存放至www底下。</p>
-<p>因此我們針對www按右鍵選擇 Show in Finder<br><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/239e4358-f6d1-4d88-8da8-c195aaf03978/1497263404_66147.png"></p>
-<p>接著將我們寫好的專案直接原封不動地貼上去就可以了。其中index.html可以直接覆蓋沒關係</p>
-<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/239e4358-f6d1-4d88-8da8-c195aaf03978/1497263497_30806.png"></p>
-<p>接著覆蓋好後我們就可以按下XCode上方的執行鈕，就可以開始我們部署了。</p>
-<p>部署完成後，我們會看到我們的JQueryMobile已經封裝到iphone上了。</p>
-<p>而在這邊基本上就告一個段落了。</p>
-<p>但是我們打開我們App時候會發現原本應該顯示地圖的地方改為了這個字樣：</p>
-<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/239e4358-f6d1-4d88-8da8-c195aaf03978/1497263904_95934.png"></p>
-<p>訊息上告訴我們Request Google Map API time out。</p>
-<p>顯然地，我們離成功還有一段距離要走。</p>
-<p>接著我們發現到Xcode上多了一段訊息。</p>
-<p>訊息上顯示：</p>
-<blockquote>
-<p>This app has attempted to access privacy-sensitive data without a usage description. The app’s Info.plist must contain an NSLocationWhenInUseUsageDescription key with a string value explaining to the user how the app uses this data</p>
-</blockquote>
-<p>因此從錯誤訊息當中我們知道，課堂上老師教我們的GPS 以及GoogleMap,這些都是需要權限的</p>
-<p>而筆者這邊已經將該App所需要的權限已經打好了，我們到Resources底下找到MyApp-Info.plist 這邊是存放權限的地方</p>
-<p>我們按右鍵選擇 Open As &gt; Source Code</p>
-<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/239e4358-f6d1-4d88-8da8-c195aaf03978/1497264159_70272.png"></p>
-<p>接著貼上以下程式碼：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&lt;key&gt;NSLocationUsageDescription&lt;/key&gt;</span><br><span class="line">  &lt;string&gt;App需要您的同意,才能訪問地點&lt;/string&gt;</span><br><span class="line">  &lt;!-- 在使用期間訪問位置 --&gt;</span><br><span class="line">  &lt;key&gt;NSLocationWhenInUseUsageDescription&lt;/key&gt;</span><br><span class="line">  &lt;string&gt;App需要您的同意,才能在使用期间訪問地點&lt;/string&gt;</span><br><span class="line">  &lt;!-- 始终訪問位置 --&gt;</span><br><span class="line">  &lt;key&gt;NSLocationAlwaysUsageDescription&lt;/key&gt;</span><br><span class="line">  &lt;string&gt;App需要您的同意,才能始终訪問地點&lt;/string&gt;</span><br></pre></td></tr></table></figure>
-<p>如此一來權限的問題就可以解決了。</p>
-<p>最後附上完成的畫面：</p>
-<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/239e4358-f6d1-4d88-8da8-c195aaf03978/1497264438_98326.PNG"></p>
-<blockquote>
-<p>PS: 如果使用模擬器進行定位的話，因為模擬器設定在國外，因此所抓到的距離會不準確，建議在實機上進行測試。</p>
-</blockquote>
-<div>
-以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
-
-<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
-<p><a href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
-</div>
-]]></content>
-      <categories>
-        <category>Cordova</category>
-      </categories>
-      <tags>
-        <tag>WebApp</tag>
       </tags>
   </entry>
   <entry>
@@ -1100,7 +1008,7 @@ version for package `Microsoft.EntityFrameworkCore.Tools.DotNet` could not be re
 <p>當然如果不想安裝肥大的 AndroidStudio，可以透過指令方式，直接安裝Gradle也可以。</p>
 <p>安裝網址在這： <a href="https://gradle.org/install/">https://gradle.org/install/</a></p>
 <p>安裝完成後，可以輸入 <code>gradle -v</code>，查看版本。如果看到此圖就代表安裝成功</p>
-<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/0ed903e0-c200-4c01-a557-22c6756da5c7/1534818636_36865.png"></p>
+<p><img data-src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/0ed903e0-c200-4c01-a557-22c6756da5c7/1534818636_36865.png"></p>
 <p>接下來我們就可以透過Cordova 來建立我們的專案了。</p>
 <p>此時的指令有點多，我們一步步進行。</p>
 <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">// 建立一個名叫MyAPP的專案，在myApp這個資料夾底下。</span><br><span class="line">cordova create myAPP mis.kuas.edu.tw MyAPP</span><br><span class="line"></span><br><span class="line">//進入到此專案資料夾</span><br><span class="line"><span class="built_in">cd</span> myAPP</span><br><span class="line"></span><br><span class="line">//在myAPP的資料夾當中，建立想要部署的平台</span><br><span class="line">cordova platform add android --save</span><br><span class="line"></span><br><span class="line">//將專案進行Build</span><br><span class="line">cordova build android</span><br></pre></td></tr></table></figure>
@@ -1125,8 +1033,8 @@ version for package `Microsoft.EntityFrameworkCore.Tools.DotNet` could not be re
 <p>產生APK檔案，即可大功告成！</p>
 <p>而產生出來的檔案會存放在：</p>
 <p>myapp&#x2F;platforms&#x2F;android&#x2F;app&#x2F;build&#x2F;outputs&#x2F;apk&#x2F;debug 底下。</p>
-<p>附上一張完整部署成功的圖：<br><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/0ed903e0-c200-4c01-a557-22c6756da5c7/1534820679_13908.png"></p>
-<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/0ed903e0-c200-4c01-a557-22c6756da5c7/1534821256_45537.png"></p>
+<p>附上一張完整部署成功的圖：<br><img data-src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/0ed903e0-c200-4c01-a557-22c6756da5c7/1534820679_13908.png"></p>
+<p><img data-src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/0ed903e0-c200-4c01-a557-22c6756da5c7/1534821256_45537.png"></p>
 <div>
 以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
 
@@ -1139,6 +1047,98 @@ version for package `Microsoft.EntityFrameworkCore.Tools.DotNet` could not be re
       </categories>
       <tags>
         <tag>Angular</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>【Cordova】 將開發好的WebApp部署至 ios</title>
+    <url>/2020/07/27/%E3%80%90Cordova%E3%80%91-%E5%B0%87%E9%96%8B%E7%99%BC%E5%A5%BD%E7%9A%84WebApp%E9%83%A8%E7%BD%B2%E8%87%B3-ios/</url>
+    <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>這是筆者在大學期間修的一門手機應用課程。</p>
+<p>而在去年在修這一門課的時候，筆者是使用Cordova 將JqueryMobile App 發行至 Android平台上</p>
+<p>時隔一年，筆者也從Windows跳槽至Mac OSX了。</p>
+<p>而一年後再修相同的課程感覺真的很不一樣，對於許多概念越來越能快速釐清。</p>
+<span id="more"></span>
+<p>由於在網路上利用將Cordova 將 WebAPP 發行至Android的相關教學文件非常的多，而在過去筆者也曾經成功的將WebApp發行至Android</p>
+<p>因此難度的門檻其實是相當低的。</p>
+<p>可是換到ios的平台上，可就不是這麼一回事了。其中有許多眉眉角角是需要注意、且只發生在OSX上的。</p>
+<p>首先在開始之前我們需要先將我們的工具準備好，畢竟工欲善其事必先利其器嘛</p>
+<p>我們會需要以下的工具，因此請各位讀者先行安裝。</p>
+<p>需要的工具有以下三樣：</p>
+<p>1、<a href="https://nodejs.org/en/download/">NodeJS</a></p>
+<p>2、<a href="http://ant.apache.org/bindownload.cgi">Apache Ant</a></p>
+<p>3、<a href="https://developer.apple.com/xcode/">Xcode</a></p>
+<p>其中1、3項目其實都快速安裝就可以了，不太需要繁雜的步驟。</p>
+<p>接下來主要會先跟各位講述關於第2項目的安裝。</p>
+<p>當Apache Ant下載下來後，各位會發現他是一個壓縮檔案，但是當解開來後我們會發現到他並沒有任何的執行檔可以供給我們安裝</p>
+<p>原因在於他並不是一個需要安裝的軟體，我們需要透過Command Line的方式，讓我們的系統能夠讀懂他</p>
+<p>所以此時你的Apache Ant 大致上會長這樣：<br><img data-src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/239e4358-f6d1-4d88-8da8-c195aaf03978/1497261148_83851.png"></p>
+<p>接著我們將壓縮過後的這個Ant資料夾移至Users&#x2F;{YourUserName}底下，方便待會我們比較好做事。</p>
+<p>接著我們在開啟Command Line的時候，我們必須先確保自己在UserName底下<br><img data-src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/239e4358-f6d1-4d88-8da8-c195aaf03978/1497261527_93629.png"></p>
+<p>接著 我們輸入以下指令：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">vim .bash_profile</span><br></pre></td></tr></table></figure>
+<p>此時會進入到一整個空白的頁面，這時候我們按下鍵盤的 i 啟動插入模式</p>
+<p>接著輸入以下內容：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">export PATH=$&#123;PATH&#125;:/Users/Leo/ant/bin</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>注意：這裡的Leo 指的是自己使用者的名稱，所以請讀者自行更換為自己的使用者名稱</p>
+</blockquote>
+<p>之所以要做這一步主要是需要設定環境變數，讓我們的OSX系統能夠認識Apache Ant這個軟體。</p>
+<p>接著我們可以輸入以下的Command Line 來查看是否成功：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">ant -v</span><br></pre></td></tr></table></figure>
+<p> 如果出現以下的訊息，就代表成功了。</p>
+<p><img data-src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/239e4358-f6d1-4d88-8da8-c195aaf03978/1497261977_01973.png"><br>接著呢，我們除了剛剛三種軟體需要安裝以及設定之外，我們還需要安裝最最重要的主角 Cordova</p>
+<p>我們一樣利用 Command Line 輸入以下指令安裝Cordova：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">sudo npm install -g cordova</span><br></pre></td></tr></table></figure>
+<p>安裝完成之後，我們就可以透過Cordova 來建立我們的專案了。</p>
+<p>此時的指令有點多，我們一步步進行。</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">// 建立一個名叫MyAPP的專案，在myApp這個資料夾底下。</span><br><span class="line">cordova create myAPP mis.kuas.edu.tw MyAPP</span><br><span class="line"></span><br><span class="line">//進入到此專案資料夾</span><br><span class="line"><span class="built_in">cd</span> myAPP</span><br><span class="line"></span><br><span class="line">//在myAPP的資料夾當中，建立想要部署的平台</span><br><span class="line">cordova platform add ios --save</span><br><span class="line"></span><br><span class="line">//將專案進行Build</span><br><span class="line">cordova build ios</span><br></pre></td></tr></table></figure>
+
+<p>此時我們可以到剛剛透過Cordova所產生的資料夾當中，我們會發現多了這些內容：</p>
+<p><img data-src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/239e4358-f6d1-4d88-8da8-c195aaf03978/1497263059_34018.png"></p>
+<p>接著進入到myApp&#x2F;platforms&#x2F;ios 底下</p>
+<p><img data-src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/239e4358-f6d1-4d88-8da8-c195aaf03978/1497263200_54881.png"></p>
+<p>此時會發現Cordova 已經將最基本的XCode專案給建立起來。</p>
+<p>接著我們打開我們的XCode，點選左上角的Open 找到 ios 這個資料夾直接按開啟就可以了。 不用特地點選專案</p>
+<p>此時會發現長這樣子：<br><img data-src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/239e4358-f6d1-4d88-8da8-c195aaf03978/1497263332_54288.png"></p>
+<p>而我們寫好的程式碼呢，則是需要存放至www底下。</p>
+<p>因此我們針對www按右鍵選擇 Show in Finder<br><img data-src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/239e4358-f6d1-4d88-8da8-c195aaf03978/1497263404_66147.png"></p>
+<p>接著將我們寫好的專案直接原封不動地貼上去就可以了。其中index.html可以直接覆蓋沒關係</p>
+<p><img data-src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/239e4358-f6d1-4d88-8da8-c195aaf03978/1497263497_30806.png"></p>
+<p>接著覆蓋好後我們就可以按下XCode上方的執行鈕，就可以開始我們部署了。</p>
+<p>部署完成後，我們會看到我們的JQueryMobile已經封裝到iphone上了。</p>
+<p>而在這邊基本上就告一個段落了。</p>
+<p>但是我們打開我們App時候會發現原本應該顯示地圖的地方改為了這個字樣：</p>
+<p><img data-src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/239e4358-f6d1-4d88-8da8-c195aaf03978/1497263904_95934.png"></p>
+<p>訊息上告訴我們Request Google Map API time out。</p>
+<p>顯然地，我們離成功還有一段距離要走。</p>
+<p>接著我們發現到Xcode上多了一段訊息。</p>
+<p>訊息上顯示：</p>
+<blockquote>
+<p>This app has attempted to access privacy-sensitive data without a usage description. The app’s Info.plist must contain an NSLocationWhenInUseUsageDescription key with a string value explaining to the user how the app uses this data</p>
+</blockquote>
+<p>因此從錯誤訊息當中我們知道，課堂上老師教我們的GPS 以及GoogleMap,這些都是需要權限的</p>
+<p>而筆者這邊已經將該App所需要的權限已經打好了，我們到Resources底下找到MyApp-Info.plist 這邊是存放權限的地方</p>
+<p>我們按右鍵選擇 Open As &gt; Source Code</p>
+<p><img data-src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/239e4358-f6d1-4d88-8da8-c195aaf03978/1497264159_70272.png"></p>
+<p>接著貼上以下程式碼：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&lt;key&gt;NSLocationUsageDescription&lt;/key&gt;</span><br><span class="line">  &lt;string&gt;App需要您的同意,才能訪問地點&lt;/string&gt;</span><br><span class="line">  &lt;!-- 在使用期間訪問位置 --&gt;</span><br><span class="line">  &lt;key&gt;NSLocationWhenInUseUsageDescription&lt;/key&gt;</span><br><span class="line">  &lt;string&gt;App需要您的同意,才能在使用期间訪問地點&lt;/string&gt;</span><br><span class="line">  &lt;!-- 始终訪問位置 --&gt;</span><br><span class="line">  &lt;key&gt;NSLocationAlwaysUsageDescription&lt;/key&gt;</span><br><span class="line">  &lt;string&gt;App需要您的同意,才能始终訪問地點&lt;/string&gt;</span><br></pre></td></tr></table></figure>
+<p>如此一來權限的問題就可以解決了。</p>
+<p>最後附上完成的畫面：</p>
+<p><img data-src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/239e4358-f6d1-4d88-8da8-c195aaf03978/1497264438_98326.PNG"></p>
+<blockquote>
+<p>PS: 如果使用模擬器進行定位的話，因為模擬器設定在國外，因此所抓到的距離會不準確，建議在實機上進行測試。</p>
+</blockquote>
+<div>
+以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
+
+<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
+<p><a href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
+</div>
+]]></content>
+      <categories>
+        <category>Cordova</category>
+      </categories>
+      <tags>
+        <tag>WebApp</tag>
       </tags>
   </entry>
   <entry>
@@ -1158,7 +1158,7 @@ version for package `Microsoft.EntityFrameworkCore.Tools.DotNet` could not be re
 <p>cordova build android  –release</p>
 <p>這時候預設一樣會自動在app&#x2F;build&#x2F;output 底下 建立 release 資料夾，並將發布版本的apk檔案放入此中</p>
 <p>當你很開心以為這樣就產生出來，可以進行上架的話，你就錯了</p>
-<p>我們將剛剛產生出來的 Release版本放入到模擬器中運行，會發現以下錯誤：<br><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/78e21927-ebe4-4353-b38c-e0e5ee8f8639/1537842546_34736.png"></p>
+<p>我們將剛剛產生出來的 Release版本放入到模擬器中運行，會發現以下錯誤：<br><img data-src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/78e21927-ebe4-4353-b38c-e0e5ee8f8639/1537842546_34736.png"></p>
 <p>而這個錯誤訊息會發生的原因，主要是因為我們的發布版本 Release 並沒有經過金鑰簽名，所以這個 release apk 不可用</p>
 <p>因此我們在下該行指令之前，需要先產生一份金鑰檔，再利用這份金鑰檔進行簽名</p>
 <p>最後才可以產生出可使用的 release apk 版本。</p>
@@ -1169,7 +1169,7 @@ version for package `Microsoft.EntityFrameworkCore.Tools.DotNet` could not be re
 <p>MyApp.keystore  是你匯出金鑰的檔案名稱</p>
 <p>myapp 是簡稱</p>
 <p>接下來會要你填寫一些金鑰資訊及密碼</p>
-<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/78e21927-ebe4-4353-b38c-e0e5ee8f8639/1537844680_51531.png"></p>
+<p><img data-src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/78e21927-ebe4-4353-b38c-e0e5ee8f8639/1537844680_51531.png"></p>
 <p>完成後會再該目錄底下產生一個 MyApp.keystore  的金鑰檔案</p>
 <p>建議該檔案複製一份留存，然後記錄一下帳號密碼。  PS: 可以放在 Document底下做保管</p>
 <p>未來若有其他專案需要產生 release apk 就可以重複使用。</p>
@@ -1271,39 +1271,6 @@ version for package `Microsoft.EntityFrameworkCore.Tools.DotNet` could not be re
       </tags>
   </entry>
   <entry>
-    <title>【CI/CD實作】在 .NET 透過nuget.config 自訂NuGet 套件來源（番外篇）</title>
-    <url>/2023/02/11/%E5%9C%A8-NET-%E9%80%8F%E9%81%8Enuget-config-%E8%87%AA%E8%A8%82NuGet-%E5%A5%97%E4%BB%B6%E4%BE%86%E6%BA%90/</url>
-    <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>通常我們在開發.NET專案時，若因為專案中有使用到公司內部的Library時，通常都會架設Private Nuget Server來進行套件添加。<br>而一般來說添加套件來源的方式大多都是在 Nuget管理員的介面中選擇添加的目錄夾或是Url來操作。<br>但這樣的方式如果實現CI&#x2F;CD時，則會遇到找不到套件來源的問題，原因是Jenkins是直接將Github上的專案Clone下來進行建置與部署。<br>但我們設定套件來源的時機則是在專案Clone後手動開啟Nuget管理員添加的。<br>因此本篇主要會教學如何透過幾種方式讓Jenkins能夠讀的到自訂的Nuget套件來源。</p>
-<span id="more"></span>
-<h3 id="建立Nuget-config"><a href="#建立Nuget-config" class="headerlink" title="建立Nuget.config"></a>建立Nuget.config</h3><p>我們可以在方案的根目錄下輸入以下指令進行Nuget範本建立(或直接新增檔案輸入也可以)</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">dotnet new nugetconfig</span><br></pre></td></tr></table></figure>
-
-<p>這時候會在當前目錄下建立一個 nuget.config 其內容如下：</p>
-<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=<span class="string">&quot;1.0&quot;</span> encoding=<span class="string">&quot;utf-8&quot;</span>?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">configuration</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">packageSources</span>&gt;</span></span><br><span class="line">    <span class="comment">&lt;!--如果想要取消繼承在 %AppData%\NuGet\nuget.config的設定，可以加上 &lt;clear/&gt; --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">clear</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">add</span> <span class="attr">key</span>=<span class="string">&quot;nuget&quot;</span> <span class="attr">value</span>=<span class="string">&quot;https://api.nuget.org/v3/index.json&quot;</span> /&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">packageSources</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<p>因此我們可以透過 add的方式，手動將私有的套件來源加上</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&lt;add key=&quot;來源名稱&quot; value=&quot;來源網址&quot; /&gt;</span><br></pre></td></tr></table></figure>
-
-<p>完成後關閉專案再重新啟動，就會發現Nuget的套件來源已經自動補上在config設定的自訂來源了。<br><img src="/2023/02/11/%E5%9C%A8-NET-%E9%80%8F%E9%81%8Enuget-config-%E8%87%AA%E8%A8%82NuGet-%E5%A5%97%E4%BB%B6%E4%BE%86%E6%BA%90/nuget.png"></p>
-<h3 id="在機器上手動添加全域套件來源"><a href="#在機器上手動添加全域套件來源" class="headerlink" title="在機器上手動添加全域套件來源"></a>在機器上手動添加全域套件來源</h3><p>剛剛有提到.NET其實預設在 <code>%AppData%\NuGet\nuget.config</code> 有全域的設定檔<br>這也就是為什麼 Jenkins可以直接執行那些Nuget的套件，但是自訂來源的套件卻無法執行的原因。</p>
-<p>因此我們也可以在部署的機器上手動添加自訂來源：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">dotnet nuget add source &lt;來源網址&gt; -n &lt;自訂名稱&gt;</span><br></pre></td></tr></table></figure>
-
-<p><font color="red">但這個方式不太建議，除了每一台機器都要手動添加以外，也需要同步管理每一個的Nuget package list，因此如果都用config的話，就可以一目瞭然了。<br></font></p>
-<div>
-以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
-
-<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
-<p><a href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
-</div>
-]]></content>
-      <categories>
-        <category>Jenkins</category>
-      </categories>
-      <tags>
-        <tag>CI/CD</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>如何在Ubuntu安裝多個.NET版本環境</title>
     <url>/2023/02/11/%E5%A6%82%E4%BD%95%E5%9C%A8Ubuntu%E5%AE%89%E8%A3%9D%E5%A4%9A%E5%80%8B-NET%E7%89%88%E6%9C%AC%E7%92%B0%E5%A2%83/</url>
     <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>最近筆者在架設<code>BaGet</code>這套 private Nuget Server時，發現由於Baget是採用 .NET Core3.1的環境進行建置的，而在2023年的今天，.NETCore3.1早已被微軟淘汰不再支援了，因此無法從官網上直接安裝想要的版本。</p>
@@ -1337,6 +1304,39 @@ version for package `Microsoft.EntityFrameworkCore.Tools.DotNet` could not be re
       </tags>
   </entry>
   <entry>
+    <title>【CI/CD實作】在 .NET 透過nuget.config 自訂NuGet 套件來源（番外篇）</title>
+    <url>/2023/02/11/%E5%9C%A8-NET-%E9%80%8F%E9%81%8Enuget-config-%E8%87%AA%E8%A8%82NuGet-%E5%A5%97%E4%BB%B6%E4%BE%86%E6%BA%90/</url>
+    <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>通常我們在開發.NET專案時，若因為專案中有使用到公司內部的Library時，通常都會架設Private Nuget Server來進行套件添加。<br>而一般來說添加套件來源的方式大多都是在 Nuget管理員的介面中選擇添加的目錄夾或是Url來操作。<br>但這樣的方式如果實現CI&#x2F;CD時，則會遇到找不到套件來源的問題，原因是Jenkins是直接將Github上的專案Clone下來進行建置與部署。<br>但我們設定套件來源的時機則是在專案Clone後手動開啟Nuget管理員添加的。<br>因此本篇主要會教學如何透過幾種方式讓Jenkins能夠讀的到自訂的Nuget套件來源。</p>
+<span id="more"></span>
+<h3 id="建立Nuget-config"><a href="#建立Nuget-config" class="headerlink" title="建立Nuget.config"></a>建立Nuget.config</h3><p>我們可以在方案的根目錄下輸入以下指令進行Nuget範本建立(或直接新增檔案輸入也可以)</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">dotnet new nugetconfig</span><br></pre></td></tr></table></figure>
+
+<p>這時候會在當前目錄下建立一個 nuget.config 其內容如下：</p>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=<span class="string">&quot;1.0&quot;</span> encoding=<span class="string">&quot;utf-8&quot;</span>?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">configuration</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">packageSources</span>&gt;</span></span><br><span class="line">    <span class="comment">&lt;!--如果想要取消繼承在 %AppData%\NuGet\nuget.config的設定，可以加上 &lt;clear/&gt; --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">clear</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">add</span> <span class="attr">key</span>=<span class="string">&quot;nuget&quot;</span> <span class="attr">value</span>=<span class="string">&quot;https://api.nuget.org/v3/index.json&quot;</span> /&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">packageSources</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>因此我們可以透過 add的方式，手動將私有的套件來源加上</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&lt;add key=&quot;來源名稱&quot; value=&quot;來源網址&quot; /&gt;</span><br></pre></td></tr></table></figure>
+
+<p>完成後關閉專案再重新啟動，就會發現Nuget的套件來源已經自動補上在config設定的自訂來源了。<br><img data-src="/./%E5%9C%A8-NET-%E9%80%8F%E9%81%8Enuget-config-%E8%87%AA%E8%A8%82NuGet-%E5%A5%97%E4%BB%B6%E4%BE%86%E6%BA%90/nuget.png"></p>
+<h3 id="在機器上手動添加全域套件來源"><a href="#在機器上手動添加全域套件來源" class="headerlink" title="在機器上手動添加全域套件來源"></a>在機器上手動添加全域套件來源</h3><p>剛剛有提到.NET其實預設在 <code>%AppData%\NuGet\nuget.config</code> 有全域的設定檔<br>這也就是為什麼 Jenkins可以直接執行那些Nuget的套件，但是自訂來源的套件卻無法執行的原因。</p>
+<p>因此我們也可以在部署的機器上手動添加自訂來源：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">dotnet nuget add source &lt;來源網址&gt; -n &lt;自訂名稱&gt;</span><br></pre></td></tr></table></figure>
+
+<p><font color="red">但這個方式不太建議，除了每一台機器都要手動添加以外，也需要同步管理每一個的Nuget package list，因此如果都用config的話，就可以一目瞭然了。<br></font></p>
+<div>
+以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
+
+<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
+<p><a href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
+</div>
+]]></content>
+      <categories>
+        <category>Jenkins</category>
+      </categories>
+      <tags>
+        <tag>CI/CD</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>如何透過Postman傳遞Array參數</title>
     <url>/2017/12/24/%E5%A6%82%E4%BD%95%E9%80%8F%E9%81%8EPostman%E5%82%B3%E9%81%9EArray%E5%8F%83%E6%95%B8/</url>
     <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>Postman一直以來都是廣為人知開發輔助工具</p>
@@ -1349,13 +1349,13 @@ version for package `Microsoft.EntityFrameworkCore.Tools.DotNet` could not be re
 <p>在最新的版本當中，Postman傳遞Array的方法，已經改為利用[]的方式進行傳遞</p>
 <p>方法其實很簡單：</p>
 <p>假設我有一個data陣列想要進行傳送</p>
-<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/a5fd7cee-1c87-44bd-a4c6-3e2eda43f573/1514081767_28554.png"></p>
-<p>只需要進行這樣的撰寫方式，Postman就會自動幫你把這幾個參數視為是陣列，在PHP當中，只需要這樣就可以接的到值了。<br><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/a5fd7cee-1c87-44bd-a4c6-3e2eda43f573/1514081858_37187.png"></p>
+<p><img data-src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/a5fd7cee-1c87-44bd-a4c6-3e2eda43f573/1514081767_28554.png"></p>
+<p>只需要進行這樣的撰寫方式，Postman就會自動幫你把這幾個參數視為是陣列，在PHP當中，只需要這樣就可以接的到值了。<br><img data-src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/a5fd7cee-1c87-44bd-a4c6-3e2eda43f573/1514081858_37187.png"></p>
 <p>另外，假設我們是WebApi的話，方法也是一樣的：</p>
 <p>首先在我們的Request Model當中，定義一個Array的欄位</p>
-<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/a5fd7cee-1c87-44bd-a4c6-3e2eda43f573/1514081936_38664.png"></p>
+<p><img data-src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/a5fd7cee-1c87-44bd-a4c6-3e2eda43f573/1514081936_38664.png"></p>
 <p>接著一樣在我們的Postman當中，給定我們的值，只要欄位名稱相同，後面用[]來接，就可以當成陣列傳送到後端API</p>
-<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/a5fd7cee-1c87-44bd-a4c6-3e2eda43f573/1514082470_9356.png"></p>
+<p><img data-src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/a5fd7cee-1c87-44bd-a4c6-3e2eda43f573/1514082470_9356.png"></p>
 <div>
 以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
 
@@ -1386,20 +1386,20 @@ version for package `Microsoft.EntityFrameworkCore.Tools.DotNet` could not be re
 註：Jenkins預設為開機自動啟動，已經有寫好服務腳本了，可以透過 systemctl status jenkins查看
 </div>
 
-<p>當連線後，我們需要先解鎖Jenkins，到圖中指定的目錄下找到密碼後，貼上來：<br><img src="https://miro.medium.com/v2/resize:fit:1400/format:webp/1*9Y_JwWoGh2ZXzJ94zLpPLw.png"></p>
+<p>當連線後，我們需要先解鎖Jenkins，到圖中指定的目錄下找到密碼後，貼上來：<br><img data-src="https://miro.medium.com/v2/resize:fit:1400/format:webp/1*9Y_JwWoGh2ZXzJ94zLpPLw.png"></p>
 <div style="color:red;font-weight:900;margin-bottom:10px;">
 註：Jenkins預設安裝路徑為 /var/lib/jenkins
 下一篇會教如何更改預設路徑
 </div>
 
 <p>解鎖後，會詢問我們選擇套件安裝，直接選擇左邊按鈕，讓他按照推薦套件安裝即可。</p>
-<p><img src="https://miro.medium.com/v2/resize:fit:1400/format:webp/1*jcluDo-52PTdpydzApvUzQ.png"></p>
+<p><img data-src="https://miro.medium.com/v2/resize:fit:1400/format:webp/1*jcluDo-52PTdpydzApvUzQ.png"></p>
 <p>其中套件有包含 Git Plugin，因此我們不再需要手動安裝相關套件就可以開始實現CI&#x2F;CD</p>
-<p><img src="https://miro.medium.com/v2/resize:fit:1400/format:webp/1*dBGZe7LSGZAVhgol-kQRVA.png"></p>
+<p><img data-src="https://miro.medium.com/v2/resize:fit:1400/format:webp/1*dBGZe7LSGZAVhgol-kQRVA.png"></p>
 <p>安裝完成後，接下來會要求要輸入帳號&#x2F;密碼，這組帳號密碼未來將為作為我們切換jenkins身份，下指令要操作其他行為的時候將會用到，並且登入平台的時候預設也是採用該身份進行登入。</p>
-<p><img src="https://miro.medium.com/v2/resize:fit:1400/format:webp/1*X32QycUdoUS74x6E5pKytg.png"></p>
+<p><img data-src="https://miro.medium.com/v2/resize:fit:1400/format:webp/1*X32QycUdoUS74x6E5pKytg.png"></p>
 <p>全部完成後，我們就可以看到登入的畫面了。</p>
-<p><img src="https://miro.medium.com/v2/resize:fit:1400/format:webp/1*SqqCK5W-cS-pcWrW0EkqSw.png"></p>
+<p><img data-src="https://miro.medium.com/v2/resize:fit:1400/format:webp/1*SqqCK5W-cS-pcWrW0EkqSw.png"></p>
 <p>下一篇將會先介紹該如何變更Jenkins的位置，避免當硬碟空間不足的時候，Jenkins會有故障的情況發生。</p>
 <div>
 以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
@@ -1456,7 +1456,7 @@ version for package `Microsoft.EntityFrameworkCore.Tools.DotNet` could not be re
 <p>不過接下來還有一個問題還沒解決。</p>
 <p>我們很常會去定義每一種不同的類別的字，他的字型大小。</p>
 <p>舉例來說：</p>
-<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/57a1455a-b61d-4f86-acb4-850d7d53296a/1529916043_64447.png"></p>
+<p><img data-src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/57a1455a-b61d-4f86-acb4-850d7d53296a/1529916043_64447.png"></p>
 <p>上圖是我這一次參加六角學院舉辦的精神時光屋，所提供的一份設計稿。</p>
 <p>其中裡面定義了Title、Title2、Title3、Subtitle、paragraph、Logo 的字型大小。</p>
 <p>如果每一次都要去定義不同類別的字，會有不同的大小，好像也有點累。</p>
@@ -1472,7 +1472,7 @@ version for package `Microsoft.EntityFrameworkCore.Tools.DotNet` could not be re
 <figure class="highlight css"><table><tr><td class="code"><pre><span class="line">%aButton &#123;</span><br><span class="line">  <span class="attribute">display</span>:block;</span><br><span class="line">  <span class="attribute">text-decoration</span>:none;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="selector-class">.successBtn</span> &#123;</span><br><span class="line"> <span class="keyword">@extend</span> %aButton;</span><br><span class="line"> <span class="comment">/*透過上面的extend 我就可以直接使用已經寫好的樣式，接下來下方就可以自定義我其他按鈕樣式*/</span></span><br><span class="line"> <span class="attribute">width</span>:<span class="number">100%</span>;</span><br><span class="line"> <span class="attribute">height</span>:<span class="number">20px</span>;</span><br><span class="line"> <span class="attribute">line-height</span>:<span class="number">20px</span>;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="selector-class">.errorBtn</span> &#123;</span><br><span class="line"> <span class="keyword">@extend</span> %aButton;</span><br><span class="line"> <span class="comment">/*透過上面的extend 我就可以直接使用已經寫好的樣式，接下來下方就可以自定義我其他按鈕樣式*/</span></span><br><span class="line"> <span class="attribute">width</span>:<span class="number">80%</span>;</span><br><span class="line"> <span class="attribute">height</span>:<span class="number">20px</span>;</span><br><span class="line"> <span class="attribute">line-height</span>:<span class="number">20px</span>;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/*產生出來的 CSS */</span></span><br><span class="line"></span><br><span class="line"><span class="selector-class">.successBtn</span>,<span class="selector-class">.errorBtn</span> &#123;</span><br><span class="line">  <span class="attribute">display</span>:block;</span><br><span class="line">  <span class="attribute">text-decoration</span>:none;</span><br><span class="line">&#125;</span><br><span class="line"><span class="selector-class">.successBtn</span> &#123;</span><br><span class="line">  <span class="attribute">width</span>:<span class="number">100%</span>;</span><br><span class="line">  <span class="attribute">height</span>:<span class="number">20px</span>;</span><br><span class="line">  <span class="attribute">line-height</span>:<span class="number">20px</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="selector-class">.errorBtn</span> &#123;</span><br><span class="line"> <span class="attribute">width</span>:<span class="number">80%</span>;</span><br><span class="line"> <span class="attribute">height</span>:<span class="number">20px</span>;</span><br><span class="line"> <span class="attribute">line-height</span>:<span class="number">20px</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>但是遇到有字級的這種該怎麼辦？</p>
-<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/57a1455a-b61d-4f86-acb4-850d7d53296a/1529918180_82879.png"></p>
+<p><img data-src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/57a1455a-b61d-4f86-acb4-850d7d53296a/1529918180_82879.png"></p>
 <p>不同種類的文字，有自己對應的字級大小，也不是像 剛剛 function一樣是走一個倍數成長的概念。</p>
 <p>那我要如何針對不同的字級，正確給予不同的大小呢？</p>
 <p>那就是使用—— 混用 ( Mixin )。</p>
@@ -1517,10 +1517,10 @@ version for package `Microsoft.EntityFrameworkCore.Tools.DotNet` could not be re
 <p>下載完成後，我們就可以透過以下指令將專案進行建置</p>
 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">筆者本身是額外安裝3.1環境，因此在我的環境下指令為 dotnet3.1</span><br><span class="line">dotnet3.1 BaGet.dll </span><br></pre></td></tr></table></figure>
 
-<p>建置完成後，我們就可以看到一個與Nuget官網一模ㄧ樣的網站了：<br><img src="/2023/02/11/%E5%BF%AB%E9%80%9F%E6%9E%B6%E8%A8%AD%E7%A7%81%E6%9C%89%E7%9A%84Nuget-Server/nuget.png"></p>
-<p>切換到Upload頁面我們就可以查看上傳語法，以及得到套件的來源網址<br><img src="/2023/02/11/%E5%BF%AB%E9%80%9F%E6%9E%B6%E8%A8%AD%E7%A7%81%E6%9C%89%E7%9A%84Nuget-Server/upload.png"></p>
+<p>建置完成後，我們就可以看到一個與Nuget官網一模ㄧ樣的網站了：<br><img data-src="/./%E5%BF%AB%E9%80%9F%E6%9E%B6%E8%A8%AD%E7%A7%81%E6%9C%89%E7%9A%84Nuget-Server/nuget.png"></p>
+<p>切換到Upload頁面我們就可以查看上傳語法，以及得到套件的來源網址<br><img data-src="/./%E5%BF%AB%E9%80%9F%E6%9E%B6%E8%A8%AD%E7%A7%81%E6%9C%89%E7%9A%84Nuget-Server/upload.png"></p>
 <p>最後我們只需要將來源網址添加到 Nuget管理員，這樣就可以找到部署在 Baget上的Library囉！</p>
-<p><img src="/2023/02/11/%E5%BF%AB%E9%80%9F%E6%9E%B6%E8%A8%AD%E7%A7%81%E6%9C%89%E7%9A%84Nuget-Server/nuget%EF%BC%ADanager.png"></p>
+<p><img data-src="/./%E5%BF%AB%E9%80%9F%E6%9E%B6%E8%A8%AD%E7%A7%81%E6%9C%89%E7%9A%84Nuget-Server/nuget%EF%BC%ADanager.png"></p>
 <div>
 以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
 
@@ -1545,17 +1545,17 @@ version for package `Microsoft.EntityFrameworkCore.Tools.DotNet` could not be re
 
 <p>在過去 .Net FrameWork中，我們可以透過 加入&gt;新增項目&gt;資料 中，找到 ADO.NET 實體資料模型</p>
 <p>透過裡面的CodeFirst可以幫助我們快速將Table內的欄位轉換成Entity的Model作為使用，非常方便。</p>
-<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/fd6263e3-7315-43ba-b592-a3076b15027a/1597291465.png" alt="實體資料模型精靈"></p>
+<p><img data-src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/fd6263e3-7315-43ba-b592-a3076b15027a/1597291465.png" alt="實體資料模型精靈"></p>
 <p>但在 .Net Core 中，並沒有提供介面可以讓我們進行點選。</p>
 <p>因此我們必須要透過安裝套件，並輸入指令才能將資料庫中的Table產生對應的Enriry作為Model讓我們使用。</p>
 <p>而在輸入指令之前，我們需要先至Nuget中，安裝以下兩個套件。</p>
 <p>分別是：</p>
 <p><strong>「Microsoft.EntityFrameworkCore.SqlServer」、「Microsoft.EntityFrameworkCore.Tools」</strong></p>
-<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/fd6263e3-7315-43ba-b592-a3076b15027a/1597291842.png"></p>
+<p><img data-src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/fd6263e3-7315-43ba-b592-a3076b15027a/1597291842.png"></p>
 <p>注意：安裝套件時，請記得兩者套件版本要一致，否則可能會發生問題。</p>
 <p>接著打開　工具＞Nuget套件管理員&gt;套件管理器主控台</p>
-<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/fd6263e3-7315-43ba-b592-a3076b15027a/1597292040.png"></p>
-<p>在主控台Consoel中就可以下指令：<br><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/fd6263e3-7315-43ba-b592-a3076b15027a/1597292120.png"></p>
+<p><img data-src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/fd6263e3-7315-43ba-b592-a3076b15027a/1597292040.png"></p>
+<p>在主控台Consoel中就可以下指令：<br><img data-src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/fd6263e3-7315-43ba-b592-a3076b15027a/1597292120.png"></p>
 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">Scaffold-DbContext &quot;資料庫連線字串&quot; Microsoft.EntityFrameworkCore.SqlServer -OutputDir Models -Force -TableName -Tables 資料表</span><br></pre></td></tr></table></figure>
 
 <p>Scaffold-DbContext 為剛剛安裝Tools套件的指令，雙引號後面就是放入該資料庫連線字串</p>
@@ -1568,7 +1568,7 @@ version for package `Microsoft.EntityFrameworkCore.Tools.DotNet` could not be re
 匯入成功後，會自動產生 CeptContxt物件。裡面會有Entity的欄位
 
 <p>而在entity資料夾中，則會存放剛剛從Table轉出來Entity。</p>
-<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/fd6263e3-7315-43ba-b592-a3076b15027a/1597292632.png"></p>
+<p><img data-src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/fd6263e3-7315-43ba-b592-a3076b15027a/1597292632.png"></p>
 <div>
 以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
 
@@ -1593,12 +1593,12 @@ version for package `Microsoft.EntityFrameworkCore.Tools.DotNet` could not be re
 <span id="more"></span>
 <p>Same-origin policy 同源政策是瀏覽器為了防止Cross Domain存取資料所產生的一個限制</p>
 <p>當你CrossDomain時瀏覽器會跳出通知告訴你：</p>
-<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/fb774f00-340d-4e2d-8e68-143d3737bf95/1494726268_13117.png"></p>
+<p><img data-src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/fb774f00-340d-4e2d-8e68-143d3737bf95/1494726268_13117.png"></p>
 <p>那…遇到這個問題該怎麼解決？我還是需要在本地端測試完才能夠上傳到測試Server上去做測試呀</p>
 <p>所以這時候我們該如何允許Cross Domain來進行存取？</p>
 <p>以WebApi為例：</p>
 <p>我們可以在WebApi上加上這一段Attribute來告訴我們的瀏覽器說，我這一支API是可以提供給部分domain來存取的</p>
-<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/fb774f00-340d-4e2d-8e68-143d3737bf95/1494726448_70018.png"></p>
+<p><img data-src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/fb774f00-340d-4e2d-8e68-143d3737bf95/1494726448_70018.png"></p>
 <p>那，這是一種解法。只是因為筆者昨天在測試的時候，明明其他Post的方法是可以CrossDoamin來進行存取的</p>
 <p>但是唯獨從前端 Post Json的格式，就會不給過。依然會跳出警示訊息。</p>
 <p>當時筆者卡了這個問題卡了一個多小時，因為覺得自己已經加上了允許CrossDomain的Code了，沒有理由不行(而且其他的Post是可以執行的 EX:傳送x-www-form-urlencoded格式</p>
@@ -1613,7 +1613,7 @@ version for package `Microsoft.EntityFrameworkCore.Tools.DotNet` could not be re
 <p>那以Chrome為例：<br>我們可以打開我們的Command Line 進行以下的輸入：</p>
 <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">//Mac OS:</span><br><span class="line">open -n -a /Applications/Google\ Chrome.app --args --user-data-dir=<span class="string">&quot;/tmp/someFolderName&quot;</span> --disable-web-security</span><br><span class="line"></span><br><span class="line">//Windows:</span><br><span class="line"></span><br><span class="line"><span class="string">&quot;C:\Program Files\Google\Chrome\Application\chrome.exe&quot;</span> --disable-web-security</span><br></pre></td></tr></table></figure>
 <p>如此一來就可以順利執行了。 那，如何查看自己有沒有成功呢？</p>
-<p>當你打開後你的瀏覽器有跳出這樣的警示框就算成功了：<br><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/fb774f00-340d-4e2d-8e68-143d3737bf95/1494727395_38813.png"></p>
+<p>當你打開後你的瀏覽器有跳出這樣的警示框就算成功了：<br><img data-src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/fb774f00-340d-4e2d-8e68-143d3737bf95/1494727395_38813.png"></p>
 <font color="red">
 切記，使用完一定要關閉，不要拿來瀏覽其他網站。
 </font>
