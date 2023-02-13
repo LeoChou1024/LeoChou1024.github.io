@@ -485,14 +485,14 @@
   </url>
   
   <url>
-    <loc>https://blog.zhenghui.idv.tw/tags/LINQ/</loc>
+    <loc>https://blog.zhenghui.idv.tw/tags/Dapper/</loc>
     <lastmod>2023-02-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://blog.zhenghui.idv.tw/tags/Dapper/</loc>
+    <loc>https://blog.zhenghui.idv.tw/tags/LINQ/</loc>
     <lastmod>2023-02-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -555,14 +555,14 @@
   </url>
   
   <url>
-    <loc>https://blog.zhenghui.idv.tw/tags/WinForm/</loc>
+    <loc>https://blog.zhenghui.idv.tw/tags/CI-CD/</loc>
     <lastmod>2023-02-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://blog.zhenghui.idv.tw/tags/CI-CD/</loc>
+    <loc>https://blog.zhenghui.idv.tw/tags/WinForm/</loc>
     <lastmod>2023-02-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>

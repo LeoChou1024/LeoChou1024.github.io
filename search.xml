@@ -421,6 +421,68 @@
       </tags>
   </entry>
   <entry>
+    <title>C# Dapper-SQL中的Entity Framework</title>
+    <url>/2023/01/24/C-Dapper-SQL%E4%B8%AD%E7%9A%84Entity-Framework/</url>
+    <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>關於Dapper的介紹，其實多到可以算月經文了XD</p>
+<p>不過剛好有機會使用到，所以就順著介紹一下。</p>
+<span id="more"></span>
+
+<p>Dapper是一個輕量型的ORM工具，著重在效能與速度，所以他也只有一個Dll檔而已</p>
+<p>非常輕量。</p>
+<p>有興趣的讀者們可以到<a href="https://github.com/StackExchange/Dapper">GitHub</a>上看一下SouceCode，都是公開的。</p>
+<p>雖然耳聞Dapper這個神器很久了，只是由於筆者是EF派的，所以已經很少會接觸到純下SQL的部分。</p>
+<p>不過最近，筆者剛好需要撰寫SQL Command，於是又重新投入 DataReader、DataSet、DataTable的懷抱。</p>
+<p>只是在使用的過程中，由於不想要讓程式碼看起來太過骯髒，於是在上層多包了一層父類來減少重複的程式碼</p>
+<p>不過在撰寫查詢的時候卻發現到一個問題：</p>
+<p>以下由DataReader做一個簡單的示範。<br>片段程式碼：</p>
+<figure class="highlight c#"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 設定相關資料庫連線參數</span></span><br><span class="line">String connection = System.Configuration.ConfigurationManager.ConnectionStrings[<span class="string">&quot;OrderDB&quot;</span>].ConnectionString;</span><br><span class="line"><span class="keyword">protected</span> SqlConnection sc = <span class="keyword">new</span> SqlConnection(connection);</span><br><span class="line"><span class="keyword">protected</span> SqlCommand sqlcommand = <span class="keyword">new</span> SqlCommand();</span><br><span class="line">String sql = <span class="string">&quot;select Student_Id,Student_Name from Student&quot;</span>;</span><br><span class="line"></span><br><span class="line">sqlcommand.Connection = sc;</span><br><span class="line"><span class="comment">// 開啟連線</span></span><br><span class="line">sc.Open();</span><br><span class="line">SqlCommand command = <span class="keyword">new</span> SqlCommand(sql,connection);</span><br><span class="line"><span class="comment">// 讀取資料</span></span><br><span class="line">SqlDataReader reader = command.ExecuteReader();</span><br><span class="line"></span><br><span class="line"><span class="keyword">while</span> (reader.Read())</span><br><span class="line"> &#123;</span><br><span class="line">   Console.WriteLine(<span class="string">&quot;StudentId: &#123;0&#125;, StudentName: &#123;1&#125;&quot;</span>, reader[<span class="string">&quot;Student_Id&quot;</span>],reader[<span class="string">&quot;Student_Name&quot;</span>]);</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+<p>由於已經習慣寫EF的我，對於這樣的操作方式會覺得顯得不夠直觀。</p>
+<p>明明已經在Select當中定義了要讀取哪些欄位，但是在最後DataReader的時候，還是需要再次手動撈取欄位</p>
+<div style="color:red">
+假設如果要塞到自定義的List中，還需要一個一個把欄位給放進去。
+</div>
+於是開始思考，該怎麼做才能最快解決這個問題。
+
+<p>後來研究了許久，還是決定投入EF的懷抱，即使是透過SQL Command的方式。</p>
+<p>Dapper的使用方式相當簡單：</p>
+<p>首先在NuGet當中先安裝Dapper工具</p>
+<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/5b0420fd-8581-417e-a5b7-ae1be16e13fc/1512487109_34179.png" alt="Dapper"></p>
+<p>接著就可以直接撰寫啦！</p>
+<p>Dapper主要是透過 Extension Method 來擴充 SqlConnection的類別</p>
+<p>因此當你在最上層 using了 Dapper後</p>
+<figure class="highlight c#"><table><tr><td class="code"><pre><span class="line"><span class="keyword">using</span> Dapper;</span><br></pre></td></tr></table></figure>
+<p>你會發現SqlConnection多了以下東西：</p>
+<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/5b0420fd-8581-417e-a5b7-ae1be16e13fc/1512487331_02624.png"></p>
+<p>主要是針對Query來去做擴充。</p>
+<p>後來了解後發現原理其實很簡單</p>
+<p>就是先取得泛型的類別，並透過for迴圈的方式，將每一個的欄位資料，Mapping到指定的類別當中，</p>
+<p>最後再裝回List，結束。</p>
+<figure class="highlight c#"><table><tr><td class="code"><pre><span class="line"><span class="built_in">object</span> obj;</span><br><span class="line">Type type = obj.GetType();</span><br><span class="line"><span class="keyword">var</span> ps = type.GetProperties();</span><br></pre></td></tr></table></figure>
+<p>而Dapper使用方法呢其實就是這樣子：</p>
+<figure class="highlight c#"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 設定相關資料庫連線參數</span></span><br><span class="line">String connection = System.Configuration.ConfigurationManager.ConnectionStrings[<span class="string">&quot;OrderDB&quot;</span>].ConnectionString;</span><br><span class="line"><span class="keyword">protected</span> SqlConnection sc = <span class="keyword">new</span> SqlConnection(connection);</span><br><span class="line"><span class="keyword">protected</span> SqlCommand sqlcommand = <span class="keyword">new</span> SqlCommand();</span><br><span class="line">String sql = <span class="string">&quot;select Student_Id,Student_Name from Student&quot;</span>;</span><br><span class="line"></span><br><span class="line">sqlcommand.Connection = sc;</span><br><span class="line"><span class="comment">// 開啟連線</span></span><br><span class="line">sc.Open();</span><br><span class="line"><span class="comment">// 資料讀取</span></span><br><span class="line">String sql = <span class="string">&quot;select Student_Id,Student_Name from Student&quot;</span>;</span><br><span class="line"><span class="keyword">var</span> result =  sc.Query&lt;Student&gt;(sql);</span><br></pre></td></tr></table></figure>
+<p>這裡使用泛型版本的 Query 方法，以便將查詢結果自動對應至先前定義好的 Student 物件的屬性。</p>
+<p>如此一來就可以快速的取得資料了。</p>
+<p>結果如下：<br><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/5b0420fd-8581-417e-a5b7-ae1be16e13fc/1512488053_3285.png"></p>
+<p>另外，Dapper本身也支援具名參數，主要是為了防止 sql injection</p>
+<p>使用方法也相當的簡單：</p>
+<figure class="highlight c#"><table><tr><td class="code"><pre><span class="line">String sql = <span class="string">&quot;select Student_Id,Student_Name from Student where Student_Name=@Name&quot;</span>;</span><br><span class="line"><span class="keyword">var</span> result =  sc.Query&lt;Student&gt;(sql,<span class="keyword">new</span> &#123; Name=<span class="string">&quot;Leo&quot;</span>&#125;);</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/5b0420fd-8581-417e-a5b7-ae1be16e13fc/1512488567_67889.png"></p>
+<div>
+以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
+
+<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
+<p><a href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
+</div>
+]]></content>
+      <categories>
+        <category>.NET</category>
+      </categories>
+      <tags>
+        <tag>Dapper</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>C# - LINQ to Entities 查詢中無法建構實體或複雜類型</title>
     <url>/2023/01/24/C-LINQ-to-Entities-%E6%9F%A5%E8%A9%A2%E4%B8%AD%E7%84%A1%E6%B3%95%E5%BB%BA%E6%A7%8B%E5%AF%A6%E9%AB%94%E6%88%96%E8%A4%87%E9%9B%9C%E9%A1%9E%E5%9E%8B/</url>
     <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>在ORM盛行的時代，很多人都學會了使用LINQ來進行資料庫的撈取與操作</p>
@@ -482,68 +544,6 @@ LINQ to Entities 查詢中無法建構實體或複雜類型
       </categories>
       <tags>
         <tag>LINQ</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>C# Dapper-SQL中的Entity Framework</title>
-    <url>/2023/01/24/C-Dapper-SQL%E4%B8%AD%E7%9A%84Entity-Framework/</url>
-    <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>關於Dapper的介紹，其實多到可以算月經文了XD</p>
-<p>不過剛好有機會使用到，所以就順著介紹一下。</p>
-<span id="more"></span>
-
-<p>Dapper是一個輕量型的ORM工具，著重在效能與速度，所以他也只有一個Dll檔而已</p>
-<p>非常輕量。</p>
-<p>有興趣的讀者們可以到<a href="https://github.com/StackExchange/Dapper">GitHub</a>上看一下SouceCode，都是公開的。</p>
-<p>雖然耳聞Dapper這個神器很久了，只是由於筆者是EF派的，所以已經很少會接觸到純下SQL的部分。</p>
-<p>不過最近，筆者剛好需要撰寫SQL Command，於是又重新投入 DataReader、DataSet、DataTable的懷抱。</p>
-<p>只是在使用的過程中，由於不想要讓程式碼看起來太過骯髒，於是在上層多包了一層父類來減少重複的程式碼</p>
-<p>不過在撰寫查詢的時候卻發現到一個問題：</p>
-<p>以下由DataReader做一個簡單的示範。<br>片段程式碼：</p>
-<figure class="highlight c#"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 設定相關資料庫連線參數</span></span><br><span class="line">String connection = System.Configuration.ConfigurationManager.ConnectionStrings[<span class="string">&quot;OrderDB&quot;</span>].ConnectionString;</span><br><span class="line"><span class="keyword">protected</span> SqlConnection sc = <span class="keyword">new</span> SqlConnection(connection);</span><br><span class="line"><span class="keyword">protected</span> SqlCommand sqlcommand = <span class="keyword">new</span> SqlCommand();</span><br><span class="line">String sql = <span class="string">&quot;select Student_Id,Student_Name from Student&quot;</span>;</span><br><span class="line"></span><br><span class="line">sqlcommand.Connection = sc;</span><br><span class="line"><span class="comment">// 開啟連線</span></span><br><span class="line">sc.Open();</span><br><span class="line">SqlCommand command = <span class="keyword">new</span> SqlCommand(sql,connection);</span><br><span class="line"><span class="comment">// 讀取資料</span></span><br><span class="line">SqlDataReader reader = command.ExecuteReader();</span><br><span class="line"></span><br><span class="line"><span class="keyword">while</span> (reader.Read())</span><br><span class="line"> &#123;</span><br><span class="line">   Console.WriteLine(<span class="string">&quot;StudentId: &#123;0&#125;, StudentName: &#123;1&#125;&quot;</span>, reader[<span class="string">&quot;Student_Id&quot;</span>],reader[<span class="string">&quot;Student_Name&quot;</span>]);</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
-<p>由於已經習慣寫EF的我，對於這樣的操作方式會覺得顯得不夠直觀。</p>
-<p>明明已經在Select當中定義了要讀取哪些欄位，但是在最後DataReader的時候，還是需要再次手動撈取欄位</p>
-<div style="color:red">
-假設如果要塞到自定義的List中，還需要一個一個把欄位給放進去。
-</div>
-於是開始思考，該怎麼做才能最快解決這個問題。
-
-<p>後來研究了許久，還是決定投入EF的懷抱，即使是透過SQL Command的方式。</p>
-<p>Dapper的使用方式相當簡單：</p>
-<p>首先在NuGet當中先安裝Dapper工具</p>
-<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/5b0420fd-8581-417e-a5b7-ae1be16e13fc/1512487109_34179.png" alt="Dapper"></p>
-<p>接著就可以直接撰寫啦！</p>
-<p>Dapper主要是透過 Extension Method 來擴充 SqlConnection的類別</p>
-<p>因此當你在最上層 using了 Dapper後</p>
-<figure class="highlight c#"><table><tr><td class="code"><pre><span class="line"><span class="keyword">using</span> Dapper;</span><br></pre></td></tr></table></figure>
-<p>你會發現SqlConnection多了以下東西：</p>
-<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/5b0420fd-8581-417e-a5b7-ae1be16e13fc/1512487331_02624.png"></p>
-<p>主要是針對Query來去做擴充。</p>
-<p>後來了解後發現原理其實很簡單</p>
-<p>就是先取得泛型的類別，並透過for迴圈的方式，將每一個的欄位資料，Mapping到指定的類別當中，</p>
-<p>最後再裝回List，結束。</p>
-<figure class="highlight c#"><table><tr><td class="code"><pre><span class="line"><span class="built_in">object</span> obj;</span><br><span class="line">Type type = obj.GetType();</span><br><span class="line"><span class="keyword">var</span> ps = type.GetProperties();</span><br></pre></td></tr></table></figure>
-<p>而Dapper使用方法呢其實就是這樣子：</p>
-<figure class="highlight c#"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 設定相關資料庫連線參數</span></span><br><span class="line">String connection = System.Configuration.ConfigurationManager.ConnectionStrings[<span class="string">&quot;OrderDB&quot;</span>].ConnectionString;</span><br><span class="line"><span class="keyword">protected</span> SqlConnection sc = <span class="keyword">new</span> SqlConnection(connection);</span><br><span class="line"><span class="keyword">protected</span> SqlCommand sqlcommand = <span class="keyword">new</span> SqlCommand();</span><br><span class="line">String sql = <span class="string">&quot;select Student_Id,Student_Name from Student&quot;</span>;</span><br><span class="line"></span><br><span class="line">sqlcommand.Connection = sc;</span><br><span class="line"><span class="comment">// 開啟連線</span></span><br><span class="line">sc.Open();</span><br><span class="line"><span class="comment">// 資料讀取</span></span><br><span class="line">String sql = <span class="string">&quot;select Student_Id,Student_Name from Student&quot;</span>;</span><br><span class="line"><span class="keyword">var</span> result =  sc.Query&lt;Student&gt;(sql);</span><br></pre></td></tr></table></figure>
-<p>這裡使用泛型版本的 Query 方法，以便將查詢結果自動對應至先前定義好的 Student 物件的屬性。</p>
-<p>如此一來就可以快速的取得資料了。</p>
-<p>結果如下：<br><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/5b0420fd-8581-417e-a5b7-ae1be16e13fc/1512488053_3285.png"></p>
-<p>另外，Dapper本身也支援具名參數，主要是為了防止 sql injection</p>
-<p>使用方法也相當的簡單：</p>
-<figure class="highlight c#"><table><tr><td class="code"><pre><span class="line">String sql = <span class="string">&quot;select Student_Id,Student_Name from Student where Student_Name=@Name&quot;</span>;</span><br><span class="line"><span class="keyword">var</span> result =  sc.Query&lt;Student&gt;(sql,<span class="keyword">new</span> &#123; Name=<span class="string">&quot;Leo&quot;</span>&#125;);</span><br></pre></td></tr></table></figure>
-
-<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/5b0420fd-8581-417e-a5b7-ae1be16e13fc/1512488567_67889.png"></p>
-<div>
-以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
-
-<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
-<p><a href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
-</div>
-]]></content>
-      <categories>
-        <category>.NET</category>
-      </categories>
-      <tags>
-        <tag>Dapper</tag>
       </tags>
   </entry>
   <entry>
@@ -1096,55 +1096,6 @@ version for package `Microsoft.EntityFrameworkCore.Tools.DotNet` could not be re
       </tags>
   </entry>
   <entry>
-    <title>WebAPI- 自定義RequestModel 驗證</title>
-    <url>/2017/07/03/WebAPI-%E8%87%AA%E5%AE%9A%E7%BE%A9RequestModel-%E9%A9%97%E8%AD%89/</url>
-    <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>通常我們在後端接前端Request參數的時候，我們為了省事，會建立一個Model來將前後端Binding</p>
-<p>儘管這樣的方式讓我們大幅減少了Action所需要的參數。</p>
-<p>不過如果我們想要將每一個欄位都進行驗證的時候，此時光是Action內還沒寫主要程式碼，就先因為格式的驗證佔了一大半的程式碼</p>
-<p>因此今天來介紹如何透過自定義Attribute來達到此目的。</p>
-<span id="more"></span>
-<p>首先一般來說我們在Model當中會定義像這樣的欄位來去接值：</p>
-<figure class="highlight c#"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">Member</span></span><br><span class="line">&#123;</span><br><span class="line">   <span class="comment">// 必填資訊</span></span><br><span class="line">   <span class="keyword">public</span> <span class="built_in">string</span> Name &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</span><br><span class="line"></span><br><span class="line">   <span class="comment">// 需超過20歲才可註冊</span></span><br><span class="line">   <span class="keyword">public</span> DateTime Birthday &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</span><br><span class="line"></span><br><span class="line">   <span class="comment">// 身分證</span></span><br><span class="line">   <span class="keyword">public</span> String IDCard &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-<p>假設今天我們想要定義一些簡單的驗證，例如：</p>
-<ul>
-<li>最小輸入長度</li>
-<li>最大輸入長度</li>
-<li>Email驗證<br>那麼你只需要在上方新增一個標籤：<figure class="highlight c#"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 必填資訊</span></span><br><span class="line">  [<span class="meta">MaxLength(10,ErrorMessage =<span class="string">&quot;超過最大長度&quot;</span>)</span>] <span class="comment">//設定最大只能輸入10個字，超過就回傳錯誤訊息</span></span><br><span class="line">  <span class="keyword">public</span> <span class="built_in">string</span> Name &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</span><br></pre></td></tr></table></figure>
-當標籤定義完之後，我們就可以在C#的程式讓他進行自動驗證</li>
-</ul>
-<p>我們只需要這樣寫就可以自動幫我們做完驗證</p>
-<figure class="highlight c#"><table><tr><td class="code"><pre><span class="line"><span class="keyword">if</span>(ModelState.IsValid) <span class="comment">//當Model驗證通過時就做的事情</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="comment">//Success do something</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">else</span>&#123;</span><br><span class="line"><span class="comment">//Failure do something</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>這樣的方式，讓我們在Action當中不會看到任何的欄位驗證邏輯。</p>
-<p>不過這邊又有一個缺點：「官方預先寫好的太少」</p>
-<p>因此接下來才是我們要學的重頭戲：</p>
-<h3 id="如何自訂義RequestModel-驗證"><a href="#如何自訂義RequestModel-驗證" class="headerlink" title="如何自訂義RequestModel 驗證"></a>如何自訂義RequestModel 驗證</h3><p>首先，我們需要先建立一個類別</p>
-<p>根據<a href="https://msdn.microsoft.com/zh-tw/library/cc668224(v=vs.100).aspx">官網文件</a>，我們需要繼承 <code>ValidationAttribute</code></p>
-<p>並且去複寫 <code>IsValid</code></p>
-<p>此時會產生這樣的Code出來：</p>
-<figure class="highlight c#"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">override</span> <span class="built_in">bool</span> <span class="title">IsValid</span>(<span class="params"><span class="built_in">object</span> <span class="keyword">value</span></span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">return</span>  <span class="keyword">base</span>.IsValid(<span class="keyword">value</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>接著我們就可以在裡面寫邏輯判斷拉！，其中這邊的value，是我們從前端傳進來的參數，因此我們就可以來寫判斷拉！</p>
-<p>接下來我們來實做看看如何自定義身分證驗證，以下是程式碼：</p>
-<figure class="highlight c#"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">override</span> <span class="built_in">bool</span> <span class="title">IsValid</span>(<span class="params"><span class="built_in">object</span> <span class="keyword">value</span></span>)</span></span><br><span class="line">        &#123;</span><br><span class="line">            String ID = <span class="keyword">value</span>.ToString().ToUpper();</span><br><span class="line">            List&lt;<span class="built_in">string</span>&gt; FirstEng = <span class="keyword">new</span> List&lt;<span class="built_in">string</span>&gt; &#123; <span class="string">&quot;A&quot;</span>, <span class="string">&quot;B&quot;</span>, <span class="string">&quot;C&quot;</span>, <span class="string">&quot;D&quot;</span>, <span class="string">&quot;E&quot;</span>, <span class="string">&quot;F&quot;</span>, <span class="string">&quot;G&quot;</span>, <span class="string">&quot;H&quot;</span>, <span class="string">&quot;J&quot;</span>, <span class="string">&quot;K&quot;</span>, <span class="string">&quot;L&quot;</span>, <span class="string">&quot;M&quot;</span>, <span class="string">&quot;N&quot;</span>, <span class="string">&quot;P&quot;</span>, <span class="string">&quot;Q&quot;</span>, <span class="string">&quot;R&quot;</span>, <span class="string">&quot;S&quot;</span>, <span class="string">&quot;T&quot;</span>, <span class="string">&quot;U&quot;</span>, <span class="string">&quot;V&quot;</span>, <span class="string">&quot;X&quot;</span>, <span class="string">&quot;Y&quot;</span>, <span class="string">&quot;W&quot;</span>, <span class="string">&quot;Z&quot;</span>, <span class="string">&quot;I&quot;</span>, <span class="string">&quot;O&quot;</span> &#125;;</span><br><span class="line">            <span class="built_in">bool</span> chackFirstEnd = <span class="literal">false</span>;</span><br><span class="line">            <span class="keyword">if</span> (ID.Trim().Length == <span class="number">10</span>)</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="built_in">byte</span> firstNo = Convert.ToByte(ID.Trim().Substring(<span class="number">1</span>, <span class="number">1</span>));</span><br><span class="line">                <span class="keyword">if</span> (firstNo &gt; <span class="number">2</span> || firstNo &lt; <span class="number">1</span>)</span><br><span class="line">                &#123;</span><br><span class="line">                    <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">else</span></span><br><span class="line">                &#123;</span><br><span class="line">                    <span class="built_in">int</span> x;</span><br><span class="line">                    <span class="keyword">for</span> (x = <span class="number">0</span>; x &lt; FirstEng.Count; x++)</span><br><span class="line">                    &#123;</span><br><span class="line">                        <span class="keyword">if</span> (ID.Substring(<span class="number">0</span>, <span class="number">1</span>) == FirstEng[x])</span><br><span class="line">                        &#123;</span><br><span class="line">                            ID = <span class="built_in">string</span>.Format(<span class="string">&quot;&#123;0&#125;&#123;1&#125;&quot;</span>, x + <span class="number">10</span>, ID.Substring(<span class="number">1</span>, <span class="number">9</span>));</span><br><span class="line">                            chackFirstEnd = <span class="literal">true</span>;</span><br><span class="line">                            <span class="keyword">break</span>;</span><br><span class="line">                        &#125;</span><br><span class="line"></span><br><span class="line">                    &#125;</span><br><span class="line">                    <span class="keyword">if</span> (!chackFirstEnd)</span><br><span class="line">                        <span class="keyword">return</span> <span class="literal">false</span>; </span><br><span class="line"></span><br><span class="line">                    <span class="built_in">int</span> i = <span class="number">1</span>;</span><br><span class="line">                    <span class="built_in">int</span> ss = <span class="built_in">int</span>.Parse(ID.Substring(<span class="number">0</span>, <span class="number">1</span>));</span><br><span class="line">                    <span class="keyword">while</span> (ID.Length &gt; i)</span><br><span class="line">                    &#123;</span><br><span class="line">                        ss = ss + (<span class="built_in">int</span>.Parse(ID.Substring(i, <span class="number">1</span>)) * (<span class="number">10</span> - i));</span><br><span class="line">                        i++;</span><br><span class="line">                    &#125;</span><br><span class="line">                    ID = ss.ToString();</span><br><span class="line">                    <span class="keyword">if</span> (<span class="keyword">value</span>.ToString().Substring(<span class="number">9</span>, <span class="number">1</span>) == <span class="string">&quot;0&quot;</span>)</span><br><span class="line">                    &#123;</span><br><span class="line">                        <span class="keyword">if</span> (ID.Substring(ID.Length - <span class="number">1</span>, <span class="number">1</span>) == <span class="string">&quot;0&quot;</span>)</span><br><span class="line">                        &#123;</span><br><span class="line">                            <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">                        &#125;</span><br><span class="line">                        <span class="keyword">else</span></span><br><span class="line">                        &#123;</span><br><span class="line">                            <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">                        &#125;</span><br><span class="line">                    &#125;</span><br><span class="line">                    <span class="keyword">else</span></span><br><span class="line">                    &#123;</span><br><span class="line">                        <span class="keyword">if</span> (<span class="keyword">value</span>.ToString().Substring(<span class="number">9</span>, <span class="number">1</span>) == (<span class="number">10</span> - <span class="built_in">int</span>.Parse(ID.Substring(ID.Length - <span class="number">1</span>, <span class="number">1</span>))).ToString())</span><br><span class="line">                        &#123;</span><br><span class="line"></span><br><span class="line">                            <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">                        &#125;</span><br><span class="line">                        <span class="keyword">else</span></span><br><span class="line">                        &#123;</span><br><span class="line">                            <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">                        &#125;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">else</span></span><br><span class="line">            &#123;</span><br><span class="line"></span><br><span class="line">                <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br></pre></td></tr></table></figure>
-<p>接著在Action我們就可以這樣做囉！</p>
-<figure class="highlight c#"><table><tr><td class="code"><pre><span class="line"><span class="keyword">if</span>(ModelState.IsValid)</span><br><span class="line">          &#123;</span><br><span class="line">               <span class="keyword">return</span> <span class="keyword">this</span>.Json(<span class="string">&quot;Success&quot;</span>); <span class="comment">//驗證過後回傳成功</span></span><br><span class="line">           &#125;</span><br><span class="line">          <span class="keyword">else</span>&#123;</span><br><span class="line"></span><br><span class="line">               <span class="keyword">var</span> data = ModelState.Where(x =&gt; x.Value.Errors.Count &gt; <span class="number">0</span>) <span class="comment">//如果驗證失敗，則將錯誤訊息抓出來</span></span><br><span class="line">                            .Select(x =&gt; <span class="keyword">new</span></span><br><span class="line">                            &#123;</span><br><span class="line"></span><br><span class="line">                                x.Key,</span><br><span class="line">                                x.Value.Errors[<span class="number">0</span>].ErrorMessage</span><br><span class="line"></span><br><span class="line">                            &#125;).ToList();</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">               <span class="comment">//   List&lt;ModelState&gt; data = ModelState.Values.ToList();</span></span><br><span class="line">               <span class="keyword">return</span> <span class="keyword">this</span>.Json(data);</span><br><span class="line"></span><br><span class="line">           &#125;</span><br></pre></td></tr></table></figure>
-<p>這邊如果驗證失敗，我們則是採用linQ的方式，將ErrorMessage給取出來，至於細節部分在這邊就不攢述了</p>
-<p>各位有興趣可以下中斷點看看回傳的內容，就可以明白為什麼我會這樣寫了。</p>
-<div>
-以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
-
-<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
-<p><a href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
-</div>
-]]></content>
-      <categories>
-        <category>.NET</category>
-      </categories>
-      <tags>
-        <tag>WebAPI</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>RxJS 快速入門 教你如何快速理解RxJS用途以及使用方式</title>
     <url>/2017/05/14/RxJS-%E5%BF%AB%E9%80%9F%E5%85%A5%E9%96%80-%E6%95%99%E4%BD%A0%E5%A6%82%E4%BD%95%E5%BF%AB%E9%80%9F%E7%90%86%E8%A7%A3RxJS%E7%94%A8%E9%80%94%E4%BB%A5%E5%8F%8A%E4%BD%BF%E7%94%A8%E6%96%B9%E5%BC%8F/</url>
     <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>前陣子的高雄前端開發者大會，因為有其他工作要忙沒機會過去聽</p>
@@ -1214,18 +1165,40 @@ version for package `Microsoft.EntityFrameworkCore.Tools.DotNet` could not be re
       </categories>
   </entry>
   <entry>
-    <title>WinForm - 解決無法對這個檔案顯示設計工具，因為檔案中沒有可以設計的類別</title>
-    <url>/2017/12/15/WinForm-%E8%A7%A3%E6%B1%BA%E7%84%A1%E6%B3%95%E5%B0%8D%E9%80%99%E5%80%8B%E6%AA%94%E6%A1%88%E9%A1%AF%E7%A4%BA%E8%A8%AD%E8%A8%88%E5%B7%A5%E5%85%B7%EF%BC%8C%E5%9B%A0%E7%82%BA%E6%AA%94%E6%A1%88%E4%B8%AD%E6%B2%92%E6%9C%89%E5%8F%AF%E4%BB%A5%E8%A8%AD%E8%A8%88%E7%9A%84%E9%A1%9E%E5%88%A5/</url>
-    <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>當我們在針對WindowsForm設計的時候，如果我們想要針對原本的Form表單增加一些功能等等，我們會需要透過繼承Form表單來實作。</p>
-<p>此時當我們繼承原本的Form頁面時，我們會發現當前繼承的頁面會出現以下錯誤訊息：</p>
+    <title>WebAPI- 自定義RequestModel 驗證</title>
+    <url>/2017/07/03/WebAPI-%E8%87%AA%E5%AE%9A%E7%BE%A9RequestModel-%E9%A9%97%E8%AD%89/</url>
+    <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>通常我們在後端接前端Request參數的時候，我們為了省事，會建立一個Model來將前後端Binding</p>
+<p>儘管這樣的方式讓我們大幅減少了Action所需要的參數。</p>
+<p>不過如果我們想要將每一個欄位都進行驗證的時候，此時光是Action內還沒寫主要程式碼，就先因為格式的驗證佔了一大半的程式碼</p>
+<p>因此今天來介紹如何透過自定義Attribute來達到此目的。</p>
 <span id="more"></span>
-<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/747b607f-21d2-4185-b73d-9f525f5daf2e/1513316793_69472.png"></p>
-<p>這問題是因為 Visual Studio <font>找不到基底類別的設計工具或是基底類別是找不到或無法載入的類別。</font> </p>
-<p>因此，只需要將專案進行建置：</p>
-<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/747b607f-21d2-4185-b73d-9f525f5daf2e/1513316869_29036.png"></p>
-<p>此時會發現輸出訊息欄會有建置成功的訊息：</p>
-<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/747b607f-21d2-4185-b73d-9f525f5daf2e/1513316900_48037.png"></p>
-<p>當建置成功後，再次開啟頁面，就會發現錯誤訊息已經消失了。</p>
+<p>首先一般來說我們在Model當中會定義像這樣的欄位來去接值：</p>
+<figure class="highlight c#"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">Member</span></span><br><span class="line">&#123;</span><br><span class="line">   <span class="comment">// 必填資訊</span></span><br><span class="line">   <span class="keyword">public</span> <span class="built_in">string</span> Name &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</span><br><span class="line"></span><br><span class="line">   <span class="comment">// 需超過20歲才可註冊</span></span><br><span class="line">   <span class="keyword">public</span> DateTime Birthday &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</span><br><span class="line"></span><br><span class="line">   <span class="comment">// 身分證</span></span><br><span class="line">   <span class="keyword">public</span> String IDCard &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>假設今天我們想要定義一些簡單的驗證，例如：</p>
+<ul>
+<li>最小輸入長度</li>
+<li>最大輸入長度</li>
+<li>Email驗證<br>那麼你只需要在上方新增一個標籤：<figure class="highlight c#"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 必填資訊</span></span><br><span class="line">  [<span class="meta">MaxLength(10,ErrorMessage =<span class="string">&quot;超過最大長度&quot;</span>)</span>] <span class="comment">//設定最大只能輸入10個字，超過就回傳錯誤訊息</span></span><br><span class="line">  <span class="keyword">public</span> <span class="built_in">string</span> Name &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</span><br></pre></td></tr></table></figure>
+當標籤定義完之後，我們就可以在C#的程式讓他進行自動驗證</li>
+</ul>
+<p>我們只需要這樣寫就可以自動幫我們做完驗證</p>
+<figure class="highlight c#"><table><tr><td class="code"><pre><span class="line"><span class="keyword">if</span>(ModelState.IsValid) <span class="comment">//當Model驗證通過時就做的事情</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="comment">//Success do something</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">else</span>&#123;</span><br><span class="line"><span class="comment">//Failure do something</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>這樣的方式，讓我們在Action當中不會看到任何的欄位驗證邏輯。</p>
+<p>不過這邊又有一個缺點：「官方預先寫好的太少」</p>
+<p>因此接下來才是我們要學的重頭戲：</p>
+<h3 id="如何自訂義RequestModel-驗證"><a href="#如何自訂義RequestModel-驗證" class="headerlink" title="如何自訂義RequestModel 驗證"></a>如何自訂義RequestModel 驗證</h3><p>首先，我們需要先建立一個類別</p>
+<p>根據<a href="https://msdn.microsoft.com/zh-tw/library/cc668224(v=vs.100).aspx">官網文件</a>，我們需要繼承 <code>ValidationAttribute</code></p>
+<p>並且去複寫 <code>IsValid</code></p>
+<p>此時會產生這樣的Code出來：</p>
+<figure class="highlight c#"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">override</span> <span class="built_in">bool</span> <span class="title">IsValid</span>(<span class="params"><span class="built_in">object</span> <span class="keyword">value</span></span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">return</span>  <span class="keyword">base</span>.IsValid(<span class="keyword">value</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>接著我們就可以在裡面寫邏輯判斷拉！，其中這邊的value，是我們從前端傳進來的參數，因此我們就可以來寫判斷拉！</p>
+<p>接下來我們來實做看看如何自定義身分證驗證，以下是程式碼：</p>
+<figure class="highlight c#"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">override</span> <span class="built_in">bool</span> <span class="title">IsValid</span>(<span class="params"><span class="built_in">object</span> <span class="keyword">value</span></span>)</span></span><br><span class="line">        &#123;</span><br><span class="line">            String ID = <span class="keyword">value</span>.ToString().ToUpper();</span><br><span class="line">            List&lt;<span class="built_in">string</span>&gt; FirstEng = <span class="keyword">new</span> List&lt;<span class="built_in">string</span>&gt; &#123; <span class="string">&quot;A&quot;</span>, <span class="string">&quot;B&quot;</span>, <span class="string">&quot;C&quot;</span>, <span class="string">&quot;D&quot;</span>, <span class="string">&quot;E&quot;</span>, <span class="string">&quot;F&quot;</span>, <span class="string">&quot;G&quot;</span>, <span class="string">&quot;H&quot;</span>, <span class="string">&quot;J&quot;</span>, <span class="string">&quot;K&quot;</span>, <span class="string">&quot;L&quot;</span>, <span class="string">&quot;M&quot;</span>, <span class="string">&quot;N&quot;</span>, <span class="string">&quot;P&quot;</span>, <span class="string">&quot;Q&quot;</span>, <span class="string">&quot;R&quot;</span>, <span class="string">&quot;S&quot;</span>, <span class="string">&quot;T&quot;</span>, <span class="string">&quot;U&quot;</span>, <span class="string">&quot;V&quot;</span>, <span class="string">&quot;X&quot;</span>, <span class="string">&quot;Y&quot;</span>, <span class="string">&quot;W&quot;</span>, <span class="string">&quot;Z&quot;</span>, <span class="string">&quot;I&quot;</span>, <span class="string">&quot;O&quot;</span> &#125;;</span><br><span class="line">            <span class="built_in">bool</span> chackFirstEnd = <span class="literal">false</span>;</span><br><span class="line">            <span class="keyword">if</span> (ID.Trim().Length == <span class="number">10</span>)</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="built_in">byte</span> firstNo = Convert.ToByte(ID.Trim().Substring(<span class="number">1</span>, <span class="number">1</span>));</span><br><span class="line">                <span class="keyword">if</span> (firstNo &gt; <span class="number">2</span> || firstNo &lt; <span class="number">1</span>)</span><br><span class="line">                &#123;</span><br><span class="line">                    <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">else</span></span><br><span class="line">                &#123;</span><br><span class="line">                    <span class="built_in">int</span> x;</span><br><span class="line">                    <span class="keyword">for</span> (x = <span class="number">0</span>; x &lt; FirstEng.Count; x++)</span><br><span class="line">                    &#123;</span><br><span class="line">                        <span class="keyword">if</span> (ID.Substring(<span class="number">0</span>, <span class="number">1</span>) == FirstEng[x])</span><br><span class="line">                        &#123;</span><br><span class="line">                            ID = <span class="built_in">string</span>.Format(<span class="string">&quot;&#123;0&#125;&#123;1&#125;&quot;</span>, x + <span class="number">10</span>, ID.Substring(<span class="number">1</span>, <span class="number">9</span>));</span><br><span class="line">                            chackFirstEnd = <span class="literal">true</span>;</span><br><span class="line">                            <span class="keyword">break</span>;</span><br><span class="line">                        &#125;</span><br><span class="line"></span><br><span class="line">                    &#125;</span><br><span class="line">                    <span class="keyword">if</span> (!chackFirstEnd)</span><br><span class="line">                        <span class="keyword">return</span> <span class="literal">false</span>; </span><br><span class="line"></span><br><span class="line">                    <span class="built_in">int</span> i = <span class="number">1</span>;</span><br><span class="line">                    <span class="built_in">int</span> ss = <span class="built_in">int</span>.Parse(ID.Substring(<span class="number">0</span>, <span class="number">1</span>));</span><br><span class="line">                    <span class="keyword">while</span> (ID.Length &gt; i)</span><br><span class="line">                    &#123;</span><br><span class="line">                        ss = ss + (<span class="built_in">int</span>.Parse(ID.Substring(i, <span class="number">1</span>)) * (<span class="number">10</span> - i));</span><br><span class="line">                        i++;</span><br><span class="line">                    &#125;</span><br><span class="line">                    ID = ss.ToString();</span><br><span class="line">                    <span class="keyword">if</span> (<span class="keyword">value</span>.ToString().Substring(<span class="number">9</span>, <span class="number">1</span>) == <span class="string">&quot;0&quot;</span>)</span><br><span class="line">                    &#123;</span><br><span class="line">                        <span class="keyword">if</span> (ID.Substring(ID.Length - <span class="number">1</span>, <span class="number">1</span>) == <span class="string">&quot;0&quot;</span>)</span><br><span class="line">                        &#123;</span><br><span class="line">                            <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">                        &#125;</span><br><span class="line">                        <span class="keyword">else</span></span><br><span class="line">                        &#123;</span><br><span class="line">                            <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">                        &#125;</span><br><span class="line">                    &#125;</span><br><span class="line">                    <span class="keyword">else</span></span><br><span class="line">                    &#123;</span><br><span class="line">                        <span class="keyword">if</span> (<span class="keyword">value</span>.ToString().Substring(<span class="number">9</span>, <span class="number">1</span>) == (<span class="number">10</span> - <span class="built_in">int</span>.Parse(ID.Substring(ID.Length - <span class="number">1</span>, <span class="number">1</span>))).ToString())</span><br><span class="line">                        &#123;</span><br><span class="line"></span><br><span class="line">                            <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">                        &#125;</span><br><span class="line">                        <span class="keyword">else</span></span><br><span class="line">                        &#123;</span><br><span class="line">                            <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">                        &#125;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">else</span></span><br><span class="line">            &#123;</span><br><span class="line"></span><br><span class="line">                <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br></pre></td></tr></table></figure>
+<p>接著在Action我們就可以這樣做囉！</p>
+<figure class="highlight c#"><table><tr><td class="code"><pre><span class="line"><span class="keyword">if</span>(ModelState.IsValid)</span><br><span class="line">          &#123;</span><br><span class="line">               <span class="keyword">return</span> <span class="keyword">this</span>.Json(<span class="string">&quot;Success&quot;</span>); <span class="comment">//驗證過後回傳成功</span></span><br><span class="line">           &#125;</span><br><span class="line">          <span class="keyword">else</span>&#123;</span><br><span class="line"></span><br><span class="line">               <span class="keyword">var</span> data = ModelState.Where(x =&gt; x.Value.Errors.Count &gt; <span class="number">0</span>) <span class="comment">//如果驗證失敗，則將錯誤訊息抓出來</span></span><br><span class="line">                            .Select(x =&gt; <span class="keyword">new</span></span><br><span class="line">                            &#123;</span><br><span class="line"></span><br><span class="line">                                x.Key,</span><br><span class="line">                                x.Value.Errors[<span class="number">0</span>].ErrorMessage</span><br><span class="line"></span><br><span class="line">                            &#125;).ToList();</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">               <span class="comment">//   List&lt;ModelState&gt; data = ModelState.Values.ToList();</span></span><br><span class="line">               <span class="keyword">return</span> <span class="keyword">this</span>.Json(data);</span><br><span class="line"></span><br><span class="line">           &#125;</span><br></pre></td></tr></table></figure>
+<p>這邊如果驗證失敗，我們則是採用linQ的方式，將ErrorMessage給取出來，至於細節部分在這邊就不攢述了</p>
+<p>各位有興趣可以下中斷點看看回傳的內容，就可以明白為什麼我會這樣寫了。</p>
 <div>
 以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
 
@@ -1237,7 +1210,7 @@ version for package `Microsoft.EntityFrameworkCore.Tools.DotNet` could not be re
         <category>.NET</category>
       </categories>
       <tags>
-        <tag>WinForm</tag>
+        <tag>WebAPI</tag>
       </tags>
   </entry>
   <entry>
@@ -1286,6 +1259,33 @@ version for package `Microsoft.EntityFrameworkCore.Tools.DotNet` could not be re
       </categories>
       <tags>
         <tag>CI/CD</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>WinForm - 解決無法對這個檔案顯示設計工具，因為檔案中沒有可以設計的類別</title>
+    <url>/2017/12/15/WinForm-%E8%A7%A3%E6%B1%BA%E7%84%A1%E6%B3%95%E5%B0%8D%E9%80%99%E5%80%8B%E6%AA%94%E6%A1%88%E9%A1%AF%E7%A4%BA%E8%A8%AD%E8%A8%88%E5%B7%A5%E5%85%B7%EF%BC%8C%E5%9B%A0%E7%82%BA%E6%AA%94%E6%A1%88%E4%B8%AD%E6%B2%92%E6%9C%89%E5%8F%AF%E4%BB%A5%E8%A8%AD%E8%A8%88%E7%9A%84%E9%A1%9E%E5%88%A5/</url>
+    <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>當我們在針對WindowsForm設計的時候，如果我們想要針對原本的Form表單增加一些功能等等，我們會需要透過繼承Form表單來實作。</p>
+<p>此時當我們繼承原本的Form頁面時，我們會發現當前繼承的頁面會出現以下錯誤訊息：</p>
+<span id="more"></span>
+<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/747b607f-21d2-4185-b73d-9f525f5daf2e/1513316793_69472.png"></p>
+<p>這問題是因為 Visual Studio <font>找不到基底類別的設計工具或是基底類別是找不到或無法載入的類別。</font> </p>
+<p>因此，只需要將專案進行建置：</p>
+<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/747b607f-21d2-4185-b73d-9f525f5daf2e/1513316869_29036.png"></p>
+<p>此時會發現輸出訊息欄會有建置成功的訊息：</p>
+<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/747b607f-21d2-4185-b73d-9f525f5daf2e/1513316900_48037.png"></p>
+<p>當建置成功後，再次開啟頁面，就會發現錯誤訊息已經消失了。</p>
+<div>
+以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
+
+<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
+<p><a href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
+</div>
+]]></content>
+      <categories>
+        <category>.NET</category>
+      </categories>
+      <tags>
+        <tag>WinForm</tag>
       </tags>
   </entry>
   <entry>
