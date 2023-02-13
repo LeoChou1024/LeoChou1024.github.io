@@ -46,6 +46,38 @@
       </tags>
   </entry>
   <entry>
+    <title>Android- Fragment 基本介紹</title>
+    <url>/2016/09/03/Android-Fragment-%E5%9F%BA%E6%9C%AC%E4%BB%8B%E7%B4%B9/</url>
+    <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>在撰寫Android時，一定都會需要用到換頁的技巧</p>
+<p>但是在使用換頁時，可能初學都會習慣先使用Intent來進行頁面的跳轉 (我第一次寫Android Watch的時候好像也是這樣~)</p>
+<p>但是用久了的時候卻會發現到：假設如果今天自己的App有一個客製化的Title 以及Bottom Bar時，會發現每一次都需要將重複的Style程式碼複製貼上來進行設計</p>
+<p>因此本篇會來介紹該如何解決這個問題</p>
+<span id="more"></span>
+<p>Google 在Android 3.0時，研發了一種名為Fragment的功能，只需要將你程式碼的某一區塊定義為Fragment後，就可以只針對這個區塊進行抽換（有點類似 Ajax）</p>
+<p>而在使用上來說其實滿簡單的</p>
+<p>首先在自己的Activity頁面定義出一塊空的Layout(一定要是空的！否則你的程式碼將會無法被替換掉)</p>
+<p>接著在Layout的資料夾中New一個Fragment作為我們的抽換頁面</p>
+<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/c5d87a90-bdbb-47bd-8e62-859c6c4314a2/1472992022_82103.png"></p>
+<p>接著就可以在自己的程式碼中的OnCreate中加上抽換的程式碼，如此一來就可以在畫面載入時跳轉到自己的其它頁面去了</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="type">FragmentTransaction</span> <span class="variable">transaction</span> <span class="operator">=</span> getSupportFragmentManager().beginTransaction();</span><br><span class="line">        transaction.replace(R.id.Content, <span class="string">&quot;你新建立好的Fragment&quot;</span>;</span><br><span class="line">        transaction.commitAllowingStateLoss(); <span class="comment">//這行一定要加，目的是要讓transaction能夠真正送出</span></span><br></pre></td></tr></table></figure>
+<p>第三行的Commit 如果是從某一個Fragment切換到其他Fragment的話，一定要改為以下程式碼，否則會造成App閃退</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">transaction.commitAllowingStateLoss()</span><br></pre></td></tr></table></figure>
+<p>但若是從Activity切換到Fragment時，可以直接使用<code>commti()</code>就可以了</p>
+<div>
+以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
+
+<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
+<p><a href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
+</div>
+]]></content>
+      <categories>
+        <category>Android</category>
+      </categories>
+      <tags>
+        <tag>Fragement</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Android- Fragment 切換頁面時會造成頁面重疊</title>
     <url>/2016/09/04/Android-Fragment-%E5%88%87%E6%8F%9B%E9%A0%81%E9%9D%A2%E6%99%82%E6%9C%83%E9%80%A0%E6%88%90%E9%A0%81%E9%9D%A2%E9%87%8D%E7%96%8A/</url>
     <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>上一回我們有說到在針對頁面切換時，會使用replace來進行切換</p>
@@ -118,6 +150,49 @@
 ]]></content>
   </entry>
   <entry>
+    <title>Angular - 簡單介紹Angular中的HttpClient(HttpClient V.S Http)</title>
+    <url>/2018/03/05/Angular-%E7%B0%A1%E5%96%AE%E4%BB%8B%E7%B4%B9Angular%E4%B8%AD%E7%9A%84HttpClient-HttpClient-V-S-Http/</url>
+    <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>自從Angular 4.3版以後，新的網路傳輸HttpClient在Angular中被引入。</p>
+<p>而官方在Angular第五版開始，將舊的 HttpModule被標示為不建議使用，因此在此為各位介紹為什麼官方要採用HttpClient，而捨棄舊的Http</p>
+<span id="more"></span>
+
+<h2 id="新功能"><a href="#新功能" class="headerlink" title="新功能"></a>新功能</h2><p>我們來看看第五版<code>HttpClient</code>的新功能。</p>
+<h3 id="自動轉換為從JSON到一個對象"><a href="#自動轉換為從JSON到一個對象" class="headerlink" title="自動轉換為從JSON到一個對象"></a>自動轉換為從JSON到一個對象</h3><p>當我們從網路接收數據時，我們在Api當中會使用JSON格式來進行回傳。 為了能夠在我們的程式當中處理這些JSON數據，我們需要根據我們得到的JSON數據創建一個對象。</p>
+<p>讓我們看一個使用舊Angular http基本範例：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="title function_">getData</span>(<span class="params"></span>) &#123; </span><br><span class="line">  <span class="variable language_">this</span>.<span class="property">http</span>.<span class="title function_">get</span>(<span class="string">&#x27;yourAPI&#x27;</span>) </span><br><span class="line">      .<span class="title function_">map</span>(<span class="function"><span class="params">x</span>=&gt;</span> <span class="title class_">JSON</span>.<span class="title function_">parse</span>(x.<span class="property">data</span>)) 將每一個資料轉換成json格式</span><br><span class="line">      .<span class="title function_">subscribe</span>(<span class="function"><span class="params">x</span>=&gt;</span> <span class="variable language_">console</span>.<span class="title function_">log</span>(x);) 輸出json格式資料</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>上述的Code主要做了三件事情，我們把它們整理條列一下：</p>
+<p>獲取JSONData（這是Response類型）。<br>使用JSON.parse()將Data轉換為Json格式進行解析<br>將結果記錄到主控台中。<br>而使用新的HttpClient 我們的Code只需要這樣：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="title function_">getData</span>(<span class="params"></span>) &#123; </span><br><span class="line">  <span class="variable language_">this</span>.<span class="property">http</span>.<span class="title function_">get</span>(<span class="string">&#x27;yourAPI&#x27;</span>) </span><br><span class="line">      .<span class="title function_">subscribe</span>(<span class="function"><span class="params">x</span>=&gt;</span> <span class="variable language_">console</span>.<span class="title function_">log</span>(x);) 輸出json格式資料</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>另外我們也可以使用泛型透過衍生型類別來訂定資料：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="title function_">getData</span>(<span class="params"></span>) &#123; </span><br><span class="line">  <span class="variable language_">this</span>.<span class="property">http</span>.<span class="property">get</span>&lt;<span class="title class_">User</span>&gt;(<span class="string">&#x27;yourAPI&#x27;</span>) </span><br><span class="line">      .<span class="title function_">subscribe</span>(<span class="attr">x</span>:<span class="function"><span class="params">User</span> =&gt;</span> <span class="variable language_">console</span>.<span class="title function_">log</span>(x);) 輸出json格式資料，有了泛型我們就可以使用提示字元來取得欄位資料</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="Header的簡化語法"><a href="#Header的簡化語法" class="headerlink" title="Header的簡化語法"></a>Header的簡化語法</h3><p>通常在做網路傳輸的時候，為了在請求中設置自定義Header（如Auth），我們需要實體化HttpHeaders()對象並將(‘header’, ‘value’)傳遞給函數。</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">const</span> headers = <span class="keyword">new</span> <span class="title class_">HttpHeaders</span>().<span class="title function_">set</span>(<span class="string">&#x27;Content-Type&#x27;</span>, <span class="string">&#x27;text&#x27;</span>);</span><br></pre></td></tr></table></figure>
+<p>在這個例子中，我們將Content-TypeHeader設置為text （ application&#x2F;json是默認值）。</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">const</span> headers = <span class="keyword">new</span> <span class="title class_">HttpHeaders</span>().<span class="title function_">set</span>(<span class="string">&#x27;Content-Type&#x27;</span>, <span class="string">&#x27;text&#x27;</span>).<span class="title function_">append</span>(<span class="string">&#x27;Authorization&#x27;</span>, <span class="string">&#x27;CustomToken&#x27;</span>);</span><br></pre></td></tr></table></figure>
+
+<h3 id="如何從Http更改為新的HttpClient："><a href="#如何從Http更改為新的HttpClient：" class="headerlink" title="如何從Http更改為新的HttpClient："></a>如何從Http更改為新的HttpClient：</h3><p>第一步是確保安裝了適當的Angular版本，即4.3和更高版本。<br>在項目的<code>Module</code>中用<code>HttpClientModule</code>替換<code>HttpModule</code> 。 新的<code>HttpClientModule</code>應該從<code>@angular/common/http</code>導入。</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">// Old import &#123; HttpModule &#125; from &#x27;@angular/http&#x27;; </span></span><br><span class="line"></span><br><span class="line">   @<span class="title class_">NgModule</span>(&#123; ... <span class="attr">imports</span>: [ <span class="title class_">HttpModule</span>, ], ... &#125;)</span><br><span class="line"></span><br><span class="line"><span class="comment">// New import &#123; HttpClientModule &#125; from &#x27;@angular/common/http&#x27;; </span></span><br><span class="line">   @<span class="title class_">NgModule</span>(&#123; ... <span class="attr">imports</span>: [ <span class="title class_">HttpClientModule</span>, ], ... &#125;)</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment">// Old Http</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">Http</span>, <span class="title class_">Headers</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/http&#x27;</span>; </span><br><span class="line"></span><br><span class="line">@<span class="title class_">Injectable</span>() <span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">ExampleService</span> &#123; </span><br><span class="line"></span><br><span class="line">  private _headers = <span class="keyword">new</span> <span class="title class_">Headers</span>(&#123;<span class="string">&#x27;Authentication&#x27;</span>: <span class="string">&#x27;Token&#x27;</span>&#125;); </span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params">private http: Http</span>) &#123;&#125;</span><br><span class="line">  public <span class="title function_">getData</span>(<span class="params"></span>) &#123; </span><br><span class="line">  <span class="keyword">return</span> <span class="variable language_">this</span>.<span class="property">http</span>.<span class="title function_">get</span>(<span class="string">&#x27;youtAPI&#x27;</span>, <span class="variable language_">this</span>.<span class="property">_headers</span>)</span><br><span class="line">                  .<span class="title function_">map</span>(<span class="function">(<span class="params">x</span>) =&gt;</span> &#123; <span class="keyword">return</span> <span class="title class_">JSON</span>.<span class="title function_">parse</span>(x.<span class="property">body</span>); &#125;)</span><br><span class="line">                  .<span class="title function_">subscribe</span>(<span class="function"><span class="params">x</span>=&gt;</span> <span class="variable language_">console</span>.<span class="title function_">log</span>(x));  </span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// New HttpClient</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">HttpClient</span>, <span class="title class_">HttpHeaders</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/common/http&#x27;</span>; </span><br><span class="line"></span><br><span class="line">@<span class="title class_">Injectable</span>() <span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">ExampleService</span> &#123; </span><br><span class="line"> </span><br><span class="line">private _headers = &#123;<span class="attr">headers</span>: <span class="keyword">new</span> <span class="title class_">HttpHeaders</span>().<span class="title function_">set</span>(<span class="string">&#x27;Authentication&#x27;</span>, <span class="string">&#x27;Token&#x27;</span>)&#125;; </span><br><span class="line"></span><br><span class="line"><span class="title function_">constructor</span>(<span class="params">private http: HttpClient</span>) &#123; &#125; </span><br><span class="line"></span><br><span class="line">public <span class="title function_">getData</span>(<span class="params"></span>) &#123; </span><br><span class="line">  </span><br><span class="line">  <span class="keyword">return</span> <span class="variable language_">this</span>.<span class="property">http</span>.<span class="title function_">get</span>(<span class="string">&#x27;youtAPI&#x27;</span>, <span class="variable language_">this</span>.<span class="property">_headers</span>).<span class="title function_">subscribe</span>(<span class="function"><span class="params">x</span>=&gt;</span> <span class="variable language_">console</span>.<span class="title function_">log</span>(x); </span><br><span class="line"></span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="結論"><a href="#結論" class="headerlink" title="結論"></a>結論</h3><p>基本上，語法沒有很大的變化。 HttpClient保留了舊的http： http.get() ， http.post()等相同的方法名稱。</p>
+<p>因此大家可以愉快地升級，享受簡潔的語法吧！</p>
+<div>
+以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
+
+<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
+<p><a href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
+</div>
+]]></content>
+      <categories>
+        <category>Angular</category>
+      </categories>
+      <tags>
+        <tag>HttpClient</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>C# Dapper-SQL中的Entity Framework</title>
     <url>/2023/01/24/C-Dapper-SQL%E4%B8%AD%E7%9A%84Entity-Framework/</url>
     <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>關於Dapper的介紹，其實多到可以算月經文了XD</p>
@@ -177,81 +252,6 @@
       </categories>
       <tags>
         <tag>Dapper</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Android- Fragment 基本介紹</title>
-    <url>/2016/09/03/Android-Fragment-%E5%9F%BA%E6%9C%AC%E4%BB%8B%E7%B4%B9/</url>
-    <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>在撰寫Android時，一定都會需要用到換頁的技巧</p>
-<p>但是在使用換頁時，可能初學都會習慣先使用Intent來進行頁面的跳轉 (我第一次寫Android Watch的時候好像也是這樣~)</p>
-<p>但是用久了的時候卻會發現到：假設如果今天自己的App有一個客製化的Title 以及Bottom Bar時，會發現每一次都需要將重複的Style程式碼複製貼上來進行設計</p>
-<p>因此本篇會來介紹該如何解決這個問題</p>
-<span id="more"></span>
-<p>Google 在Android 3.0時，研發了一種名為Fragment的功能，只需要將你程式碼的某一區塊定義為Fragment後，就可以只針對這個區塊進行抽換（有點類似 Ajax）</p>
-<p>而在使用上來說其實滿簡單的</p>
-<p>首先在自己的Activity頁面定義出一塊空的Layout(一定要是空的！否則你的程式碼將會無法被替換掉)</p>
-<p>接著在Layout的資料夾中New一個Fragment作為我們的抽換頁面</p>
-<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/c5d87a90-bdbb-47bd-8e62-859c6c4314a2/1472992022_82103.png"></p>
-<p>接著就可以在自己的程式碼中的OnCreate中加上抽換的程式碼，如此一來就可以在畫面載入時跳轉到自己的其它頁面去了</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="type">FragmentTransaction</span> <span class="variable">transaction</span> <span class="operator">=</span> getSupportFragmentManager().beginTransaction();</span><br><span class="line">        transaction.replace(R.id.Content, <span class="string">&quot;你新建立好的Fragment&quot;</span>;</span><br><span class="line">        transaction.commitAllowingStateLoss(); <span class="comment">//這行一定要加，目的是要讓transaction能夠真正送出</span></span><br></pre></td></tr></table></figure>
-<p>第三行的Commit 如果是從某一個Fragment切換到其他Fragment的話，一定要改為以下程式碼，否則會造成App閃退</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">transaction.commitAllowingStateLoss()</span><br></pre></td></tr></table></figure>
-<p>但若是從Activity切換到Fragment時，可以直接使用<code>commti()</code>就可以了</p>
-<div>
-以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
-
-<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
-<p><a href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
-</div>
-]]></content>
-      <categories>
-        <category>Android</category>
-      </categories>
-      <tags>
-        <tag>Fragement</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Angular - 簡單介紹Angular中的HttpClient(HttpClient V.S Http)</title>
-    <url>/2018/03/05/Angular-%E7%B0%A1%E5%96%AE%E4%BB%8B%E7%B4%B9Angular%E4%B8%AD%E7%9A%84HttpClient-HttpClient-V-S-Http/</url>
-    <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>自從Angular 4.3版以後，新的網路傳輸HttpClient在Angular中被引入。</p>
-<p>而官方在Angular第五版開始，將舊的 HttpModule被標示為不建議使用，因此在此為各位介紹為什麼官方要採用HttpClient，而捨棄舊的Http</p>
-<span id="more"></span>
-
-<h2 id="新功能"><a href="#新功能" class="headerlink" title="新功能"></a>新功能</h2><p>我們來看看第五版<code>HttpClient</code>的新功能。</p>
-<h3 id="自動轉換為從JSON到一個對象"><a href="#自動轉換為從JSON到一個對象" class="headerlink" title="自動轉換為從JSON到一個對象"></a>自動轉換為從JSON到一個對象</h3><p>當我們從網路接收數據時，我們在Api當中會使用JSON格式來進行回傳。 為了能夠在我們的程式當中處理這些JSON數據，我們需要根據我們得到的JSON數據創建一個對象。</p>
-<p>讓我們看一個使用舊Angular http基本範例：</p>
-<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="title function_">getData</span>(<span class="params"></span>) &#123; </span><br><span class="line">  <span class="variable language_">this</span>.<span class="property">http</span>.<span class="title function_">get</span>(<span class="string">&#x27;yourAPI&#x27;</span>) </span><br><span class="line">      .<span class="title function_">map</span>(<span class="function"><span class="params">x</span>=&gt;</span> <span class="title class_">JSON</span>.<span class="title function_">parse</span>(x.<span class="property">data</span>)) 將每一個資料轉換成json格式</span><br><span class="line">      .<span class="title function_">subscribe</span>(<span class="function"><span class="params">x</span>=&gt;</span> <span class="variable language_">console</span>.<span class="title function_">log</span>(x);) 輸出json格式資料</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>上述的Code主要做了三件事情，我們把它們整理條列一下：</p>
-<p>獲取JSONData（這是Response類型）。<br>使用JSON.parse()將Data轉換為Json格式進行解析<br>將結果記錄到主控台中。<br>而使用新的HttpClient 我們的Code只需要這樣：</p>
-<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="title function_">getData</span>(<span class="params"></span>) &#123; </span><br><span class="line">  <span class="variable language_">this</span>.<span class="property">http</span>.<span class="title function_">get</span>(<span class="string">&#x27;yourAPI&#x27;</span>) </span><br><span class="line">      .<span class="title function_">subscribe</span>(<span class="function"><span class="params">x</span>=&gt;</span> <span class="variable language_">console</span>.<span class="title function_">log</span>(x);) 輸出json格式資料</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>另外我們也可以使用泛型透過衍生型類別來訂定資料：</p>
-<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="title function_">getData</span>(<span class="params"></span>) &#123; </span><br><span class="line">  <span class="variable language_">this</span>.<span class="property">http</span>.<span class="property">get</span>&lt;<span class="title class_">User</span>&gt;(<span class="string">&#x27;yourAPI&#x27;</span>) </span><br><span class="line">      .<span class="title function_">subscribe</span>(<span class="attr">x</span>:<span class="function"><span class="params">User</span> =&gt;</span> <span class="variable language_">console</span>.<span class="title function_">log</span>(x);) 輸出json格式資料，有了泛型我們就可以使用提示字元來取得欄位資料</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="Header的簡化語法"><a href="#Header的簡化語法" class="headerlink" title="Header的簡化語法"></a>Header的簡化語法</h3><p>通常在做網路傳輸的時候，為了在請求中設置自定義Header（如Auth），我們需要實體化HttpHeaders()對象並將(‘header’, ‘value’)傳遞給函數。</p>
-<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">const</span> headers = <span class="keyword">new</span> <span class="title class_">HttpHeaders</span>().<span class="title function_">set</span>(<span class="string">&#x27;Content-Type&#x27;</span>, <span class="string">&#x27;text&#x27;</span>);</span><br></pre></td></tr></table></figure>
-<p>在這個例子中，我們將Content-TypeHeader設置為text （ application&#x2F;json是默認值）。</p>
-<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">const</span> headers = <span class="keyword">new</span> <span class="title class_">HttpHeaders</span>().<span class="title function_">set</span>(<span class="string">&#x27;Content-Type&#x27;</span>, <span class="string">&#x27;text&#x27;</span>).<span class="title function_">append</span>(<span class="string">&#x27;Authorization&#x27;</span>, <span class="string">&#x27;CustomToken&#x27;</span>);</span><br></pre></td></tr></table></figure>
-
-<h3 id="如何從Http更改為新的HttpClient："><a href="#如何從Http更改為新的HttpClient：" class="headerlink" title="如何從Http更改為新的HttpClient："></a>如何從Http更改為新的HttpClient：</h3><p>第一步是確保安裝了適當的Angular版本，即4.3和更高版本。<br>在項目的<code>Module</code>中用<code>HttpClientModule</code>替換<code>HttpModule</code> 。 新的<code>HttpClientModule</code>應該從<code>@angular/common/http</code>導入。</p>
-<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">// Old import &#123; HttpModule &#125; from &#x27;@angular/http&#x27;; </span></span><br><span class="line"></span><br><span class="line">   @<span class="title class_">NgModule</span>(&#123; ... <span class="attr">imports</span>: [ <span class="title class_">HttpModule</span>, ], ... &#125;)</span><br><span class="line"></span><br><span class="line"><span class="comment">// New import &#123; HttpClientModule &#125; from &#x27;@angular/common/http&#x27;; </span></span><br><span class="line">   @<span class="title class_">NgModule</span>(&#123; ... <span class="attr">imports</span>: [ <span class="title class_">HttpClientModule</span>, ], ... &#125;)</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment">// Old Http</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">Http</span>, <span class="title class_">Headers</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/http&#x27;</span>; </span><br><span class="line"></span><br><span class="line">@<span class="title class_">Injectable</span>() <span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">ExampleService</span> &#123; </span><br><span class="line"></span><br><span class="line">  private _headers = <span class="keyword">new</span> <span class="title class_">Headers</span>(&#123;<span class="string">&#x27;Authentication&#x27;</span>: <span class="string">&#x27;Token&#x27;</span>&#125;); </span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params">private http: Http</span>) &#123;&#125;</span><br><span class="line">  public <span class="title function_">getData</span>(<span class="params"></span>) &#123; </span><br><span class="line">  <span class="keyword">return</span> <span class="variable language_">this</span>.<span class="property">http</span>.<span class="title function_">get</span>(<span class="string">&#x27;youtAPI&#x27;</span>, <span class="variable language_">this</span>.<span class="property">_headers</span>)</span><br><span class="line">                  .<span class="title function_">map</span>(<span class="function">(<span class="params">x</span>) =&gt;</span> &#123; <span class="keyword">return</span> <span class="title class_">JSON</span>.<span class="title function_">parse</span>(x.<span class="property">body</span>); &#125;)</span><br><span class="line">                  .<span class="title function_">subscribe</span>(<span class="function"><span class="params">x</span>=&gt;</span> <span class="variable language_">console</span>.<span class="title function_">log</span>(x));  </span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// New HttpClient</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">HttpClient</span>, <span class="title class_">HttpHeaders</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/common/http&#x27;</span>; </span><br><span class="line"></span><br><span class="line">@<span class="title class_">Injectable</span>() <span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">ExampleService</span> &#123; </span><br><span class="line"> </span><br><span class="line">private _headers = &#123;<span class="attr">headers</span>: <span class="keyword">new</span> <span class="title class_">HttpHeaders</span>().<span class="title function_">set</span>(<span class="string">&#x27;Authentication&#x27;</span>, <span class="string">&#x27;Token&#x27;</span>)&#125;; </span><br><span class="line"></span><br><span class="line"><span class="title function_">constructor</span>(<span class="params">private http: HttpClient</span>) &#123; &#125; </span><br><span class="line"></span><br><span class="line">public <span class="title function_">getData</span>(<span class="params"></span>) &#123; </span><br><span class="line">  </span><br><span class="line">  <span class="keyword">return</span> <span class="variable language_">this</span>.<span class="property">http</span>.<span class="title function_">get</span>(<span class="string">&#x27;youtAPI&#x27;</span>, <span class="variable language_">this</span>.<span class="property">_headers</span>).<span class="title function_">subscribe</span>(<span class="function"><span class="params">x</span>=&gt;</span> <span class="variable language_">console</span>.<span class="title function_">log</span>(x); </span><br><span class="line"></span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="結論"><a href="#結論" class="headerlink" title="結論"></a>結論</h3><p>基本上，語法沒有很大的變化。 HttpClient保留了舊的http： http.get() ， http.post()等相同的方法名稱。</p>
-<p>因此大家可以愉快地升級，享受簡潔的語法吧！</p>
-<div>
-以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
-
-<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
-<p><a href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
-</div>
-]]></content>
-      <categories>
-        <category>Angular</category>
-      </categories>
-      <tags>
-        <tag>HttpClient</tag>
       </tags>
   </entry>
   <entry>
@@ -982,7 +982,7 @@ version for package `Microsoft.EntityFrameworkCore.Tools.DotNet` could not be re
       </tags>
   </entry>
   <entry>
-    <title>【Cordova】 將Angular 部署至 android手機</title>
+    <title>Cordova-將Angular 部署至 android手機</title>
     <url>/2018/08/21/%E3%80%90Cordova%E3%80%91-%E5%B0%87Angular-%E9%83%A8%E7%BD%B2%E8%87%B3-android%E6%89%8B%E6%A9%9F/</url>
     <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>在很久以前，筆者曾經寫過一篇利用<a href="%E3%80%90Cordova%E3%80%91-%E5%B0%87%E9%96%8B%E7%99%BC%E5%A5%BD%E7%9A%84WebApp%E9%83%A8%E7%BD%B2%E8%87%B3-ios.md">jQueryMobile 部署至ios</a>的文章</p>
 <p>而在網路上利用將Cordova 將 WebAPP 發行至Android的相關教學文件非常的多，因此難度的門檻其實是相當低的。</p>
@@ -1050,7 +1050,7 @@ version for package `Microsoft.EntityFrameworkCore.Tools.DotNet` could not be re
       </tags>
   </entry>
   <entry>
-    <title>【Cordova】 將開發好的WebApp部署至 ios</title>
+    <title>Cordova-將開發好的WebApp部署至 ios</title>
     <url>/2020/07/27/%E3%80%90Cordova%E3%80%91-%E5%B0%87%E9%96%8B%E7%99%BC%E5%A5%BD%E7%9A%84WebApp%E9%83%A8%E7%BD%B2%E8%87%B3-ios/</url>
     <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>這是筆者在大學期間修的一門手機應用課程。</p>
 <p>而在去年在修這一門課的時候，筆者是使用Cordova 將JqueryMobile App 發行至 Android平台上</p>
@@ -1142,7 +1142,7 @@ version for package `Microsoft.EntityFrameworkCore.Tools.DotNet` could not be re
       </tags>
   </entry>
   <entry>
-    <title>【Cordova】 建立 Android release 簽名版本（Signature Version）</title>
+    <title>Cordova-建立 Android release 簽名版本（Signature Version）</title>
     <url>/2018/09/25/%E3%80%90Cordova%E3%80%91-%E5%BB%BA%E7%AB%8B-Android-release-%E7%B0%BD%E5%90%8D%E7%89%88%E6%9C%AC%EF%BC%88Signature-Version%EF%BC%89/</url>
     <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>當我們使用 Cordova 進行 build的時候，Codova會自動幫我們產生 debug版本的apk</p>
 <p>但當我們要將APP 進行上架時，僅有debug版的apk是不能進行上架的</p>
@@ -1198,7 +1198,7 @@ version for package `Microsoft.EntityFrameworkCore.Tools.DotNet` could not be re
       </tags>
   </entry>
   <entry>
-    <title>【Design Pattern】獨體模式(Singleton Pattern)介紹</title>
+    <title>Design Pattern-獨體模式(Singleton Pattern)介紹</title>
     <url>/2017/06/03/%E3%80%90Design-Pattern%E3%80%91%E7%8D%A8%E9%AB%94%E6%A8%A1%E5%BC%8F-Singleton-Pattern-%E4%BB%8B%E7%B4%B9/</url>
     <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>獨體模式其實大家很常使用到，但或許大家不知道他叫獨體模式。</p>
 <p>獨體模式又稱為單例模式，目的是為了讓<br><strong>該物件只能實體化一次，往後每次調用都是相同的物件</strong><br>而在介紹之前，我們先談談這個獨體模式，他可以使用在哪些情況下。</p>
@@ -1241,7 +1241,7 @@ version for package `Microsoft.EntityFrameworkCore.Tools.DotNet` could not be re
       </tags>
   </entry>
   <entry>
-    <title>【CI/CD實作】允許Jenkins有sudo權限(三)</title>
+    <title>CI/CD實作-允許Jenkins有sudo權限(三)</title>
     <url>/2023/02/10/%E5%85%81%E8%A8%B1Jenkins%E6%9C%89sudo%E6%AC%8A%E9%99%90/</url>
     <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>由於我們要利用Jenkins來實作CI&#x2F;CD，因此部署上的操作上往往免不了會需要sudo的權限讓我們能做一些事情，如：建立資料夾、刪除資料夾、搬遷檔案等各種操作。</p>
 <p>因此本篇主要介紹如何允許Jenkins有sudo權限</p>
@@ -1271,7 +1271,7 @@ version for package `Microsoft.EntityFrameworkCore.Tools.DotNet` could not be re
       </tags>
   </entry>
   <entry>
-    <title>【CI/CD實作】在 .NET 透過nuget.config 自訂NuGet 套件來源（番外篇）</title>
+    <title>CI/CD實作-在 .NET 透過nuget.config 自訂NuGet 套件來源（番外篇）</title>
     <url>/2023/02/11/%E5%9C%A8-NET-%E9%80%8F%E9%81%8Enuget-config-%E8%87%AA%E8%A8%82NuGet-%E5%A5%97%E4%BB%B6%E4%BE%86%E6%BA%90/</url>
     <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>通常我們在開發.NET專案時，若因為專案中有使用到公司內部的Library時，通常都會架設Private Nuget Server來進行套件添加。<br>而一般來說添加套件來源的方式大多都是在 Nuget管理員的介面中選擇添加的目錄夾或是Url來操作。<br>但這樣的方式如果實現CI&#x2F;CD時，則會遇到找不到套件來源的問題，原因是Jenkins是直接將Github上的專案Clone下來進行建置與部署。<br>但我們設定套件來源的時機則是在專案Clone後手動開啟Nuget管理員添加的。<br>因此本篇主要會教學如何透過幾種方式讓Jenkins能夠讀的到自訂的Nuget套件來源。</p>
 <span id="more"></span>
@@ -1368,7 +1368,7 @@ version for package `Microsoft.EntityFrameworkCore.Tools.DotNet` could not be re
       </categories>
   </entry>
   <entry>
-    <title>【CI/CD實作】安裝Jenkins(一)</title>
+    <title>CI/CD實作-安裝Jenkins(一)</title>
     <url>/2023/02/09/%E5%AE%89%E8%A3%9DJenkins(%E4%B8%80)/</url>
     <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>一直以來耳聞Jenkins的大名，知道可以用它來做CI&#x2F;CD以及跑專案排程等等，能做到的事情非常的多。</p>
 <p>但由於筆者先前的公司過去一直都是使用GitLab作為 Repository Server，而GitLab本身的CI Server - <strong>GitLab Runner</strong> 又很有名，因此一直沒機會可以好好探究，直到現在換了新公司，改採用Gitgub後終於有機會好好一探究竟。</p>
@@ -1633,7 +1633,7 @@ version for package `Microsoft.EntityFrameworkCore.Tools.DotNet` could not be re
       </tags>
   </entry>
   <entry>
-    <title>【CI/CD實作】變更Jenkins家目錄(二)</title>
+    <title>CI/CD實作-變更Jenkins家目錄(二)</title>
     <url>/2023/02/10/%E8%AE%8A%E6%9B%B4Jenkins%E5%AE%B6%E7%9B%AE%E9%8C%84(%E4%BA%8C)/</url>
     <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>根據上篇所述，由於我們的Jenkins預設是安裝在 &#x2F;var&#x2F;lib&#x2F;jenkins底下<br>而當時筆者遇到的狀況是，當時沒有注意到AWS的EC2空間快用滿了，而當安裝Jenkins後硬生生將硬碟空間吃到100%，以至於我們沒有多餘的空間可以進行其他操作。</p>
 <p>因此本篇主要來介紹，當硬碟空間擴展後我們要如何搬遷位置，確保Jenkins有多餘的空間可以儲存。</p>
