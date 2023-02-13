@@ -370,13 +370,6 @@
   </url>
   
   <url>
-    <loc>https://blog.zhenghui.idv.tw/tags/FlexBox/</loc>
-    <lastmod>2023-02-13</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
     <loc>https://blog.zhenghui.idv.tw/tags/Enum/</loc>
     <lastmod>2023-02-13</lastmod>
     <changefreq>weekly</changefreq>
@@ -384,14 +377,21 @@
   </url>
   
   <url>
-    <loc>https://blog.zhenghui.idv.tw/tags/NETCore/</loc>
+    <loc>https://blog.zhenghui.idv.tw/tags/LINQ/</loc>
     <lastmod>2023-02-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://blog.zhenghui.idv.tw/tags/LINQ/</loc>
+    <loc>https://blog.zhenghui.idv.tw/tags/FlexBox/</loc>
+    <lastmod>2023-02-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://blog.zhenghui.idv.tw/tags/NETCore/</loc>
     <lastmod>2023-02-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -412,14 +412,14 @@
   </url>
   
   <url>
-    <loc>https://blog.zhenghui.idv.tw/tags/WebAPI/</loc>
+    <loc>https://blog.zhenghui.idv.tw/tags/net-core-Entity-Framework/</loc>
     <lastmod>2023-02-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://blog.zhenghui.idv.tw/tags/net-core-Entity-Framework/</loc>
+    <loc>https://blog.zhenghui.idv.tw/tags/WebAPI/</loc>
     <lastmod>2023-02-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -433,14 +433,14 @@
   </url>
   
   <url>
-    <loc>https://blog.zhenghui.idv.tw/tags/Angular/</loc>
+    <loc>https://blog.zhenghui.idv.tw/tags/WinForm/</loc>
     <lastmod>2023-02-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://blog.zhenghui.idv.tw/tags/WinForm/</loc>
+    <loc>https://blog.zhenghui.idv.tw/tags/Angular/</loc>
     <lastmod>2023-02-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -454,14 +454,14 @@
   </url>
   
   <url>
-    <loc>https://blog.zhenghui.idv.tw/tags/Design-Pattern/</loc>
+    <loc>https://blog.zhenghui.idv.tw/tags/Android/</loc>
     <lastmod>2023-02-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://blog.zhenghui.idv.tw/tags/Android/</loc>
+    <loc>https://blog.zhenghui.idv.tw/tags/Design-Pattern/</loc>
     <lastmod>2023-02-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -512,14 +512,14 @@
   </url>
   
   <url>
-    <loc>https://blog.zhenghui.idv.tw/categories/CSS/</loc>
+    <loc>https://blog.zhenghui.idv.tw/categories/C/</loc>
     <lastmod>2023-02-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://blog.zhenghui.idv.tw/categories/C/</loc>
+    <loc>https://blog.zhenghui.idv.tw/categories/CSS/</loc>
     <lastmod>2023-02-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
