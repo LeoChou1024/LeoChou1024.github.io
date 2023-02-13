@@ -342,13 +342,6 @@
   </url>
   
   <url>
-    <loc>https://blog.zhenghui.idv.tw/tags/Fragment/</loc>
-    <lastmod>2023-02-13</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
     <loc>https://blog.zhenghui.idv.tw/tags/Fragement/</loc>
     <lastmod>2023-02-13</lastmod>
     <changefreq>weekly</changefreq>
@@ -357,6 +350,13 @@
   
   <url>
     <loc>https://blog.zhenghui.idv.tw/tags/HttpClient/</loc>
+    <lastmod>2023-02-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://blog.zhenghui.idv.tw/tags/Fragment/</loc>
     <lastmod>2023-02-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -384,13 +384,6 @@
   </url>
   
   <url>
-    <loc>https://blog.zhenghui.idv.tw/tags/FlexBox/</loc>
-    <lastmod>2023-02-13</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
     <loc>https://blog.zhenghui.idv.tw/tags/NETCore/</loc>
     <lastmod>2023-02-13</lastmod>
     <changefreq>weekly</changefreq>
@@ -398,7 +391,7 @@
   </url>
   
   <url>
-    <loc>https://blog.zhenghui.idv.tw/tags/Hoisting/</loc>
+    <loc>https://blog.zhenghui.idv.tw/tags/FlexBox/</loc>
     <lastmod>2023-02-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -412,14 +405,14 @@
   </url>
   
   <url>
-    <loc>https://blog.zhenghui.idv.tw/tags/WebAPI/</loc>
+    <loc>https://blog.zhenghui.idv.tw/tags/net-core-Entity-Framework/</loc>
     <lastmod>2023-02-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://blog.zhenghui.idv.tw/tags/net-core-Entity-Framework/</loc>
+    <loc>https://blog.zhenghui.idv.tw/tags/WebAPI/</loc>
     <lastmod>2023-02-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -455,6 +448,13 @@
   
   <url>
     <loc>https://blog.zhenghui.idv.tw/tags/Android/</loc>
+    <lastmod>2023-02-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://blog.zhenghui.idv.tw/tags/Hoisting/</loc>
     <lastmod>2023-02-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
