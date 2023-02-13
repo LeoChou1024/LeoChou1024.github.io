@@ -2,7 +2,16 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
-    <loc>https://blog.zhenghui.idv.tw/2023/02/13/%E3%80%90Cordova%E3%80%91-%E5%BB%BA%E7%AB%8B-Android-release-%E7%B0%BD%E5%90%8D%E7%89%88%E6%9C%AC%EF%BC%88Signature-Version%EF%BC%89/</loc>
+    <loc>https://blog.zhenghui.idv.tw/2017/04/22/JavaScript-ES6-%E7%AE%AD%E9%A0%AD%E5%87%BD%E6%95%B8/</loc>
+    
+    <lastmod>2023-02-13</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://blog.zhenghui.idv.tw/2018/09/25/%E3%80%90Cordova%E3%80%91-%E5%BB%BA%E7%AB%8B-Android-release-%E7%B0%BD%E5%90%8D%E7%89%88%E6%9C%AC%EF%BC%88Signature-Version%EF%BC%89/</loc>
     
     <lastmod>2023-02-12</lastmod>
     
@@ -173,15 +182,6 @@
   </url>
   
   <url>
-    <loc>https://blog.zhenghui.idv.tw/2023/02/13/JavaScript-ES6-%E7%AE%AD%E9%A0%AD%E5%87%BD%E6%95%B8/</loc>
-    
-    <lastmod>2023-02-12</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
     <loc>https://blog.zhenghui.idv.tw/2017/01/09/JavaScript-%E6%B7%BA%E8%AB%87%E7%95%B6%E5%89%8D%E7%9A%84this%E5%B0%8D%E8%B1%A1%E6%AD%B8%E5%B1%AC/</loc>
     
     <lastmod>2023-02-12</lastmod>
@@ -328,7 +328,7 @@
 
   <url>
     <loc>https://blog.zhenghui.idv.tw/</loc>
-    <lastmod>2023-02-12</lastmod>
+    <lastmod>2023-02-13</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
@@ -336,154 +336,154 @@
   
   <url>
     <loc>https://blog.zhenghui.idv.tw/tags/FireBase/</loc>
-    <lastmod>2023-02-12</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://blog.zhenghui.idv.tw/tags/Fragement/</loc>
-    <lastmod>2023-02-12</lastmod>
+    <lastmod>2023-02-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.zhenghui.idv.tw/tags/Fragment/</loc>
-    <lastmod>2023-02-12</lastmod>
+    <lastmod>2023-02-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://blog.zhenghui.idv.tw/tags/Fragement/</loc>
+    <lastmod>2023-02-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.zhenghui.idv.tw/tags/HttpClient/</loc>
-    <lastmod>2023-02-12</lastmod>
+    <lastmod>2023-02-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.zhenghui.idv.tw/tags/Dapper/</loc>
-    <lastmod>2023-02-12</lastmod>
+    <lastmod>2023-02-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.zhenghui.idv.tw/tags/LINQ/</loc>
-    <lastmod>2023-02-12</lastmod>
+    <lastmod>2023-02-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.zhenghui.idv.tw/tags/Enum/</loc>
-    <lastmod>2023-02-12</lastmod>
+    <lastmod>2023-02-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.zhenghui.idv.tw/tags/FlexBox/</loc>
-    <lastmod>2023-02-12</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://blog.zhenghui.idv.tw/tags/Hoisting/</loc>
-    <lastmod>2023-02-12</lastmod>
+    <lastmod>2023-02-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.zhenghui.idv.tw/tags/NETCore/</loc>
-    <lastmod>2023-02-12</lastmod>
+    <lastmod>2023-02-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://blog.zhenghui.idv.tw/tags/Hoisting/</loc>
+    <lastmod>2023-02-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.zhenghui.idv.tw/tags/this/</loc>
-    <lastmod>2023-02-12</lastmod>
+    <lastmod>2023-02-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.zhenghui.idv.tw/tags/net-core-Entity-Framework/</loc>
-    <lastmod>2023-02-12</lastmod>
+    <lastmod>2023-02-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.zhenghui.idv.tw/tags/WebAPI/</loc>
-    <lastmod>2023-02-12</lastmod>
+    <lastmod>2023-02-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.zhenghui.idv.tw/tags/CI-CD/</loc>
-    <lastmod>2023-02-12</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://blog.zhenghui.idv.tw/tags/Angular/</loc>
-    <lastmod>2023-02-12</lastmod>
+    <lastmod>2023-02-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.zhenghui.idv.tw/tags/WinForm/</loc>
-    <lastmod>2023-02-12</lastmod>
+    <lastmod>2023-02-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://blog.zhenghui.idv.tw/tags/Angular/</loc>
+    <lastmod>2023-02-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.zhenghui.idv.tw/tags/WebApp/</loc>
-    <lastmod>2023-02-12</lastmod>
+    <lastmod>2023-02-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.zhenghui.idv.tw/tags/Android/</loc>
-    <lastmod>2023-02-12</lastmod>
+    <lastmod>2023-02-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.zhenghui.idv.tw/tags/Design-Pattern/</loc>
-    <lastmod>2023-02-12</lastmod>
+    <lastmod>2023-02-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.zhenghui.idv.tw/tags/NET/</loc>
-    <lastmod>2023-02-12</lastmod>
+    <lastmod>2023-02-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.zhenghui.idv.tw/tags/CSS-SASS/</loc>
-    <lastmod>2023-02-12</lastmod>
+    <lastmod>2023-02-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.zhenghui.idv.tw/tags/EntityFrameWork/</loc>
-    <lastmod>2023-02-12</lastmod>
+    <lastmod>2023-02-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
@@ -492,77 +492,77 @@
   
   <url>
     <loc>https://blog.zhenghui.idv.tw/categories/Android/</loc>
-    <lastmod>2023-02-12</lastmod>
+    <lastmod>2023-02-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.zhenghui.idv.tw/categories/Angular/</loc>
-    <lastmod>2023-02-12</lastmod>
+    <lastmod>2023-02-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.zhenghui.idv.tw/categories/NET/</loc>
-    <lastmod>2023-02-12</lastmod>
+    <lastmod>2023-02-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.zhenghui.idv.tw/categories/C/</loc>
-    <lastmod>2023-02-12</lastmod>
+    <lastmod>2023-02-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.zhenghui.idv.tw/categories/CSS/</loc>
-    <lastmod>2023-02-12</lastmod>
+    <lastmod>2023-02-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.zhenghui.idv.tw/categories/JavaScript/</loc>
-    <lastmod>2023-02-12</lastmod>
+    <lastmod>2023-02-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.zhenghui.idv.tw/categories/RxJS/</loc>
-    <lastmod>2023-02-12</lastmod>
+    <lastmod>2023-02-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.zhenghui.idv.tw/categories/Jenkins/</loc>
-    <lastmod>2023-02-12</lastmod>
+    <lastmod>2023-02-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.zhenghui.idv.tw/categories/Cordova/</loc>
-    <lastmod>2023-02-12</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://blog.zhenghui.idv.tw/categories/SASS/</loc>
-    <lastmod>2023-02-12</lastmod>
+    <lastmod>2023-02-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.zhenghui.idv.tw/categories/Postman/</loc>
-    <lastmod>2023-02-12</lastmod>
+    <lastmod>2023-02-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://blog.zhenghui.idv.tw/categories/SASS/</loc>
+    <lastmod>2023-02-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
