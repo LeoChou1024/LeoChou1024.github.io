@@ -46,6 +46,37 @@
       </tags>
   </entry>
   <entry>
+    <title>Android- Fragment 切換頁面時會造成頁面重疊</title>
+    <url>/2016/09/04/Android-Fragment-%E5%88%87%E6%8F%9B%E9%A0%81%E9%9D%A2%E6%99%82%E6%9C%83%E9%80%A0%E6%88%90%E9%A0%81%E9%9D%A2%E9%87%8D%E7%96%8A/</url>
+    <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>上一回我們有說到在針對頁面切換時，會使用replace來進行切換</p>
+<p>但是如果使用太多卻會造成頁面重疊..</p>
+<p>由於筆者今天在撰寫程式時，發現自己常用的Replace居然沒辦法將前一個頁面成功至換掉</p>
+<p>導致新的頁面內容重疊在原來的顯示內容上</p>
+<span id="more"></span>
+<p>搞了半天發現問題仍然無法解決..</p>
+<p>後來與實驗室的學長討論後才發現，原來Replace並不能隨便亂用</p>
+<p>當頁面的層數大於等於4的時候，就會造成頁面重疊的情況發生。</p>
+<p>後來看了一下官網的文件才發現到：</p>
+<p>官方文件中解釋說：<code>replace()</code>這個方法只是在上一個Fragment不再需要時採用的簡便方法。<br>正確的切換方式是<code>add()</code>，切換時<code>hide()</code>，<code>add()</code>另一個Fragment；再次切換時，只需<code>hide()</code>當前，<code>show()</code>另一個。<br>這樣就能做到多個Fragment切換不重新實體化。</p>
+<p>範例程式碼：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();</span><br><span class="line">            transaction.addToBackStack(null);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">            if (!Detail.newInstance().isAdded()) &#123;	// 先判断是否被add過 如果沒有Add過 代表是第一次呼叫 則需要先add 其餘時候都直接使用show進行顯示</span><br><span class="line">                // hide裡面放的是自己當前所在的Fragment頁面，後面一定要.this才能夠指向現在要隱藏的頁面，否則會直接幫你生成一個新的頁面</span><br><span class="line">                transaction.hide(DataList.this).add(R.id.Content, detail).commitAllowingStateLoss(); // 隱藏當前頁面 並新增明細頁面</span><br><span class="line">            &#125; else &#123;</span><br><span class="line">                transaction.hide(DataList.this).show(detail).commitAllowingStateLoss(); //隱藏當前頁面 呼叫明細頁面</span><br><span class="line">            &#125;</span><br></pre></td></tr></table></figure>
+<p>另外補充一點：</p>
+<p>即使頁面不透過<code>isAdded()</code>來判斷是否為第一次載入，直接使用也可以達到切換的效果，<code>.show()</code>只是App在執行時，生命週期會比Add時還要來得短暫。</p>
+<div>
+以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
+
+<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
+<p><a href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
+</div>
+]]></content>
+      <categories>
+        <category>Android</category>
+      </categories>
+      <tags>
+        <tag>Fragment</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Android- Fragment 基本介紹</title>
     <url>/2016/09/03/Android-Fragment-%E5%9F%BA%E6%9C%AC%E4%BB%8B%E7%B4%B9/</url>
     <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>在撰寫Android時，一定都會需要用到換頁的技巧</p>
@@ -162,37 +193,6 @@
       </tags>
   </entry>
   <entry>
-    <title>Android- Fragment 切換頁面時會造成頁面重疊</title>
-    <url>/2016/09/04/Android-Fragment-%E5%88%87%E6%8F%9B%E9%A0%81%E9%9D%A2%E6%99%82%E6%9C%83%E9%80%A0%E6%88%90%E9%A0%81%E9%9D%A2%E9%87%8D%E7%96%8A/</url>
-    <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>上一回我們有說到在針對頁面切換時，會使用replace來進行切換</p>
-<p>但是如果使用太多卻會造成頁面重疊..</p>
-<p>由於筆者今天在撰寫程式時，發現自己常用的Replace居然沒辦法將前一個頁面成功至換掉</p>
-<p>導致新的頁面內容重疊在原來的顯示內容上</p>
-<span id="more"></span>
-<p>搞了半天發現問題仍然無法解決..</p>
-<p>後來與實驗室的學長討論後才發現，原來Replace並不能隨便亂用</p>
-<p>當頁面的層數大於等於4的時候，就會造成頁面重疊的情況發生。</p>
-<p>後來看了一下官網的文件才發現到：</p>
-<p>官方文件中解釋說：<code>replace()</code>這個方法只是在上一個Fragment不再需要時採用的簡便方法。<br>正確的切換方式是<code>add()</code>，切換時<code>hide()</code>，<code>add()</code>另一個Fragment；再次切換時，只需<code>hide()</code>當前，<code>show()</code>另一個。<br>這樣就能做到多個Fragment切換不重新實體化。</p>
-<p>範例程式碼：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();</span><br><span class="line">            transaction.addToBackStack(null);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">            if (!Detail.newInstance().isAdded()) &#123;	// 先判断是否被add過 如果沒有Add過 代表是第一次呼叫 則需要先add 其餘時候都直接使用show進行顯示</span><br><span class="line">                // hide裡面放的是自己當前所在的Fragment頁面，後面一定要.this才能夠指向現在要隱藏的頁面，否則會直接幫你生成一個新的頁面</span><br><span class="line">                transaction.hide(DataList.this).add(R.id.Content, detail).commitAllowingStateLoss(); // 隱藏當前頁面 並新增明細頁面</span><br><span class="line">            &#125; else &#123;</span><br><span class="line">                transaction.hide(DataList.this).show(detail).commitAllowingStateLoss(); //隱藏當前頁面 呼叫明細頁面</span><br><span class="line">            &#125;</span><br></pre></td></tr></table></figure>
-<p>另外補充一點：</p>
-<p>即使頁面不透過<code>isAdded()</code>來判斷是否為第一次載入，直接使用也可以達到切換的效果，<code>.show()</code>只是App在執行時，生命週期會比Add時還要來得短暫。</p>
-<div>
-以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
-
-<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
-<p><a href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
-</div>
-]]></content>
-      <categories>
-        <category>Android</category>
-      </categories>
-      <tags>
-        <tag>Fragment</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>C# Dapper-SQL中的Entity Framework</title>
     <url>/2023/01/24/C-Dapper-SQL%E4%B8%AD%E7%9A%84Entity-Framework/</url>
     <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>關於Dapper的介紹，其實多到可以算月經文了XD</p>
@@ -253,187 +253,6 @@
       <tags>
         <tag>Dapper</tag>
       </tags>
-  </entry>
-  <entry>
-    <title>C# - LINQ to Entities 查詢中無法建構實體或複雜類型</title>
-    <url>/2023/01/24/C-LINQ-to-Entities-%E6%9F%A5%E8%A9%A2%E4%B8%AD%E7%84%A1%E6%B3%95%E5%BB%BA%E6%A7%8B%E5%AF%A6%E9%AB%94%E6%88%96%E8%A4%87%E9%9B%9C%E9%A1%9E%E5%9E%8B/</url>
-    <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>在ORM盛行的時代，很多人都學會了使用LINQ來進行資料庫的撈取與操作</p>
-<p>但是LINQ在操作時，有些地方需要額外注意的。否則就會產上如標題上所說的：</p>
-<div style="color:red">
-LINQ to Entities 查詢中無法建構實體或複雜類型
-</div>
-
-<p>因此今天來跟大家談談，關於這問題，以及該如何解決。</p>
-<span id="more"></span>
-
-<p>一般來說，我們在撰寫LINQ撈取資料庫的時候，我們會這樣寫：</p>
-<figure class="highlight c#"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> data = db.Store.<span class="keyword">select</span>(x=&gt; &#123;</span><br><span class="line">   x.StoreId,</span><br><span class="line">   x.StoreName</span><br><span class="line">&#125;).ToList();</span><br></pre></td></tr></table></figure>
-<p>但是筆者在撰寫Window Form的時候，由於想要將資料庫撈取出來的值，自動Binding到Combox上</p>
-<p>並且可以針對這個資料集合做後續的操作，好讓我的Combox資料可以即時變動。</p>
-<p>因此腦筋一轉，想著在Select的時候，為什麼總是建立一個匿名類別來儲存，而不是一開始就指定為一個強型別來做操作。</p>
-<p>於是我在select後面，加上了由Entity映射所產生的類別：</p>
-<figure class="highlight c#"><table><tr><td class="code"><pre><span class="line">List&lt;Store&gt; list = <span class="keyword">new</span> List&lt;Store&gt;();</span><br><span class="line"></span><br><span class="line">list = db.Store.<span class="keyword">select</span>(x=&gt; <span class="keyword">new</span> Store&#123;</span><br><span class="line"></span><br><span class="line">   Store.Id = x.StoreId,</span><br><span class="line">   Store.Name = x.Store.Name</span><br><span class="line">&#125;).ToList();</span><br></pre></td></tr></table></figure>
-<p>結果這麼一寫，發現程式居然報錯了，原因為：</p>
-<div style="color:red"> LINQ to Entities 查詢中無法建構實體或複雜類型
-</div>
-
-<p><img data-src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/de0c2f99-0e51-4977-91db-9ad994206191/1500539000_96484.png"></p>
-<p>此時筆者開始好奇，是什麼樣的原因會導致這樣的錯誤發生？</p>
-<p>後來在某一篇的<a href="https://stackoverflow.com/questions/5325797/the-entity-cannot-be-constructed-in-a-linq-to-entities-query">stackoverflow</a> 當中，找到了解答：</p>
-<div class="note success">
-    <p>
-    Well, mapped entities in EF basically represent database tables. If you project onto a mapped entity, what you basically do is partially load an entity, which is not a valid state. EF won't have any clue how to e.g. handle an update of such an entity in the future (the default behaviour would be probably overwriting the non-loaded fields with nulls or whatever you'll have in your object). This would be a dangerous operation, since you would risk losing some of your data in the DB, therefore it is not allowed to partially load entities (or project onto mapped entities) in EF
-    </p>
-</div>
-
-<p>主要原因是說，由Entity映射產生出來的類別，是用來表示定義資料庫的欄位，並不是一個有效的實體</p>
-<p>也就是說，裡面的定義是為了資料庫而生，因此裡面有著許多定義資料庫的欄位、屬性 等等</p>
-<p>而這些東西，並沒辦法轉換為SQL去執行，因此如果後面採用映射出來的類別，可能會造成資料庫的數據遺失等問題存在。</p>
-<p>那…既然如此，我們應該如何解決這個問題？</p>
-<p>這邊筆者提出兩種方式來解決：</p>
-<ul>
-<li>利用匿名類別將資料從資料庫讀取並轉換為LIST，接著再下一次Select，將LIST當中的內容讀出並且轉換為強型別</li>
-<li>利用ViewModel將內容讀取出來</li>
-</ul>
-<p>首先第一種方式筆者個人比較不推薦，因為寫法來說相較並不直觀：</p>
-<figure class="highlight c#"><table><tr><td class="code"><pre><span class="line">List&lt;Store&gt; list = <span class="keyword">new</span> List&lt;Store&gt;();</span><br><span class="line"></span><br><span class="line">list = db.Store.<span class="keyword">select</span>(x=&gt; <span class="keyword">new</span> &#123;</span><br><span class="line"></span><br><span class="line">   x.StoreId,</span><br><span class="line">   x.StoreName</span><br><span class="line">&#125;).ToList().<span class="keyword">select</span>(x =&gt; <span class="keyword">new</span> Store &#123;</span><br><span class="line"></span><br><span class="line">   StoreId = x.StoreId,</span><br><span class="line">   StoreName = x.StoreName,</span><br><span class="line">&#125;).ToList();</span><br></pre></td></tr></table></figure>
-
-<p>利用以上的方式，等於我們相同的程式碼要再寫一次。雖然邏輯上來說完全不一樣，但是對開發者來說，卻要select兩次，相當不直觀。</p>
-<p>因此筆者這邊推薦採用ViewModel的方式來去接值。</p>
-<p>我們先建立一個ViewModel，裡面的欄位就是你想從資料庫當中撈取的欄位。</p>
-<p>接著我們只需要這樣做就可以了：</p>
-<figure class="highlight c#"><table><tr><td class="code"><pre><span class="line">List&lt;StoreViewModel&gt; list = <span class="keyword">new</span> List&lt;StoreViewModel&gt;();</span><br><span class="line"></span><br><span class="line">list = db.Store.<span class="keyword">select</span>(x=&gt; <span class="keyword">new</span> StoreViewModel&#123;</span><br><span class="line"></span><br><span class="line">   StoreId = x.StoreId,</span><br><span class="line">   StoreName = x.StoreName,</span><br><span class="line">&#125;).ToList();</span><br></pre></td></tr></table></figure>
-<p>透過這樣的方式，我們將資料庫撈出來的內容 Binding到我們的ViewModel上，就可以解決這樣的問題了。</p>
-<div>
-以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
-
-<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
-<p><a href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
-</div>
-]]></content>
-      <categories>
-        <category>.NET</category>
-      </categories>
-      <tags>
-        <tag>LINQ</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>C# 如何取得Enum的Name？-列舉(Enum)與switch應用</title>
-    <url>/2018/02/02/C-%E5%A6%82%E4%BD%95%E5%8F%96%E5%BE%97Enum%E7%9A%84Name%EF%BC%9F-%E5%88%97%E8%88%89-Enum-%E8%88%87switch%E6%87%89%E7%94%A8/</url>
-    <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>我們很常會使用 enum （列舉）來將我們的狀態做一個紀錄</p>
-<p>使用enum的優點在於我們不需要額外的打字，也不用擔心自己打錯字</p>
-<p>因此就可以利用enum來去針對狀態去做一個紀錄、判斷。</p>
-<p>而今天要介紹的是關於enum以及switch..case 搭配的方法。</p>
-<span id="more"></span>
-<p>在我們撰寫程式的時候，有時候針對多個Button功能會綁定同一個事件，再根據Button內容的不同來去執行功能。</p>
-<p>這時候我們可能會搭配Enum這樣寫：</p>
-<figure class="highlight c#"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 讀取按鈕上的文字來執行功能：</span></span><br><span class="line"><span class="comment">// 如果不是讀取到功能按鈕，則將按鈕上的文字呈現在 文字方塊(Content)上</span></span><br><span class="line">Button btn = (Button)sender;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">switch</span> (btn.Text)</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">case</span> 功能.換行.toString():</span><br><span class="line">                    Content.Text += <span class="string">&quot;\r\n&quot;</span>;</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                <span class="keyword">case</span> 功能.全部複製.toString():</span><br><span class="line">                    Content.SelectAll();</span><br><span class="line">                    Content.Copy();</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                <span class="keyword">case</span> 功能.貼上.toString():</span><br><span class="line">                    Content.Paste();</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                <span class="keyword">case</span> 功能.清空.toString():</span><br><span class="line">                    Content.Text = <span class="string">&quot;&quot;</span>;</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                <span class="literal">default</span>:</span><br><span class="line">                    Content.Text += btn.Text;</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br></pre></td></tr></table></figure>
-<p>但是這時候我們會發現編譯器錯誤：</p>
-<p><img data-src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/a19e7345-ece9-452b-9fed-a20cd133e9ad/1517549981_67453.png"></p>
-<p>錯誤訊息告訴我們必須是「常數值」，原因在於我們 Switch內的值以及 Case中的內容並不一致，儘管已經使用.toString()</p>
-<p>這時候我們可以使用 C# 6.0的功能- <code>nameof</code></p>
-<blockquote>
-<p>nameof 關鍵字可用來取得某變數的名稱。</p>
-</blockquote>
-<p>因此這時候我們只需要把程式碼改為如下就可以囉！</p>
-<figure class="highlight c#"><table><tr><td class="code"><pre><span class="line">Button btn = (Button)sender;</span><br><span class="line"></span><br><span class="line">           <span class="keyword">switch</span> (btn.Text)</span><br><span class="line">           &#123;</span><br><span class="line">               <span class="function"><span class="keyword">case</span> <span class="title">nameof</span>(<span class="params">功能.換行</span>): <span class="comment">//取得enum 選項中的名字-換行</span></span></span><br><span class="line"><span class="function">                   Content.Text +</span>= <span class="string">&quot;\r\n&quot;</span>;</span><br><span class="line">                   <span class="keyword">break</span>;</span><br><span class="line">               <span class="function"><span class="keyword">case</span> <span class="title">nameof</span>(<span class="params">功能.全部複製</span>):</span></span><br><span class="line"><span class="function">                   Content.<span class="title">SelectAll</span>()</span>;</span><br><span class="line">                   Content.Copy();</span><br><span class="line">                   <span class="keyword">break</span>;</span><br><span class="line">               <span class="function"><span class="keyword">case</span> <span class="title">nameof</span>(<span class="params">功能.貼上</span>):</span></span><br><span class="line"><span class="function">                   Content.<span class="title">Paste</span>()</span>;</span><br><span class="line">                   <span class="keyword">break</span>;</span><br><span class="line">               <span class="function"><span class="keyword">case</span> <span class="title">nameof</span>(<span class="params">功能.清空</span>):</span></span><br><span class="line"><span class="function">                   Content.Text</span> = <span class="string">&quot;&quot;</span>;</span><br><span class="line">                   <span class="keyword">break</span>;</span><br><span class="line">               <span class="literal">default</span>:</span><br><span class="line">                   Content.Text += btn.Text;</span><br><span class="line">                   <span class="keyword">break</span>;</span><br><span class="line">           &#125;</span><br></pre></td></tr></table></figure>
-
-
-<div>
-以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
-
-<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
-<p><a href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
-</div>
-]]></content>
-      <categories>
-        <category>C#</category>
-      </categories>
-      <tags>
-        <tag>Enum</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Controller的函數無法傳入多個參數</title>
-    <url>/2023/01/24/Controller%E7%9A%84%E5%87%BD%E6%95%B8%E7%84%A1%E6%B3%95%E5%82%B3%E5%85%A5%E5%A4%9A%E5%80%8B%E5%8F%83%E6%95%B8/</url>
-    <content><![CDATA[<span id="more"></span>
-
-<p>前陣子同事在寫 WebAPI的時候，發現 Controller內的函數無法傳入超過一個以上的參數</p>
-<p>只要傳超過一個以上，就會在Runtime當下直接噴錯，錯誤訊息為：</p>
-<figure class="highlight c#"><table><tr><td class="code"><pre><span class="line">has more than one parameter that was specified <span class="keyword">or</span> inferred <span class="keyword">as</span> bound <span class="keyword">from</span> request body. Only one parameter per action may be bound <span class="keyword">from</span> body. </span><br></pre></td></tr></table></figure>
-
-<p>主要的意思是request body 傳入超過一個以上的參數，但在action中只應該有一個參數。</p>
-<p>面對這樣的問題，一開始聽同事描述還覺得挺不可思議的，畢竟寫API那麼久了，從來沒聽過在Controller底下寫Method 參數最多只能給予一個。</p>
-<p>後來請他額外測試，若是傳入基本資料型別(int,float等等) 是可以傳入多個的。</p>
-<p>也就是說，只有傳入衍生資料型別(複雜類型)，是不能過的。</p>
-<p>但縱使是這樣，這類的錯誤訊息我依然沒遇到過。</p>
-<p>上網研究了一下才發現，由於 <font style="color:red"> Controller 內寫的Method 會默認為Action</font></p>
-<p>也就是說不需要特別指定他是 [HttpGet] 或是 [HttpPost] ，他也能自動根據函數名稱來判斷，並幫你呼叫。</p>
-<p>但這樣就會遇到一個問題，它把所有Controller裡面的Method都當成Action來呼叫了，而同時request body又只能接受一個複雜類型的參數。</p>
-<p>因此才會噴這個錯誤。</p>
-<p>那，為甚麼這問題我卻從來沒遇過呢?</p>
-<p>因為筆者習慣將Controller內部的函數，都設定為private(因為都是自用)。</p>
-<p>所以當函數設定為private就不會把它當成Action來呼叫使用，也因此這問題我從來沒發生過。</p>
-<p>而同事遇到的這個問題，正是因為他把Controller內部的函數，統一宣告為public，因此被當作Action來呼叫，才會有這個問題。</p>
-<font style="color:red"> 
-那，如果真的想要使用public來進行呼叫呢? <br>
-就必須要在函數上加上 [NonAction] 的標籤，讓編譯器知道這個函數並不是一個Action。
-</font>
-
-<p>因此只需要加上就可以避免此問題。</p>
-<p>也可以使用停用推斷規則來解決此問題：</p>
-<p><img data-src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/16b3d44b-5058-4f14-ba9b-891d4f68b141/1606448097.png" alt="停用推斷規則"></p>
-<font style="color:red">
-但筆者還是建議，若是複雜的商業邏輯，需要額外抽成函數來撰寫的話，應該要額外建立類別來處理業務邏輯(也就是BAL)
-
-<p>如果只是圖方便想直接讓Controller呼叫使用的話，也建議改成private做使用，除非萬不得已，不然建議不要設定成public，並使用 [NonAction]來宣告。<br></p></font><p></p>
-]]></content>
-      <categories>
-        <category>.NET</category>
-      </categories>
-      <tags>
-        <tag>.NETCore</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>JavaScript - ES6 箭頭函數</title>
-    <url>/2017/04/22/JavaScript-ES6-%E7%AE%AD%E9%A0%AD%E5%87%BD%E6%95%B8/</url>
-    <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>箭頭函數(Fat arrow functions）是一個來自ECMAScript 2015（又稱ES6）的全新特性。</p>
-<p>簡單的來說，是ES6版才有的新功能</p>
-<p>箭頭函數的產生，主要為：更簡潔的語法 讓父類別共享關鍵字this。</p>
-<span id="more"></span>
-<p>這樣講可能有些許模糊，我們帶個下面的例子讓大家看一下就知道了。</p>
-<blockquote>
-<p>傳統JavaScript 的寫法</p>
-</blockquote>
-<p>傳統的JavaScript函數語法並沒有提供任何的靈活性，每一次你需要定義一個函數時，你都必須輸入function () {}。這樣的一個架構</p>
-<p>但是在ES6版之後 為什麼大家的會這麼喜歡用它，有一個不可忽略的原因就是它有更簡潔的函數語法。</p>
-<p>更簡潔的函數語法在有大量呼叫函數的情況下有特別明顯的好處。</p>
-<p>以下例子的目的是使用jQuery來展示一個每秒都會更新的時鐘：</p>
-<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">$(<span class="string">&#x27;.current-time&#x27;</span>).<span class="title function_">each</span>(<span class="keyword">function</span> (<span class="params"></span>) &#123;</span><br><span class="line">  <span class="built_in">setInterval</span>(<span class="keyword">function</span> (<span class="params"></span>) &#123;</span><br><span class="line">    $(<span class="variable language_">this</span>).<span class="title function_">text</span>(<span class="title class_">Date</span>.<span class="title function_">now</span>());</span><br><span class="line">  &#125;, <span class="number">1000</span>);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
-<p>但是當我想要在setInterval中使用this來引用DOM元素時，很不幸，我們得到的只是一個屬於函數自身的this。</p>
-<p>而一個通常的解決辦法是定義一個that或者self變量：（如果不懂為什麼的話可以參考一下我之前撰寫過的一篇關於 JavaScript  this的介紹文）<br><a href="./JavaScript-%E6%B7%BA%E8%AB%87%E7%95%B6%E5%89%8D%E7%9A%84this%E5%B0%8D%E8%B1%A1%E6%AD%B8%E5%B1%AC.md">JavaScript - 淺談當前的this對象歸屬</a><br>但當使用了ES6當中的箭頭函數時，這個問題就不復存在了。因為它不產生屬於它自己函數內的this：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">$(&#x27;.current-time&#x27;).each(function () &#123;</span><br><span class="line">  setInterval(() =&gt; $(this).text(Date.now()), 1000);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
-<p>就如同剛剛上面開頭所說的， 讓父類別共享關鍵字this 因此可以利用箭頭函數來達到我們所想的目的。</p>
-<p>而箭頭函數就相當於匿名函數，並且簡化了函數定義。箭頭函數有兩種格式，一種像上面的，只包含一個表達式，連<code>&#123; ... &#125;</code>和return都省略掉了。還有一種可以包含多條語句，這時候就不能省略<code>&#123; ... &#125;</code>和<code>return</code>：</p>
-<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">score =&gt; &#123;</span><br><span class="line">    <span class="keyword">if</span> (score &gt; <span class="number">100</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">100</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> score;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>有沒有發現和 lambda 表達式類似xD</p>
-<blockquote>
-<p>arguments 屬性</p>
-</blockquote>
-<p>然而在箭頭函數與普通函數還有一個區別就是，它沒有自己的arguments 屬性 </p>
-<p>在傳統的JavaScript 我們可以透過arguments Array 來取得函數的參數</p>
-<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">Test</span>(<span class="params">msg</span>)&#123;</span><br><span class="line">    <span class="keyword">var</span> temp = <span class="variable language_">arguments</span>[<span class="number">0</span>];</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(temp);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>但是在箭頭函數當中，是沒有屬於自己的this 與 arguments Array ，有興趣的人可以試試看以下的程式碼就可以了解了：</p>
-<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">TT</span>(<span class="params">msg</span>)&#123;</span><br><span class="line">    <span class="keyword">var</span> <span class="title function_">temp</span> = (<span class="params"></span>) =&gt; <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="variable language_">arguments</span>[<span class="number">0</span>]);</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(temp);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<div>
-以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
-
-<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
-<p><a href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
-</div>
-]]></content>
   </entry>
   <entry>
     <title>CSS - FlexBox 教學</title>
@@ -530,6 +349,265 @@ LINQ to Entities 查詢中無法建構實體或複雜類型
       </tags>
   </entry>
   <entry>
+    <title>C# 如何取得Enum的Name？-列舉(Enum)與switch應用</title>
+    <url>/2018/02/02/C-%E5%A6%82%E4%BD%95%E5%8F%96%E5%BE%97Enum%E7%9A%84Name%EF%BC%9F-%E5%88%97%E8%88%89-Enum-%E8%88%87switch%E6%87%89%E7%94%A8/</url>
+    <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>我們很常會使用 enum （列舉）來將我們的狀態做一個紀錄</p>
+<p>使用enum的優點在於我們不需要額外的打字，也不用擔心自己打錯字</p>
+<p>因此就可以利用enum來去針對狀態去做一個紀錄、判斷。</p>
+<p>而今天要介紹的是關於enum以及switch..case 搭配的方法。</p>
+<span id="more"></span>
+<p>在我們撰寫程式的時候，有時候針對多個Button功能會綁定同一個事件，再根據Button內容的不同來去執行功能。</p>
+<p>這時候我們可能會搭配Enum這樣寫：</p>
+<figure class="highlight c#"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 讀取按鈕上的文字來執行功能：</span></span><br><span class="line"><span class="comment">// 如果不是讀取到功能按鈕，則將按鈕上的文字呈現在 文字方塊(Content)上</span></span><br><span class="line">Button btn = (Button)sender;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">switch</span> (btn.Text)</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">case</span> 功能.換行.toString():</span><br><span class="line">                    Content.Text += <span class="string">&quot;\r\n&quot;</span>;</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                <span class="keyword">case</span> 功能.全部複製.toString():</span><br><span class="line">                    Content.SelectAll();</span><br><span class="line">                    Content.Copy();</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                <span class="keyword">case</span> 功能.貼上.toString():</span><br><span class="line">                    Content.Paste();</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                <span class="keyword">case</span> 功能.清空.toString():</span><br><span class="line">                    Content.Text = <span class="string">&quot;&quot;</span>;</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                <span class="literal">default</span>:</span><br><span class="line">                    Content.Text += btn.Text;</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br></pre></td></tr></table></figure>
+<p>但是這時候我們會發現編譯器錯誤：</p>
+<p><img data-src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/a19e7345-ece9-452b-9fed-a20cd133e9ad/1517549981_67453.png"></p>
+<p>錯誤訊息告訴我們必須是「常數值」，原因在於我們 Switch內的值以及 Case中的內容並不一致，儘管已經使用.toString()</p>
+<p>這時候我們可以使用 C# 6.0的功能- <code>nameof</code></p>
+<blockquote>
+<p>nameof 關鍵字可用來取得某變數的名稱。</p>
+</blockquote>
+<p>因此這時候我們只需要把程式碼改為如下就可以囉！</p>
+<figure class="highlight c#"><table><tr><td class="code"><pre><span class="line">Button btn = (Button)sender;</span><br><span class="line"></span><br><span class="line">           <span class="keyword">switch</span> (btn.Text)</span><br><span class="line">           &#123;</span><br><span class="line">               <span class="function"><span class="keyword">case</span> <span class="title">nameof</span>(<span class="params">功能.換行</span>): <span class="comment">//取得enum 選項中的名字-換行</span></span></span><br><span class="line"><span class="function">                   Content.Text +</span>= <span class="string">&quot;\r\n&quot;</span>;</span><br><span class="line">                   <span class="keyword">break</span>;</span><br><span class="line">               <span class="function"><span class="keyword">case</span> <span class="title">nameof</span>(<span class="params">功能.全部複製</span>):</span></span><br><span class="line"><span class="function">                   Content.<span class="title">SelectAll</span>()</span>;</span><br><span class="line">                   Content.Copy();</span><br><span class="line">                   <span class="keyword">break</span>;</span><br><span class="line">               <span class="function"><span class="keyword">case</span> <span class="title">nameof</span>(<span class="params">功能.貼上</span>):</span></span><br><span class="line"><span class="function">                   Content.<span class="title">Paste</span>()</span>;</span><br><span class="line">                   <span class="keyword">break</span>;</span><br><span class="line">               <span class="function"><span class="keyword">case</span> <span class="title">nameof</span>(<span class="params">功能.清空</span>):</span></span><br><span class="line"><span class="function">                   Content.Text</span> = <span class="string">&quot;&quot;</span>;</span><br><span class="line">                   <span class="keyword">break</span>;</span><br><span class="line">               <span class="literal">default</span>:</span><br><span class="line">                   Content.Text += btn.Text;</span><br><span class="line">                   <span class="keyword">break</span>;</span><br><span class="line">           &#125;</span><br></pre></td></tr></table></figure>
+
+
+<div>
+以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
+
+<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
+<p><a href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
+</div>
+]]></content>
+      <categories>
+        <category>C#</category>
+      </categories>
+      <tags>
+        <tag>Enum</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Controller的函數無法傳入多個參數</title>
+    <url>/2023/01/24/Controller%E7%9A%84%E5%87%BD%E6%95%B8%E7%84%A1%E6%B3%95%E5%82%B3%E5%85%A5%E5%A4%9A%E5%80%8B%E5%8F%83%E6%95%B8/</url>
+    <content><![CDATA[<span id="more"></span>
+
+<p>前陣子同事在寫 WebAPI的時候，發現 Controller內的函數無法傳入超過一個以上的參數</p>
+<p>只要傳超過一個以上，就會在Runtime當下直接噴錯，錯誤訊息為：</p>
+<figure class="highlight c#"><table><tr><td class="code"><pre><span class="line">has more than one parameter that was specified <span class="keyword">or</span> inferred <span class="keyword">as</span> bound <span class="keyword">from</span> request body. Only one parameter per action may be bound <span class="keyword">from</span> body. </span><br></pre></td></tr></table></figure>
+
+<p>主要的意思是request body 傳入超過一個以上的參數，但在action中只應該有一個參數。</p>
+<p>面對這樣的問題，一開始聽同事描述還覺得挺不可思議的，畢竟寫API那麼久了，從來沒聽過在Controller底下寫Method 參數最多只能給予一個。</p>
+<p>後來請他額外測試，若是傳入基本資料型別(int,float等等) 是可以傳入多個的。</p>
+<p>也就是說，只有傳入衍生資料型別(複雜類型)，是不能過的。</p>
+<p>但縱使是這樣，這類的錯誤訊息我依然沒遇到過。</p>
+<p>上網研究了一下才發現，由於 <font style="color:red"> Controller 內寫的Method 會默認為Action</font></p>
+<p>也就是說不需要特別指定他是 [HttpGet] 或是 [HttpPost] ，他也能自動根據函數名稱來判斷，並幫你呼叫。</p>
+<p>但這樣就會遇到一個問題，它把所有Controller裡面的Method都當成Action來呼叫了，而同時request body又只能接受一個複雜類型的參數。</p>
+<p>因此才會噴這個錯誤。</p>
+<p>那，為甚麼這問題我卻從來沒遇過呢?</p>
+<p>因為筆者習慣將Controller內部的函數，都設定為private(因為都是自用)。</p>
+<p>所以當函數設定為private就不會把它當成Action來呼叫使用，也因此這問題我從來沒發生過。</p>
+<p>而同事遇到的這個問題，正是因為他把Controller內部的函數，統一宣告為public，因此被當作Action來呼叫，才會有這個問題。</p>
+<font style="color:red"> 
+那，如果真的想要使用public來進行呼叫呢? <br>
+就必須要在函數上加上 [NonAction] 的標籤，讓編譯器知道這個函數並不是一個Action。
+</font>
+
+<p>因此只需要加上就可以避免此問題。</p>
+<p>也可以使用停用推斷規則來解決此問題：</p>
+<p><img data-src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/16b3d44b-5058-4f14-ba9b-891d4f68b141/1606448097.png" alt="停用推斷規則"></p>
+<font style="color:red">
+但筆者還是建議，若是複雜的商業邏輯，需要額外抽成函數來撰寫的話，應該要額外建立類別來處理業務邏輯(也就是BAL)
+
+<p>如果只是圖方便想直接讓Controller呼叫使用的話，也建議改成private做使用，除非萬不得已，不然建議不要設定成public，並使用 [NonAction]來宣告。<br></p></font><p></p>
+]]></content>
+      <categories>
+        <category>.NET</category>
+      </categories>
+      <tags>
+        <tag>.NETCore</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>C# - LINQ to Entities 查詢中無法建構實體或複雜類型</title>
+    <url>/2023/01/24/C-LINQ-to-Entities-%E6%9F%A5%E8%A9%A2%E4%B8%AD%E7%84%A1%E6%B3%95%E5%BB%BA%E6%A7%8B%E5%AF%A6%E9%AB%94%E6%88%96%E8%A4%87%E9%9B%9C%E9%A1%9E%E5%9E%8B/</url>
+    <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>在ORM盛行的時代，很多人都學會了使用LINQ來進行資料庫的撈取與操作</p>
+<p>但是LINQ在操作時，有些地方需要額外注意的。否則就會產上如標題上所說的：</p>
+<div style="color:red">
+LINQ to Entities 查詢中無法建構實體或複雜類型
+</div>
+
+<p>因此今天來跟大家談談，關於這問題，以及該如何解決。</p>
+<span id="more"></span>
+
+<p>一般來說，我們在撰寫LINQ撈取資料庫的時候，我們會這樣寫：</p>
+<figure class="highlight c#"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> data = db.Store.<span class="keyword">select</span>(x=&gt; &#123;</span><br><span class="line">   x.StoreId,</span><br><span class="line">   x.StoreName</span><br><span class="line">&#125;).ToList();</span><br></pre></td></tr></table></figure>
+<p>但是筆者在撰寫Window Form的時候，由於想要將資料庫撈取出來的值，自動Binding到Combox上</p>
+<p>並且可以針對這個資料集合做後續的操作，好讓我的Combox資料可以即時變動。</p>
+<p>因此腦筋一轉，想著在Select的時候，為什麼總是建立一個匿名類別來儲存，而不是一開始就指定為一個強型別來做操作。</p>
+<p>於是我在select後面，加上了由Entity映射所產生的類別：</p>
+<figure class="highlight c#"><table><tr><td class="code"><pre><span class="line">List&lt;Store&gt; list = <span class="keyword">new</span> List&lt;Store&gt;();</span><br><span class="line"></span><br><span class="line">list = db.Store.<span class="keyword">select</span>(x=&gt; <span class="keyword">new</span> Store&#123;</span><br><span class="line"></span><br><span class="line">   Store.Id = x.StoreId,</span><br><span class="line">   Store.Name = x.Store.Name</span><br><span class="line">&#125;).ToList();</span><br></pre></td></tr></table></figure>
+<p>結果這麼一寫，發現程式居然報錯了，原因為：</p>
+<div style="color:red"> LINQ to Entities 查詢中無法建構實體或複雜類型
+</div>
+
+<p><img data-src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/de0c2f99-0e51-4977-91db-9ad994206191/1500539000_96484.png"></p>
+<p>此時筆者開始好奇，是什麼樣的原因會導致這樣的錯誤發生？</p>
+<p>後來在某一篇的<a href="https://stackoverflow.com/questions/5325797/the-entity-cannot-be-constructed-in-a-linq-to-entities-query">stackoverflow</a> 當中，找到了解答：</p>
+<div class="note success">
+    <p>
+    Well, mapped entities in EF basically represent database tables. If you project onto a mapped entity, what you basically do is partially load an entity, which is not a valid state. EF won't have any clue how to e.g. handle an update of such an entity in the future (the default behaviour would be probably overwriting the non-loaded fields with nulls or whatever you'll have in your object). This would be a dangerous operation, since you would risk losing some of your data in the DB, therefore it is not allowed to partially load entities (or project onto mapped entities) in EF
+    </p>
+</div>
+
+<p>主要原因是說，由Entity映射產生出來的類別，是用來表示定義資料庫的欄位，並不是一個有效的實體</p>
+<p>也就是說，裡面的定義是為了資料庫而生，因此裡面有著許多定義資料庫的欄位、屬性 等等</p>
+<p>而這些東西，並沒辦法轉換為SQL去執行，因此如果後面採用映射出來的類別，可能會造成資料庫的數據遺失等問題存在。</p>
+<p>那…既然如此，我們應該如何解決這個問題？</p>
+<p>這邊筆者提出兩種方式來解決：</p>
+<ul>
+<li>利用匿名類別將資料從資料庫讀取並轉換為LIST，接著再下一次Select，將LIST當中的內容讀出並且轉換為強型別</li>
+<li>利用ViewModel將內容讀取出來</li>
+</ul>
+<p>首先第一種方式筆者個人比較不推薦，因為寫法來說相較並不直觀：</p>
+<figure class="highlight c#"><table><tr><td class="code"><pre><span class="line">List&lt;Store&gt; list = <span class="keyword">new</span> List&lt;Store&gt;();</span><br><span class="line"></span><br><span class="line">list = db.Store.<span class="keyword">select</span>(x=&gt; <span class="keyword">new</span> &#123;</span><br><span class="line"></span><br><span class="line">   x.StoreId,</span><br><span class="line">   x.StoreName</span><br><span class="line">&#125;).ToList().<span class="keyword">select</span>(x =&gt; <span class="keyword">new</span> Store &#123;</span><br><span class="line"></span><br><span class="line">   StoreId = x.StoreId,</span><br><span class="line">   StoreName = x.StoreName,</span><br><span class="line">&#125;).ToList();</span><br></pre></td></tr></table></figure>
+
+<p>利用以上的方式，等於我們相同的程式碼要再寫一次。雖然邏輯上來說完全不一樣，但是對開發者來說，卻要select兩次，相當不直觀。</p>
+<p>因此筆者這邊推薦採用ViewModel的方式來去接值。</p>
+<p>我們先建立一個ViewModel，裡面的欄位就是你想從資料庫當中撈取的欄位。</p>
+<p>接著我們只需要這樣做就可以了：</p>
+<figure class="highlight c#"><table><tr><td class="code"><pre><span class="line">List&lt;StoreViewModel&gt; list = <span class="keyword">new</span> List&lt;StoreViewModel&gt;();</span><br><span class="line"></span><br><span class="line">list = db.Store.<span class="keyword">select</span>(x=&gt; <span class="keyword">new</span> StoreViewModel&#123;</span><br><span class="line"></span><br><span class="line">   StoreId = x.StoreId,</span><br><span class="line">   StoreName = x.StoreName,</span><br><span class="line">&#125;).ToList();</span><br></pre></td></tr></table></figure>
+<p>透過這樣的方式，我們將資料庫撈出來的內容 Binding到我們的ViewModel上，就可以解決這樣的問題了。</p>
+<div>
+以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
+
+<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
+<p><a href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
+</div>
+]]></content>
+      <categories>
+        <category>.NET</category>
+      </categories>
+      <tags>
+        <tag>LINQ</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>JavaScript - ES6 箭頭函數</title>
+    <url>/2017/04/22/JavaScript-ES6-%E7%AE%AD%E9%A0%AD%E5%87%BD%E6%95%B8/</url>
+    <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>箭頭函數(Fat arrow functions）是一個來自ECMAScript 2015（又稱ES6）的全新特性。</p>
+<p>簡單的來說，是ES6版才有的新功能</p>
+<p>箭頭函數的產生，主要為：更簡潔的語法 讓父類別共享關鍵字this。</p>
+<span id="more"></span>
+<p>這樣講可能有些許模糊，我們帶個下面的例子讓大家看一下就知道了。</p>
+<blockquote>
+<p>傳統JavaScript 的寫法</p>
+</blockquote>
+<p>傳統的JavaScript函數語法並沒有提供任何的靈活性，每一次你需要定義一個函數時，你都必須輸入function () {}。這樣的一個架構</p>
+<p>但是在ES6版之後 為什麼大家的會這麼喜歡用它，有一個不可忽略的原因就是它有更簡潔的函數語法。</p>
+<p>更簡潔的函數語法在有大量呼叫函數的情況下有特別明顯的好處。</p>
+<p>以下例子的目的是使用jQuery來展示一個每秒都會更新的時鐘：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">$(<span class="string">&#x27;.current-time&#x27;</span>).<span class="title function_">each</span>(<span class="keyword">function</span> (<span class="params"></span>) &#123;</span><br><span class="line">  <span class="built_in">setInterval</span>(<span class="keyword">function</span> (<span class="params"></span>) &#123;</span><br><span class="line">    $(<span class="variable language_">this</span>).<span class="title function_">text</span>(<span class="title class_">Date</span>.<span class="title function_">now</span>());</span><br><span class="line">  &#125;, <span class="number">1000</span>);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>但是當我想要在setInterval中使用this來引用DOM元素時，很不幸，我們得到的只是一個屬於函數自身的this。</p>
+<p>而一個通常的解決辦法是定義一個that或者self變量：（如果不懂為什麼的話可以參考一下我之前撰寫過的一篇關於 JavaScript  this的介紹文）<br><a href="./JavaScript-%E6%B7%BA%E8%AB%87%E7%95%B6%E5%89%8D%E7%9A%84this%E5%B0%8D%E8%B1%A1%E6%AD%B8%E5%B1%AC.md">JavaScript - 淺談當前的this對象歸屬</a><br>但當使用了ES6當中的箭頭函數時，這個問題就不復存在了。因為它不產生屬於它自己函數內的this：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">$(&#x27;.current-time&#x27;).each(function () &#123;</span><br><span class="line">  setInterval(() =&gt; $(this).text(Date.now()), 1000);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>就如同剛剛上面開頭所說的， 讓父類別共享關鍵字this 因此可以利用箭頭函數來達到我們所想的目的。</p>
+<p>而箭頭函數就相當於匿名函數，並且簡化了函數定義。箭頭函數有兩種格式，一種像上面的，只包含一個表達式，連<code>&#123; ... &#125;</code>和return都省略掉了。還有一種可以包含多條語句，這時候就不能省略<code>&#123; ... &#125;</code>和<code>return</code>：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">score =&gt; &#123;</span><br><span class="line">    <span class="keyword">if</span> (score &gt; <span class="number">100</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">100</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> score;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>有沒有發現和 lambda 表達式類似xD</p>
+<blockquote>
+<p>arguments 屬性</p>
+</blockquote>
+<p>然而在箭頭函數與普通函數還有一個區別就是，它沒有自己的arguments 屬性 </p>
+<p>在傳統的JavaScript 我們可以透過arguments Array 來取得函數的參數</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">Test</span>(<span class="params">msg</span>)&#123;</span><br><span class="line">    <span class="keyword">var</span> temp = <span class="variable language_">arguments</span>[<span class="number">0</span>];</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(temp);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>但是在箭頭函數當中，是沒有屬於自己的this 與 arguments Array ，有興趣的人可以試試看以下的程式碼就可以了解了：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">TT</span>(<span class="params">msg</span>)&#123;</span><br><span class="line">    <span class="keyword">var</span> <span class="title function_">temp</span> = (<span class="params"></span>) =&gt; <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="variable language_">arguments</span>[<span class="number">0</span>]);</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(temp);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<div>
+以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
+
+<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
+<p><a href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
+</div>
+]]></content>
+  </entry>
+  <entry>
+    <title>JavaScript - Hoisting(提升) 介紹</title>
+    <url>/2018/05/02/JavaScript-Hoisting-%E6%8F%90%E5%8D%87-%E4%BB%8B%E7%B4%B9/</url>
+    <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>就在剛剛，看完了Will保哥的技術交流直播，在直撥最後結尾的時候</p>
+<p>保哥對於Junior的前端工程師表示，他面試過的Devoloper幾近九成沒聽過 Hoisting是什麼東西。</p>
+<p>因為對於直接接觸網頁、JavaScript的開發者來說，難免會lost掉一些基本觀念。</p>
+<p>於是這篇文章就誕生了。</p>
+<span id="more"></span>
+<p>根據 <a href="https://www.w3schools.com/js/js_hoisting.asp">W3School</a>  的網頁介紹中，我們發現第一句話就這樣寫著：</p>
+<blockquote>
+<p>Hoisting is JavaScript’s default behavior of moving declarations to the top.</p>
+</blockquote>
+<p>翻譯成中文的意思就是 ，在JavaScript程式語言當中，它會自動幫你把你有宣告的變數、Function自動拉至最上方。</p>
+<p>而這樣的行為，我們就稱為 <code>Hoisting （提升）</code>。</p>
+<p>以往我們在撰寫程式的時候，我們的觀念告訴我們：</p>
+<blockquote>
+<p>程式碼就是由上而下執行，所有的變數、方法都需要經過宣告才能使用。</p>
+</blockquote>
+<p>於是，當我們在撰寫像是Java、C#、Python等程式語言的時候，光是第一關 Compile 就不會過了。</p>
+<p>原因是因為變數在還沒宣告的時候，並不會分配記憶體空間，自然就沒辦法操作其變數了。</p>
+<p>但是JavaScript本身語言的特性，有著 Hoisting 的效果，所以即便你在使用變數後才進行變數宣告依然不會有Error發生。</p>
+<p>所以相信大家在撰寫的時候都會有著這樣的寫法：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="title class_">Hello</span>(); <span class="comment">// Hello World</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">Hello</span>(<span class="params"></span>) &#123;</span><br><span class="line"></span><br><span class="line"> <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;Hello World&#x27;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在變數上我們可以這樣寫：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">b = <span class="number">200</span>;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(b); <span class="comment">// 200</span></span><br><span class="line"><span class="keyword">var</span> b;</span><br></pre></td></tr></table></figure>
+<p>這時候會發現，因為Hoisting的效果，只要我們在使用後有進行宣告，那麼程式就不會有Error，也不會有undefined的情況發生。</p>
+<p>但是有一種情況例外：</p>
+<blockquote>
+<p>JavaScript Initializations are Not Hoisted</p>
+</blockquote>
+<p>這句話的意思是：在JavaScript語言當中，如果將此初始化，則不會被 Hoisted (提升)。</p>
+<p>我們可以來試試看：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="title class_">Hello</span>();</span><br><span class="line"><span class="keyword">var</span> <span class="title class_">Hello</span> = <span class="keyword">function</span>(<span class="params"></span>) &#123;</span><br><span class="line">	<span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;Hello&#x27;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在我們寫完這一段Code，並執行時，我們會得到以下錯誤：</p>
+<p><img data-src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/127c9070-73bb-4aee-b3c4-1d903ac8333c/1525194410_18703.png"></p>
+<p>錯誤訊息告訴我們：Hello不是一個function。</p>
+<p>而之所以會有這個錯誤訊息，正是呼應到剛剛上方的那一句話：</p>
+<blockquote>
+<p>JavaScript Initializations are Not Hoisted</p>
+</blockquote>
+<p>我們首先先在第一行呼叫Hello這個Function。</p>
+<p>接著才將function指向給Hello這個變數。</p>
+<p>其中第二行的寫法，它並不是一個宣告的行為，而是初始化的動作。</p>
+<p>我宣告一個Hello的function，並將其指派給Hello這個變數。</p>
+<p>這樣的動作，我們稱之為Initialize(初始化)。</p>
+<p>於是，第二行就不會有  Hoisting 的效果。</p>
+<p>而同樣的，如果我們針對變數也這樣撰寫：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">b++;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(b); <span class="comment">// NaN</span></span><br><span class="line"><span class="keyword">var</span> b = <span class="number">200</span>;</span><br></pre></td></tr></table></figure>
+
+<p>那麼會發現印出來的b，會是NaN。</p>
+<p>那至於為什麼是NaN呢？</p>
+<p>跟上述ㄧ樣的道理，因為初始化並不會被Hoisting(提升)。</p>
+<p>因此，第一行的b就不會有宣告的效果，所以若單獨把b印出來，結果會是 undefined。</p>
+<p>而我們又把b給進行了++。</p>
+<p>於是 undefined 再強制進行了+1的動作，這時候我們就會得到NaN的結果了。</p>
+<p>看到這裡相信各位對於JavaScript的各種巫術感到非常頭痛。</p>
+<p>因此在最後，W3School  在文末也表示：</p>
+<font color="red">
+對許多開發者來說，Hoisting(提升)是一種未知或被忽視的JavaScript行為。
+
+<p>如果開發人員不理解，那麼程式可能就會Error。</p>
+<p>為了避免錯誤，請在每個任何變數或是方法使用前，都先進行宣告。<br></p></font><p></p>
+<p>希望看完這篇的讀者能夠對於 JavaScript的 Hoisting 能夠有一定的認知。</p>
+<p>但是最好還是都在使用前都進行宣告，否則未來維護你Code的人可是會痛不欲生的（笑</p>
+<div>
+以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
+
+<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
+<p><a href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
+</div>
+]]></content>
+      <categories>
+        <category>JavaScript</category>
+      </categories>
+      <tags>
+        <tag>Hoisting</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>JavaScript - 淺談當前的this對象歸屬</title>
     <url>/2017/01/09/JavaScript-%E6%B7%BA%E8%AB%87%E7%95%B6%E5%89%8D%E7%9A%84this%E5%B0%8D%E8%B1%A1%E6%AD%B8%E5%B1%AC/</url>
     <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>我們都知道JavaScript跟其他語言在物件導向有很大的不同</p>
@@ -562,6 +640,38 @@ LINQ to Entities 查詢中無法建構實體或複雜類型
       </categories>
       <tags>
         <tag>this</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>.NET 如何讓 WebAPI 支援 Session ?</title>
+    <url>/2017/05/09/NET-%E5%A6%82%E4%BD%95%E8%AE%93-WebAPI-%E6%94%AF%E6%8F%B4-Session/</url>
+    <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>如果你有工作上的需求需要在WebAPI當中加入Session的功能</p>
+<p>那麼這一篇也許對你會有幫助。</p>
+<p>最近筆者為了案子而開始撰寫.NET WebApi</p>
+<p>其中有些資訊需要儲存在Session當中。</p>
+<span id="more"></span>
+<p>於是撰寫了以下的Code想要將資訊寫入Session當中：</p>
+<figure class="highlight c#"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> session = System.Web.HttpContext.Current.Session; <span class="comment">//宣告Session</span></span><br><span class="line">session.Add(<span class="string">&quot;Auth&quot;</span>,LoginInfo.Auth); <span class="comment">//將認證資訊放入Session</span></span><br><span class="line"><span class="keyword">var</span> temp = session[<span class="string">&quot;Auth&quot;</span>];</span><br></pre></td></tr></table></figure>
+<p>結果意外發現這段Code居然不能執行。</p>
+<p>原因在於session是一個null，也就是說一開始就找不到Session這個物件了</p>
+<p>自然也就無法使用。</p>
+<p>爬了一些文後發現，WebApi由於是無狀態的，因此無法使用這樣的方式直接儲存</p>
+<p>所以需要在檔案：<code>~/Global.asax</code>，內新增以下程式碼即可支援：</p>
+<figure class="highlight c#"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">Application_PostAuthorizeRequest</span>()</span></span><br><span class="line">&#123;</span><br><span class="line">	System.Web.HttpContext.Current.SetSessionStateBehavior(System.Web.SessionState.SessionStateBehavior.Required);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<div>
+以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
+
+<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
+<p><a href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
+</div>
+]]></content>
+      <categories>
+        <category>.NET</category>
+      </categories>
+      <tags>
+        <tag>WebAPI</tag>
       </tags>
   </entry>
   <entry>
@@ -676,38 +786,6 @@ version for package `Microsoft.EntityFrameworkCore.Tools.DotNet` could not be re
       </categories>
       <tags>
         <tag>.net core  Entity Framework</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>.NET 如何讓 WebAPI 支援 Session ?</title>
-    <url>/2017/05/09/NET-%E5%A6%82%E4%BD%95%E8%AE%93-WebAPI-%E6%94%AF%E6%8F%B4-Session/</url>
-    <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>如果你有工作上的需求需要在WebAPI當中加入Session的功能</p>
-<p>那麼這一篇也許對你會有幫助。</p>
-<p>最近筆者為了案子而開始撰寫.NET WebApi</p>
-<p>其中有些資訊需要儲存在Session當中。</p>
-<span id="more"></span>
-<p>於是撰寫了以下的Code想要將資訊寫入Session當中：</p>
-<figure class="highlight c#"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> session = System.Web.HttpContext.Current.Session; <span class="comment">//宣告Session</span></span><br><span class="line">session.Add(<span class="string">&quot;Auth&quot;</span>,LoginInfo.Auth); <span class="comment">//將認證資訊放入Session</span></span><br><span class="line"><span class="keyword">var</span> temp = session[<span class="string">&quot;Auth&quot;</span>];</span><br></pre></td></tr></table></figure>
-<p>結果意外發現這段Code居然不能執行。</p>
-<p>原因在於session是一個null，也就是說一開始就找不到Session這個物件了</p>
-<p>自然也就無法使用。</p>
-<p>爬了一些文後發現，WebApi由於是無狀態的，因此無法使用這樣的方式直接儲存</p>
-<p>所以需要在檔案：<code>~/Global.asax</code>，內新增以下程式碼即可支援：</p>
-<figure class="highlight c#"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">Application_PostAuthorizeRequest</span>()</span></span><br><span class="line">&#123;</span><br><span class="line">	System.Web.HttpContext.Current.SetSessionStateBehavior(System.Web.SessionState.SessionStateBehavior.Required);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-<div>
-以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
-
-<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
-<p><a href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
-</div>
-]]></content>
-      <categories>
-        <category>.NET</category>
-      </categories>
-      <tags>
-        <tag>WebAPI</tag>
       </tags>
   </entry>
   <entry>
@@ -877,33 +955,6 @@ version for package `Microsoft.EntityFrameworkCore.Tools.DotNet` could not be re
       </tags>
   </entry>
   <entry>
-    <title>WinForm - 解決無法對這個檔案顯示設計工具，因為檔案中沒有可以設計的類別</title>
-    <url>/2017/12/15/WinForm-%E8%A7%A3%E6%B1%BA%E7%84%A1%E6%B3%95%E5%B0%8D%E9%80%99%E5%80%8B%E6%AA%94%E6%A1%88%E9%A1%AF%E7%A4%BA%E8%A8%AD%E8%A8%88%E5%B7%A5%E5%85%B7%EF%BC%8C%E5%9B%A0%E7%82%BA%E6%AA%94%E6%A1%88%E4%B8%AD%E6%B2%92%E6%9C%89%E5%8F%AF%E4%BB%A5%E8%A8%AD%E8%A8%88%E7%9A%84%E9%A1%9E%E5%88%A5/</url>
-    <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>當我們在針對WindowsForm設計的時候，如果我們想要針對原本的Form表單增加一些功能等等，我們會需要透過繼承Form表單來實作。</p>
-<p>此時當我們繼承原本的Form頁面時，我們會發現當前繼承的頁面會出現以下錯誤訊息：</p>
-<span id="more"></span>
-<p><img data-src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/747b607f-21d2-4185-b73d-9f525f5daf2e/1513316793_69472.png"></p>
-<p>這問題是因為 Visual Studio <font>找不到基底類別的設計工具或是基底類別是找不到或無法載入的類別。</font> </p>
-<p>因此，只需要將專案進行建置：</p>
-<p><img data-src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/747b607f-21d2-4185-b73d-9f525f5daf2e/1513316869_29036.png"></p>
-<p>此時會發現輸出訊息欄會有建置成功的訊息：</p>
-<p><img data-src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/747b607f-21d2-4185-b73d-9f525f5daf2e/1513316900_48037.png"></p>
-<p>當建置成功後，再次開啟頁面，就會發現錯誤訊息已經消失了。</p>
-<div>
-以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
-
-<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
-<p><a href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
-</div>
-]]></content>
-      <categories>
-        <category>.NET</category>
-      </categories>
-      <tags>
-        <tag>WinForm</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>【Cordova】 將Angular 部署至 android手機</title>
     <url>/2018/08/21/%E3%80%90Cordova%E3%80%91-%E5%B0%87Angular-%E9%83%A8%E7%BD%B2%E8%87%B3-android%E6%89%8B%E6%A9%9F/</url>
     <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>在很久以前，筆者曾經寫過一篇利用<a href="%E3%80%90Cordova%E3%80%91-%E5%B0%87%E9%96%8B%E7%99%BC%E5%A5%BD%E7%9A%84WebApp%E9%83%A8%E7%BD%B2%E8%87%B3-ios.md">jQueryMobile 部署至ios</a>的文章</p>
@@ -969,6 +1020,33 @@ version for package `Microsoft.EntityFrameworkCore.Tools.DotNet` could not be re
       </categories>
       <tags>
         <tag>Angular</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>WinForm - 解決無法對這個檔案顯示設計工具，因為檔案中沒有可以設計的類別</title>
+    <url>/2017/12/15/WinForm-%E8%A7%A3%E6%B1%BA%E7%84%A1%E6%B3%95%E5%B0%8D%E9%80%99%E5%80%8B%E6%AA%94%E6%A1%88%E9%A1%AF%E7%A4%BA%E8%A8%AD%E8%A8%88%E5%B7%A5%E5%85%B7%EF%BC%8C%E5%9B%A0%E7%82%BA%E6%AA%94%E6%A1%88%E4%B8%AD%E6%B2%92%E6%9C%89%E5%8F%AF%E4%BB%A5%E8%A8%AD%E8%A8%88%E7%9A%84%E9%A1%9E%E5%88%A5/</url>
+    <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>當我們在針對WindowsForm設計的時候，如果我們想要針對原本的Form表單增加一些功能等等，我們會需要透過繼承Form表單來實作。</p>
+<p>此時當我們繼承原本的Form頁面時，我們會發現當前繼承的頁面會出現以下錯誤訊息：</p>
+<span id="more"></span>
+<p><img data-src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/747b607f-21d2-4185-b73d-9f525f5daf2e/1513316793_69472.png"></p>
+<p>這問題是因為 Visual Studio <font>找不到基底類別的設計工具或是基底類別是找不到或無法載入的類別。</font> </p>
+<p>因此，只需要將專案進行建置：</p>
+<p><img data-src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/747b607f-21d2-4185-b73d-9f525f5daf2e/1513316869_29036.png"></p>
+<p>此時會發現輸出訊息欄會有建置成功的訊息：</p>
+<p><img data-src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/747b607f-21d2-4185-b73d-9f525f5daf2e/1513316900_48037.png"></p>
+<p>當建置成功後，再次開啟頁面，就會發現錯誤訊息已經消失了。</p>
+<div>
+以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
+
+<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
+<p><a href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
+</div>
+]]></content>
+      <categories>
+        <category>.NET</category>
+      </categories>
+      <tags>
+        <tag>WinForm</tag>
       </tags>
   </entry>
   <entry>
@@ -1064,140 +1142,6 @@ version for package `Microsoft.EntityFrameworkCore.Tools.DotNet` could not be re
       </tags>
   </entry>
   <entry>
-    <title>【Cordova】 建立 Android release 簽名版本（Signature Version）</title>
-    <url>/2018/09/25/%E3%80%90Cordova%E3%80%91-%E5%BB%BA%E7%AB%8B-Android-release-%E7%B0%BD%E5%90%8D%E7%89%88%E6%9C%AC%EF%BC%88Signature-Version%EF%BC%89/</url>
-    <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>當我們使用 Cordova 進行 build的時候，Codova會自動幫我們產生 debug版本的apk</p>
-<p>但當我們要將APP 進行上架時，僅有debug版的apk是不能進行上架的</p>
-<p>因此我們需要將APP轉為可上架版本。</p>
-<p>本篇文章將會全面帶你操作，學習如何將APP打包成 Signature Version 的 發布版本(Release)</p>
-<span id="more"></span>
-
-<p>當我們直接下匯出指令</p>
-<p>cordova build android</p>
-<p>預設會自動在app&#x2F;build&#x2F;output 底下 建立 debug資料夾，並將測試版本的apk檔案放入此中</p>
-<p>雖然這個版本可以直接在 Android系統上使用，但是若要考慮到上架，會發現Google Play 不允許使用非發布版本的apk進行上架。</p>
-<p>因此我們還需要在該指令後面，增加  –release 參數</p>
-<p>cordova build android  –release</p>
-<p>這時候預設一樣會自動在app&#x2F;build&#x2F;output 底下 建立 release 資料夾，並將發布版本的apk檔案放入此中</p>
-<p>當你很開心以為這樣就產生出來，可以進行上架的話，你就錯了</p>
-<p>我們將剛剛產生出來的 Release版本放入到模擬器中運行，會發現以下錯誤：<br><img data-src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/78e21927-ebe4-4353-b38c-e0e5ee8f8639/1537842546_34736.png"></p>
-<p>而這個錯誤訊息會發生的原因，主要是因為我們的發布版本 Release 並沒有經過金鑰簽名，所以這個 release apk 不可用</p>
-<p>因此我們在下該行指令之前，需要先產生一份金鑰檔，再利用這份金鑰檔進行簽名</p>
-<p>最後才可以產生出可使用的 release apk 版本。</p>
-<p>因此我們需要下該行指令，產生金鑰</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">keytool -genkey -v -keystore MyApp.keystore  -alias myapp</span><br></pre></td></tr></table></figure>
-
-<p>其中 </p>
-<p>MyApp.keystore  是你匯出金鑰的檔案名稱</p>
-<p>myapp 是簡稱</p>
-<p>接下來會要你填寫一些金鑰資訊及密碼</p>
-<p><img data-src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/78e21927-ebe4-4353-b38c-e0e5ee8f8639/1537844680_51531.png"></p>
-<p>完成後會再該目錄底下產生一個 MyApp.keystore  的金鑰檔案</p>
-<p>建議該檔案複製一份留存，然後記錄一下帳號密碼。  PS: 可以放在 Document底下做保管</p>
-<p>未來若有其他專案需要產生 release apk 就可以重複使用。</p>
-<p>接下來為了之後簽名方便，我們在 platform&#x2F;android 資料夾中，新增一個 properties 的檔案</p>
-<p>檔案的內容如下：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">storeFile=/Users/leo/Documents/myapp.keystore     // storeFile 檔案路徑，建議可以放在文件資料夾底下做保管</span><br><span class="line">storeType=jks                                     // 金鑰使用的演算法格式</span><br><span class="line">keyAlias=androidkeystore                          // 金鑰別名</span><br><span class="line">keyPassword=                                      // 金鑰密碼</span><br><span class="line">storePassword=                                    // store 密碼</span><br></pre></td></tr></table></figure>
-
-<p>這樣當我們進行 Cordova build的時候，Cordova 就會自動去讀取該檔案，幫我們將 release apk 進行簽名</p>
-<p>完成之後，我們就可以再次輸入該指令：</p>
-<p>cordova build android –release</p>
-<p>這樣產生出來的APP 就是擁有 Signature Version 的 release apk了。</p>
-<p>最後請記得一件事！<br><font color="red"><br>若該手機內已經有 debug版本的 apk，請記得先卸載後再安裝 新的 release apk</font></p>
-<p>因為不管是 debug版本的apk 還是 release版本的 apk 他們都會共用同一組 APP ID<br><br>所以這時候直接安裝新的，會導致錯誤 （筆者曾經為了這個問題折騰了好久…最後刪掉原本手機內的app 就成功了）</p>
-<div>
-以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
-
-<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
-<p><a href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
-</div>
-]]></content>
-      <categories>
-        <category>Cordova</category>
-      </categories>
-      <tags>
-        <tag>Android</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>JavaScript - Hoisting(提升) 介紹</title>
-    <url>/2018/05/02/JavaScript-Hoisting-%E6%8F%90%E5%8D%87-%E4%BB%8B%E7%B4%B9/</url>
-    <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>就在剛剛，看完了Will保哥的技術交流直播，在直撥最後結尾的時候</p>
-<p>保哥對於Junior的前端工程師表示，他面試過的Devoloper幾近九成沒聽過 Hoisting是什麼東西。</p>
-<p>因為對於直接接觸網頁、JavaScript的開發者來說，難免會lost掉一些基本觀念。</p>
-<p>於是這篇文章就誕生了。</p>
-<span id="more"></span>
-<p>根據 <a href="https://www.w3schools.com/js/js_hoisting.asp">W3School</a>  的網頁介紹中，我們發現第一句話就這樣寫著：</p>
-<blockquote>
-<p>Hoisting is JavaScript’s default behavior of moving declarations to the top.</p>
-</blockquote>
-<p>翻譯成中文的意思就是 ，在JavaScript程式語言當中，它會自動幫你把你有宣告的變數、Function自動拉至最上方。</p>
-<p>而這樣的行為，我們就稱為 <code>Hoisting （提升）</code>。</p>
-<p>以往我們在撰寫程式的時候，我們的觀念告訴我們：</p>
-<blockquote>
-<p>程式碼就是由上而下執行，所有的變數、方法都需要經過宣告才能使用。</p>
-</blockquote>
-<p>於是，當我們在撰寫像是Java、C#、Python等程式語言的時候，光是第一關 Compile 就不會過了。</p>
-<p>原因是因為變數在還沒宣告的時候，並不會分配記憶體空間，自然就沒辦法操作其變數了。</p>
-<p>但是JavaScript本身語言的特性，有著 Hoisting 的效果，所以即便你在使用變數後才進行變數宣告依然不會有Error發生。</p>
-<p>所以相信大家在撰寫的時候都會有著這樣的寫法：</p>
-<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="title class_">Hello</span>(); <span class="comment">// Hello World</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">Hello</span>(<span class="params"></span>) &#123;</span><br><span class="line"></span><br><span class="line"> <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;Hello World&#x27;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>在變數上我們可以這樣寫：</p>
-<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">b = <span class="number">200</span>;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(b); <span class="comment">// 200</span></span><br><span class="line"><span class="keyword">var</span> b;</span><br></pre></td></tr></table></figure>
-<p>這時候會發現，因為Hoisting的效果，只要我們在使用後有進行宣告，那麼程式就不會有Error，也不會有undefined的情況發生。</p>
-<p>但是有一種情況例外：</p>
-<blockquote>
-<p>JavaScript Initializations are Not Hoisted</p>
-</blockquote>
-<p>這句話的意思是：在JavaScript語言當中，如果將此初始化，則不會被 Hoisted (提升)。</p>
-<p>我們可以來試試看：</p>
-<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="title class_">Hello</span>();</span><br><span class="line"><span class="keyword">var</span> <span class="title class_">Hello</span> = <span class="keyword">function</span>(<span class="params"></span>) &#123;</span><br><span class="line">	<span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;Hello&#x27;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>在我們寫完這一段Code，並執行時，我們會得到以下錯誤：</p>
-<p><img data-src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/127c9070-73bb-4aee-b3c4-1d903ac8333c/1525194410_18703.png"></p>
-<p>錯誤訊息告訴我們：Hello不是一個function。</p>
-<p>而之所以會有這個錯誤訊息，正是呼應到剛剛上方的那一句話：</p>
-<blockquote>
-<p>JavaScript Initializations are Not Hoisted</p>
-</blockquote>
-<p>我們首先先在第一行呼叫Hello這個Function。</p>
-<p>接著才將function指向給Hello這個變數。</p>
-<p>其中第二行的寫法，它並不是一個宣告的行為，而是初始化的動作。</p>
-<p>我宣告一個Hello的function，並將其指派給Hello這個變數。</p>
-<p>這樣的動作，我們稱之為Initialize(初始化)。</p>
-<p>於是，第二行就不會有  Hoisting 的效果。</p>
-<p>而同樣的，如果我們針對變數也這樣撰寫：</p>
-<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">b++;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(b); <span class="comment">// NaN</span></span><br><span class="line"><span class="keyword">var</span> b = <span class="number">200</span>;</span><br></pre></td></tr></table></figure>
-
-<p>那麼會發現印出來的b，會是NaN。</p>
-<p>那至於為什麼是NaN呢？</p>
-<p>跟上述ㄧ樣的道理，因為初始化並不會被Hoisting(提升)。</p>
-<p>因此，第一行的b就不會有宣告的效果，所以若單獨把b印出來，結果會是 undefined。</p>
-<p>而我們又把b給進行了++。</p>
-<p>於是 undefined 再強制進行了+1的動作，這時候我們就會得到NaN的結果了。</p>
-<p>看到這裡相信各位對於JavaScript的各種巫術感到非常頭痛。</p>
-<p>因此在最後，W3School  在文末也表示：</p>
-<font color="red">
-對許多開發者來說，Hoisting(提升)是一種未知或被忽視的JavaScript行為。
-
-<p>如果開發人員不理解，那麼程式可能就會Error。</p>
-<p>為了避免錯誤，請在每個任何變數或是方法使用前，都先進行宣告。<br></p></font><p></p>
-<p>希望看完這篇的讀者能夠對於 JavaScript的 Hoisting 能夠有一定的認知。</p>
-<p>但是最好還是都在使用前都進行宣告，否則未來維護你Code的人可是會痛不欲生的（笑</p>
-<div>
-以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
-
-<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
-<p><a href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
-</div>
-]]></content>
-      <categories>
-        <category>JavaScript</category>
-      </categories>
-      <tags>
-        <tag>Hoisting</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>【Design Pattern】獨體模式(Singleton Pattern)介紹</title>
     <url>/2017/06/03/%E3%80%90Design-Pattern%E3%80%91%E7%8D%A8%E9%AB%94%E6%A8%A1%E5%BC%8F-Singleton-Pattern-%E4%BB%8B%E7%B4%B9/</url>
     <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>獨體模式其實大家很常使用到，但或許大家不知道他叫獨體模式。</p>
@@ -1271,24 +1215,47 @@ version for package `Microsoft.EntityFrameworkCore.Tools.DotNet` could not be re
       </tags>
   </entry>
   <entry>
-    <title>【CI/CD實作】在 .NET 透過nuget.config 自訂NuGet 套件來源（番外篇）</title>
-    <url>/2023/02/11/%E5%9C%A8-NET-%E9%80%8F%E9%81%8Enuget-config-%E8%87%AA%E8%A8%82NuGet-%E5%A5%97%E4%BB%B6%E4%BE%86%E6%BA%90/</url>
-    <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>通常我們在開發.NET專案時，若因為專案中有使用到公司內部的Library時，通常都會架設Private Nuget Server來進行套件添加。<br>而一般來說添加套件來源的方式大多都是在 Nuget管理員的介面中選擇添加的目錄夾或是Url來操作。<br>但這樣的方式如果實現CI&#x2F;CD時，則會遇到找不到套件來源的問題，原因是Jenkins是直接將Github上的專案Clone下來進行建置與部署。<br>但我們設定套件來源的時機則是在專案Clone後手動開啟Nuget管理員添加的。<br>因此本篇主要會教學如何透過幾種方式讓Jenkins能夠讀的到自訂的Nuget套件來源。</p>
+    <title>【Cordova】 建立 Android release 簽名版本（Signature Version）</title>
+    <url>/2018/09/25/%E3%80%90Cordova%E3%80%91-%E5%BB%BA%E7%AB%8B-Android-release-%E7%B0%BD%E5%90%8D%E7%89%88%E6%9C%AC%EF%BC%88Signature-Version%EF%BC%89/</url>
+    <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>當我們使用 Cordova 進行 build的時候，Codova會自動幫我們產生 debug版本的apk</p>
+<p>但當我們要將APP 進行上架時，僅有debug版的apk是不能進行上架的</p>
+<p>因此我們需要將APP轉為可上架版本。</p>
+<p>本篇文章將會全面帶你操作，學習如何將APP打包成 Signature Version 的 發布版本(Release)</p>
 <span id="more"></span>
-<h3 id="建立Nuget-config"><a href="#建立Nuget-config" class="headerlink" title="建立Nuget.config"></a>建立Nuget.config</h3><p>我們可以在方案的根目錄下輸入以下指令進行Nuget範本建立(或直接新增檔案輸入也可以)</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">dotnet new nugetconfig</span><br></pre></td></tr></table></figure>
 
-<p>這時候會在當前目錄下建立一個 nuget.config 其內容如下：</p>
-<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=<span class="string">&quot;1.0&quot;</span> encoding=<span class="string">&quot;utf-8&quot;</span>?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">configuration</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">packageSources</span>&gt;</span></span><br><span class="line">    <span class="comment">&lt;!--如果想要取消繼承在 %AppData%\NuGet\nuget.config的設定，可以加上 &lt;clear/&gt; --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">clear</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">add</span> <span class="attr">key</span>=<span class="string">&quot;nuget&quot;</span> <span class="attr">value</span>=<span class="string">&quot;https://api.nuget.org/v3/index.json&quot;</span> /&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">packageSources</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<p>因此我們可以透過 add的方式，手動將私有的套件來源加上</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&lt;add key=&quot;來源名稱&quot; value=&quot;來源網址&quot; /&gt;</span><br></pre></td></tr></table></figure>
+<p>當我們直接下匯出指令</p>
+<p>cordova build android</p>
+<p>預設會自動在app&#x2F;build&#x2F;output 底下 建立 debug資料夾，並將測試版本的apk檔案放入此中</p>
+<p>雖然這個版本可以直接在 Android系統上使用，但是若要考慮到上架，會發現Google Play 不允許使用非發布版本的apk進行上架。</p>
+<p>因此我們還需要在該指令後面，增加  –release 參數</p>
+<p>cordova build android  –release</p>
+<p>這時候預設一樣會自動在app&#x2F;build&#x2F;output 底下 建立 release 資料夾，並將發布版本的apk檔案放入此中</p>
+<p>當你很開心以為這樣就產生出來，可以進行上架的話，你就錯了</p>
+<p>我們將剛剛產生出來的 Release版本放入到模擬器中運行，會發現以下錯誤：<br><img data-src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/78e21927-ebe4-4353-b38c-e0e5ee8f8639/1537842546_34736.png"></p>
+<p>而這個錯誤訊息會發生的原因，主要是因為我們的發布版本 Release 並沒有經過金鑰簽名，所以這個 release apk 不可用</p>
+<p>因此我們在下該行指令之前，需要先產生一份金鑰檔，再利用這份金鑰檔進行簽名</p>
+<p>最後才可以產生出可使用的 release apk 版本。</p>
+<p>因此我們需要下該行指令，產生金鑰</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">keytool -genkey -v -keystore MyApp.keystore  -alias myapp</span><br></pre></td></tr></table></figure>
 
-<p>完成後關閉專案再重新啟動，就會發現Nuget的套件來源已經自動補上在config設定的自訂來源了。<br><img data-src="/./%E5%9C%A8-NET-%E9%80%8F%E9%81%8Enuget-config-%E8%87%AA%E8%A8%82NuGet-%E5%A5%97%E4%BB%B6%E4%BE%86%E6%BA%90/nuget.png"></p>
-<h3 id="在機器上手動添加全域套件來源"><a href="#在機器上手動添加全域套件來源" class="headerlink" title="在機器上手動添加全域套件來源"></a>在機器上手動添加全域套件來源</h3><p>剛剛有提到.NET其實預設在 <code>%AppData%\NuGet\nuget.config</code> 有全域的設定檔<br>這也就是為什麼 Jenkins可以直接執行那些Nuget的套件，但是自訂來源的套件卻無法執行的原因。</p>
-<p>因此我們也可以在部署的機器上手動添加自訂來源：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">dotnet nuget add source &lt;來源網址&gt; -n &lt;自訂名稱&gt;</span><br></pre></td></tr></table></figure>
+<p>其中 </p>
+<p>MyApp.keystore  是你匯出金鑰的檔案名稱</p>
+<p>myapp 是簡稱</p>
+<p>接下來會要你填寫一些金鑰資訊及密碼</p>
+<p><img data-src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/78e21927-ebe4-4353-b38c-e0e5ee8f8639/1537844680_51531.png"></p>
+<p>完成後會再該目錄底下產生一個 MyApp.keystore  的金鑰檔案</p>
+<p>建議該檔案複製一份留存，然後記錄一下帳號密碼。  PS: 可以放在 Document底下做保管</p>
+<p>未來若有其他專案需要產生 release apk 就可以重複使用。</p>
+<p>接下來為了之後簽名方便，我們在 platform&#x2F;android 資料夾中，新增一個 properties 的檔案</p>
+<p>檔案的內容如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">storeFile=/Users/leo/Documents/myapp.keystore     // storeFile 檔案路徑，建議可以放在文件資料夾底下做保管</span><br><span class="line">storeType=jks                                     // 金鑰使用的演算法格式</span><br><span class="line">keyAlias=androidkeystore                          // 金鑰別名</span><br><span class="line">keyPassword=                                      // 金鑰密碼</span><br><span class="line">storePassword=                                    // store 密碼</span><br></pre></td></tr></table></figure>
 
-<p><font color="red">但這個方式不太建議，除了每一台機器都要手動添加以外，也需要同步管理每一個的Nuget package list，因此如果都用config的話，就可以一目瞭然了。<br></font></p>
+<p>這樣當我們進行 Cordova build的時候，Cordova 就會自動去讀取該檔案，幫我們將 release apk 進行簽名</p>
+<p>完成之後，我們就可以再次輸入該指令：</p>
+<p>cordova build android –release</p>
+<p>這樣產生出來的APP 就是擁有 Signature Version 的 release apk了。</p>
+<p>最後請記得一件事！<br><font color="red"><br>若該手機內已經有 debug版本的 apk，請記得先卸載後再安裝 新的 release apk</font></p>
+<p>因為不管是 debug版本的apk 還是 release版本的 apk 他們都會共用同一組 APP ID<br><br>所以這時候直接安裝新的，會導致錯誤 （筆者曾經為了這個問題折騰了好久…最後刪掉原本手機內的app 就成功了）</p>
 <div>
 以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
 
@@ -1297,10 +1264,10 @@ version for package `Microsoft.EntityFrameworkCore.Tools.DotNet` could not be re
 </div>
 ]]></content>
       <categories>
-        <category>Jenkins</category>
+        <category>Cordova</category>
       </categories>
       <tags>
-        <tag>CI/CD</tag>
+        <tag>Android</tag>
       </tags>
   </entry>
   <entry>
@@ -1366,6 +1333,39 @@ version for package `Microsoft.EntityFrameworkCore.Tools.DotNet` could not be re
       <categories>
         <category>Postman</category>
       </categories>
+  </entry>
+  <entry>
+    <title>【CI/CD實作】在 .NET 透過nuget.config 自訂NuGet 套件來源（番外篇）</title>
+    <url>/2023/02/11/%E5%9C%A8-NET-%E9%80%8F%E9%81%8Enuget-config-%E8%87%AA%E8%A8%82NuGet-%E5%A5%97%E4%BB%B6%E4%BE%86%E6%BA%90/</url>
+    <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>通常我們在開發.NET專案時，若因為專案中有使用到公司內部的Library時，通常都會架設Private Nuget Server來進行套件添加。<br>而一般來說添加套件來源的方式大多都是在 Nuget管理員的介面中選擇添加的目錄夾或是Url來操作。<br>但這樣的方式如果實現CI&#x2F;CD時，則會遇到找不到套件來源的問題，原因是Jenkins是直接將Github上的專案Clone下來進行建置與部署。<br>但我們設定套件來源的時機則是在專案Clone後手動開啟Nuget管理員添加的。<br>因此本篇主要會教學如何透過幾種方式讓Jenkins能夠讀的到自訂的Nuget套件來源。</p>
+<span id="more"></span>
+<h3 id="建立Nuget-config"><a href="#建立Nuget-config" class="headerlink" title="建立Nuget.config"></a>建立Nuget.config</h3><p>我們可以在方案的根目錄下輸入以下指令進行Nuget範本建立(或直接新增檔案輸入也可以)</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">dotnet new nugetconfig</span><br></pre></td></tr></table></figure>
+
+<p>這時候會在當前目錄下建立一個 nuget.config 其內容如下：</p>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=<span class="string">&quot;1.0&quot;</span> encoding=<span class="string">&quot;utf-8&quot;</span>?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">configuration</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">packageSources</span>&gt;</span></span><br><span class="line">    <span class="comment">&lt;!--如果想要取消繼承在 %AppData%\NuGet\nuget.config的設定，可以加上 &lt;clear/&gt; --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">clear</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">add</span> <span class="attr">key</span>=<span class="string">&quot;nuget&quot;</span> <span class="attr">value</span>=<span class="string">&quot;https://api.nuget.org/v3/index.json&quot;</span> /&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">packageSources</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>因此我們可以透過 add的方式，手動將私有的套件來源加上</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&lt;add key=&quot;來源名稱&quot; value=&quot;來源網址&quot; /&gt;</span><br></pre></td></tr></table></figure>
+
+<p>完成後關閉專案再重新啟動，就會發現Nuget的套件來源已經自動補上在config設定的自訂來源了。<br><img data-src="/./%E5%9C%A8-NET-%E9%80%8F%E9%81%8Enuget-config-%E8%87%AA%E8%A8%82NuGet-%E5%A5%97%E4%BB%B6%E4%BE%86%E6%BA%90/nuget.png"></p>
+<h3 id="在機器上手動添加全域套件來源"><a href="#在機器上手動添加全域套件來源" class="headerlink" title="在機器上手動添加全域套件來源"></a>在機器上手動添加全域套件來源</h3><p>剛剛有提到.NET其實預設在 <code>%AppData%\NuGet\nuget.config</code> 有全域的設定檔<br>這也就是為什麼 Jenkins可以直接執行那些Nuget的套件，但是自訂來源的套件卻無法執行的原因。</p>
+<p>因此我們也可以在部署的機器上手動添加自訂來源：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">dotnet nuget add source &lt;來源網址&gt; -n &lt;自訂名稱&gt;</span><br></pre></td></tr></table></figure>
+
+<p><font color="red">但這個方式不太建議，除了每一台機器都要手動添加以外，也需要同步管理每一個的Nuget package list，因此如果都用config的話，就可以一目瞭然了。<br></font></p>
+<div>
+以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
+
+<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
+<p><a href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
+</div>
+]]></content>
+      <categories>
+        <category>Jenkins</category>
+      </categories>
+      <tags>
+        <tag>CI/CD</tag>
+      </tags>
   </entry>
   <entry>
     <title>【CI/CD實作】安裝Jenkins(一)</title>
