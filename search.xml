@@ -150,6 +150,184 @@
 ]]></content>
   </entry>
   <entry>
+    <title>Angular Universal 教學-如何將Server Side Render 專案部屬到IIS上</title>
+    <url>/2020/07/24/Angular-Universal%E6%95%99%E5%AD%B8-%E5%A6%82%E4%BD%95%E5%B0%87Server-Side-Render-%E5%B0%88%E6%A1%88%E9%83%A8%E5%B1%AC%E5%88%B0IIS%E4%B8%8A/</url>
+    <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>翻遍了各大國外網站，StakeOverFlow也每一篇仔細看過。</p>
+<p>發現對於如何一步步將 Angular Universal完整部屬到IIS上的步驟，不是內容過時，就是步驟漏了不少。</p>
+<p>因此撰寫一篇完整的將SSR專案部屬到IIS上的步驟。</p>
+<p>相信我，這一篇絕對會是最完整的部屬流程文章，如果不是，倒想看看你的完整流程。</p>
+<span id="more"></span>
+
+<p>在上一篇的教學中，我們成功的將Client-Side-Render的專案，導入了SSR</p>
+<p>並且透過cli幫我們生成了兩個資料夾 server&#x2F;browser。</p>
+<p>接下來要介紹，拿到這兩個資料夾後，我們要如何將專案部屬到IIS上，讓其順利執行。</p>
+<p><del>畢竟在本地端上可以執行與在Server上運行是完全不同的事。</del></p>
+<blockquote>
+<p>Step1: 將我們dist的資料夾直接複製，貼到你要運行IIS站台的資料夾中。<br>Step2: 將dist&#x2F;專案名稱&#x2F;server 內的main.js 放入IIS站台根目錄資料夾內。<br>Step3.將IIS WebConfig放入IIS站台根目錄資料夾內</p>
+</blockquote>
+<p>此時，我們的資料夾的目錄中，應該會長這個樣子:<br><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/6ae26f72-8ae1-4525-b53d-edcb83ac5d98/1595579095.png"></p>
+<blockquote>
+<p>Step4. 安裝<a href="https://www.iis.net/downloads/microsoft/url-rewrite">Url Rewrite2.1</a> ， <a href="https://github.com/tjanczuk/iisnode/wiki/iisnode-releases">iisnode</a>，iisexpress</p>
+</blockquote>
+<p>由於當User連線到我們的Server時，我們必須要先將首頁的內容給編譯完成，因此存取的檔案會是剛剛放在外層的main.js</p>
+<p>所以，我們需要透過 UrlRewrite，幫我們做重導向，強制執行main.js。</p>
+<p>而要能夠執行main.js，我們需要透過iisnode以及iisexpress來運行。</p>
+<p>要確認是否有安裝iisnode模組，我們可以到:<br>站台 → 網站 → 模組 → 確認是否已安裝iisnode模組</p>
+<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/6ae26f72-8ae1-4525-b53d-edcb83ac5d98/1595579367.png"></p>
+<blockquote>
+<p>Step5. 若沒有在模組中看到iisnode，我們可以到 C:\Program Files\iisnode 執行 setupsamples.bat</p>
+</blockquote>
+<blockquote>
+<p>Step6.安裝 Node.js</p>
+</blockquote>
+<p>如同上述所說，我們需要透過node.js來幫我們編譯，因此在Server上我們仍需要安裝node.js，並透過它安裝一些指令與編譯。</p>
+<blockquote>
+<p>Step7 透過cmd.exe 進入專案後 利用 npm 安裝 express module</p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">npm install express</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>Step8.到剛剛我們下載的webconfig 設定node.js讀取路徑(放在webServer標籤底下)</p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&lt;iisnode nodeProcessCommandLine=&quot;C:\Program Files\nodejs\node.exe&quot; /&gt;</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/6ae26f72-8ae1-4525-b53d-edcb83ac5d98/1595581926.png"></p>
+<blockquote>
+<p>9.設定IISUser存取整個資料夾的權限</p>
+</blockquote>
+<p>由於我們連線進來後，IIS會根據我們上面webconfig中的urlRewrite，將所有的連線都Redirect到main.js，並驅動node.js來執行我們的專案。</p>
+<p>因此我們需要讓IIS能存取整個資料夾的權限。如果沒有設定，就會噴出以下錯誤：</p>
+<blockquote>
+<p>The node.exe process has not written any information to stderr or iisnode was unable to capture this information. Frequent reason is that the iisnode module is unable to create a log file to capture stdout and stderr output from node.exe. Please check that the identity of the IIS application pool running the node.js application has read and write access permissions to the directory on the server where the node.js application is located.</p>
+</blockquote>
+<blockquote>
+<p>Step10.將專案的package.json複製過去到IIS站台根目錄</p>
+</blockquote>
+<p>這點筆者也很是疑惑。由於在過去的Angular專案，當我們執行 ng build –prod 時，會幫我們產生已打包好的專案，並放到dist中。</p>
+<p>此時理當所有有使用到的Module都會一併放到dist中，因此dist應該就夠用了，但不知為何在導入SSR之後，還是需要整包的nodeModules，否則仍然會報錯，回應找不到該Module。這點若有其他讀者有發現其他解法的話，再請留言告知。</p>
+<p>因此目前的解法是將專案的package.json複製過去，並安裝其使用到的套件。</p>
+<blockquote>
+<p>Step11.執行 npm insall</p>
+</blockquote>
+<p>將所有package.json的套件都安裝到站台中。</p>
+<blockquote>
+<p>Step12.設定不想要Rewrite的Url</p>
+</blockquote>
+<p>若網站底下還有其他子站台 (API或是其他的)，則需要進行在webconfig中撰寫 urlRewrite的role。</p>
+<p>由於webconfig會將所有輸入的url，全部轉址到main.js，所以要在上方增加不允許轉址的url role。<br>如:</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&lt;rule name=&quot;apiContent&quot; patternSyntax=&quot;Wildcard&quot; stopProcessing=&quot;true&quot;&gt;  </span><br><span class="line">     &lt;match url=&quot;api/*&quot; /&gt;</span><br><span class="line">     &lt;action type=&quot;None&quot; /&gt;</span><br><span class="line">&lt;/rule&gt; </span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>Step13.收工! PS 記得開防火牆</p>
+</blockquote>
+<div>
+以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
+
+<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
+<p><a href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
+</div>
+]]></content>
+      <categories>
+        <category>Angular Universal</category>
+      </categories>
+      <tags>
+        <tag>Angular Universal</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Angular Universal教學-將現有專案導入Server Side Render</title>
+    <url>/2020/07/24/Angular-Universal%E6%95%99%E5%AD%B8-%E5%B0%87%E7%8F%BE%E6%9C%89%E5%B0%88%E6%A1%88%E5%B0%8E%E5%85%A5Server-Side-Render/</url>
+    <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>找了各式各樣的文章，一直沒有看到完整關於Angular Univeral的詳細步驟教學</p>
+<p>而在設定時也會有一些小細節需要處理，因此本文將完整從 Client Side Render 如何成功導入 Server Side Render</p>
+<p>讓 Google的爬蟲能夠搜尋的到使用 Angular開發的網站。</p>
+<p>在2020的今天，隨著Web Framework的竄起，使用前端框架 如:Angular，React，Vue開發系統早已是見怪不怪的事。</p>
+<p>但這種前端主流框架，對於 SPA 沒辦法進行SEO一直以來都是開發者最為頭痛的事。</p>
+<p>因此就有 Next.js 這類的工具可以協助我們進行Server-Side-Render。</p>
+<span id="more"></span>
+<p>而在Angular中，則有Angular Universal可以幫助我們解決問題。</p>
+<p>早期 Angular 要使用 SSR 技術要新增不少的檔案與內容，但現在只需要使用cli的指令就可以達成。</p>
+<blockquote>
+<p>加入 @nguniversal&#x2F;express-engine 到專案中</p>
+</blockquote>
+<p>在Angular專案下，我們可以安裝</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">ng add @nguniversal/express-engine --clientProject 專案名稱(可以由angular.json查看名稱)</span><br></pre></td></tr></table></figure>
+<p><img src="https://i.imgur.com/YUTHd6d.png"></p>
+<p>安裝後，我們會發現cli指令幫我們建立了不少檔案。</p>
+<p>其中最主要的部份則以server.ts 以及 app.server.module.ts這兩支檔案為主。</p>
+<p>這邊簡單說明一下:</p>
+<p>server.ts主要是運行我們SSR最主要的程式，透過這支程式，會自動在部屬時自動將首頁進行編譯，讓我們的angular的程式，能夠預先載入到index.html中</p>
+<p>而不是透過瀏覽器執行的時候才將js渲染到畫面上。簡單來說，就是該程式就是將首頁的js進行編譯，並載入到html中回傳靜態的網頁內容。</p>
+<p>app.server.module.ts 則是與app.module.ts相同，但不同的是，透過ssr編譯時，會採用的是app.server.module.ts進行呼叫。</p>
+<p>在安裝好express-engine 套件後，接下來要運行 Universal Web Server。</p>
+<p>這裡跟一般我們平時在使用 <code>ng serve </code>一樣，都是去呼叫 node.js的express起來，進行監聽。</p>
+<p>輸入以下指令</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">npm run build:ssr;npm run serve:ssr</span><br></pre></td></tr></table></figure>
+<p>就會執行 ssr 的build(部屬)以及serve(運行)。</p>
+<p>如果正確無誤的話，那麼你將會看到以下畫面:<br><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/a9760cbf-efad-422e-99d7-a97f83e02a96/1595576984.png"></p>
+<p>但如果不能build 出現 <font color="red"> can’t find window &#x2F; localstorage </font>的話。由於SSR是透過nodejs預先將頁面進行編譯以及載入。</p>
+<p>因此在nodejs中並沒有 windows 或是 localStorage等其他在Web上的功能。</p>
+<p>儘管可以透過 nodeJS進行部分模擬，放入到 server.ts中，讓node.js讀懂這些語法是什麼。</p>
+<p><font color="red">但大多數在Client Side中的語法，還是得需要透過瀏覽器去運行。</font></p>
+<p>讓node.js讀懂的語法如下:</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">import &#x27;localStorage-polyfill&#x27;;</span><br><span class="line">global[&#x27;localStorage&#x27;] = localStorage;</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/a9760cbf-efad-422e-99d7-a97f83e02a96/1595577448.png"></p>
+<p>但如果是其他的套件，例如應該要在Client端運行的 Ex: jQuery&#x2F;scroll …等<br>就不應該由Server編譯的時候執行。</p>
+<p>必須區分哪些程式碼應該要在Server進行SSR編譯時執行，哪些該由Client執行的時候運行。</p>
+<p>因此我們需要在 Component的 constructor 中 注入:</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">constructor(@Inject(PLATFORM_ID) private platformId: any) &#123; &#125;</span><br></pre></td></tr></table></figure>
+<p>並且在需要由Client端執行的程式碼加入以下判斷:</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">if (isPlatformBrowser(this.platformId)) &#123;</span><br><span class="line">    const anchorOffset = $(&#x27;div.anchor-&#x27; + this.anchor);</span><br><span class="line">    $(&#x27;html,body&#x27;).animate(&#123;</span><br><span class="line">      scrollTop: anchorOffset.offset().top - 100</span><br><span class="line">    &#125;, 100);</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+
+<p>像上面這種有使用到 jQuery還有scroll，牽涉到畫面甚至是動畫效果的，都應該由Client端執行，而非在 Server端中執行。</p>
+<p>因此我們就需要透過 isPlatformBrowser(this.platformId) 來判斷當前執行此段程式碼是否為Browser</p>
+<p>若是在SSR編譯時期，則該段程式就不會被運行。</p>
+<p><font color="red">註記: 若使用 ngModel的話，使用到該物件的所有兜必須要先初始化 才能使用，讓nodejs編譯。 </font></p>
+<p>若上述都完成，則會在dist建立browser以及server這兩個資料夾 。<br>browser:編譯完後所產生的程式碼，內含有index.html (和過去使用 ng build –prod相同)<br>server&#x3D;&gt;在SSR渲染的第一頁中，所有用到的圖檔，以及js都會在這裡</p>
+<p>若正常完成的話，會自動在 localhost端 監聽 4000 port 來運行SSR<br>Node Express server listening on <a href="http://localhost:4000/">http://localhost:4000</a></p>
+<p>此時將網頁按右鍵檢視原始碼，將會看到 在 <code>&lt;app-root&gt;&lt;/app-root&gt;</code> 中的程式碼已經被自動帶入。</p>
+<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/a9760cbf-efad-422e-99d7-a97f83e02a96/1595578196.png"></p>
+<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/a9760cbf-efad-422e-99d7-a97f83e02a96/1595578221.png"></p>
+<div>
+以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
+
+<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
+<p><a href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
+</div>
+]]></content>
+      <categories>
+        <category>Angular Universal</category>
+      </categories>
+      <tags>
+        <tag>Angular Universal</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Angular 實作檔案下載(瀏覽器自動下載)</title>
+    <url>/2020/07/27/Angular-%E5%AF%A6%E4%BD%9C%E6%AA%94%E6%A1%88%E4%B8%8B%E8%BC%89-%E7%80%8F%E8%A6%BD%E5%99%A8%E8%87%AA%E5%8B%95%E4%B8%8B%E8%BC%89/</url>
+    <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>正常情況下，我們使用Angular發送Request取得API資料時，常見的情境都是取得json的格式。</p>
+<p>因此HttpClient，預設會將response的內容自動轉換為json格式。</p>
+<p>那，要如何實作檔案下載呢?</p>
+<span id="more"></span>
+<p>需利用Angular的HttpClient透過瀏覽器下載檔案，首先我們需要先指定回傳的型別(responseType)為blob(二進位格式)<br><font color="red"><br>註: 此步驟一定要做，因為HttpClient預設會將回傳格式設定為json格式，因此我們需要指定為blob格式才能下載。<br></font></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">let opton =  &#123; responseType: &#x27;blob&#x27; as &#x27;json&#x27; &#125;</span><br></pre></td></tr></table></figure>
+<p>接著將response的內容轉換為blob格式，並透過 <a> 的href屬性，來自動下載。</a></p>
+<p>完整程式碼如下:</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">// http.post 有以下三個參數需要給予(apiPath,body,option):</span><br><span class="line">// apiPath 為後端API路徑</span><br><span class="line">// body 為透過POST方式傳遞給後端API的參數(object)</span><br><span class="line">// option為發送request時所需要的額外設定(例如該範例為，將response的型態設定為blob格式。)</span><br><span class="line"></span><br><span class="line">this.http.post&lt;any&gt;(&#x27;your API path&#x27;, body, &#123; responseType: &#x27;blob&#x27; as &#x27;json&#x27; &#125;).subscribe(x =&gt; &#123;</span><br><span class="line">      </span><br><span class="line">this.blob = new Blob([x], &#123; type: &#x27;application/docx&#x27; &#125;); // application後面接下載的副檔名</span><br><span class="line"></span><br><span class="line">      let downloadURL = window.URL.createObjectURL(this.blob);</span><br><span class="line">      let link = document.createElement(&#x27;a&#x27;);</span><br><span class="line">      link.href = downloadURL;</span><br><span class="line">      link.download = &quot;template.docx&quot;; //瀏覽器下載時的檔案名稱</span><br><span class="line">      link.click();</span><br><span class="line">    &#125;);</span><br></pre></td></tr></table></figure>
+<div>
+以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
+
+<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
+<p><a href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
+</div>
+]]></content>
+      <categories>
+        <category>Angular</category>
+      </categories>
+      <tags>
+        <tag>Angular</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Angular - 簡單介紹Angular中的HttpClient(HttpClient V.S Http)</title>
     <url>/2018/03/05/Angular-%E7%B0%A1%E5%96%AE%E4%BB%8B%E7%B4%B9Angular%E4%B8%AD%E7%9A%84HttpClient-HttpClient-V-S-Http/</url>
     <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>自從Angular 4.3版以後，新的網路傳輸HttpClient在Angular中被引入。</p>
@@ -190,6 +368,120 @@
       </categories>
       <tags>
         <tag>HttpClient</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Angular - 解決ViewChild undefined 問題</title>
+    <url>/2020/07/27/Angular-%E8%A7%A3%E6%B1%BAViewChild-undefined-%E5%95%8F%E9%A1%8C/</url>
+    <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>當我們在Angular中想要操作Template的DOM時，我們通常會在該DOM上加入範本參考變數(Template reference variables)</p>
+<p>再經由ViewChild去取得，但並不是所有情況都可以取得到畫面上的DOM，因此本文主要介紹為什麼會遇到undefined問題</p>
+<p>以及如何解決。</p>
+<span id="more"></span>
+
+<p>前陣子剛好接觸一個Angular專案，該專案需要在彈跳視窗中能在input輸入框中輸入內容，並根據關鍵字進行篩選。</p>
+<p>這功能其實非常常見，筆者自己慣用的方法主要是透過Observable來訂閱該輸入框，並能即時取得使用者所輸入的內容。</p>
+<p>所以一般程式碼大概會長得像這個樣子：</p>
+<p>Template:</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&lt;input type=&quot;text&quot; [(ngModel)]=&quot;inputSearch&quot; #inputKey=&quot;ngModel&quot;&gt;</span><br></pre></td></tr></table></figure>
+<p>Component:</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">export class InputSearchComponent implements  AfterViewInit &#123;</span><br><span class="line"></span><br><span class="line">  @ViewChild(&#x27;inputKey&#x27;) key: NgModel;</span><br><span class="line">  constructor() &#123; &#125;</span><br><span class="line">  </span><br><span class="line">  inputSearch;</span><br><span class="line"></span><br><span class="line">  ngAfterViewInit(): void &#123;</span><br><span class="line">   </span><br><span class="line">    this.key.valueChanges.pipe(debounceTime(1000)).subscribe(x =&gt; console.log(x));</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+<p>但正當我在該專案寫上這樣的Code時，卻回報該錯誤訊息：<br><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/57a62977-e084-435c-b1e8-e56954557ca4/1557296775_56349.png"></p>
+<p>看到錯誤訊息的當下還一度以為自己是不是哪裡打錯了，以往都不會發生的錯誤竟然在這裡發生。</p>
+<p>後來進一步追查程式碼後，發現其實是因為 ngIf在搞鬼。</p>
+<p>因為我的專案需求是當彈跳視窗出現時，使用者可以根據輸入框填寫關鍵字，進而查詢所需要的資訊。</p>
+<p>在這裡我使用了ngIf，當按鈕按下後，該彈跳視窗就可以顯示在畫面上，相反的如果條件不成立，則不顯示。</p>
+<p>而其中ViewChild在Component當中，只會執行一次，也就是當畫面載入完成時，會透過範本參考變數來抓取我們的DOM。</p>
+<p>問題就出在這個地方，因為ngIf並不是直接將該區塊隱藏起來(display:none)，而是直接將該區塊加入&#x2F;銷毀。</p>
+<p>因此在一開始ngIf條件為false時，該區塊並不會顯示在整個DOM樹上。</p>
+<p>所以ViewChild取不到物件，自然就會回傳undefined。而當undefined後，又去呼叫valueChanges當然就沒有這個方法啦！，所以才會回報錯誤訊息。</p>
+<p>那，現在我們知道問題發生的點了，我們可以怎麼做？</p>
+<p>筆者這裡提供兩個解法供讀者們使用</p>
+<blockquote>
+<p>改用hidden<br>在Angular中，有提供屬性<code>[hidden]</code>在這邊我們一樣可以透過條件式決定是否顯示，此外由於是隱藏(display:none)的關係，因此在DOM上還是存在的，</p>
+</blockquote>
+<p>所以ViewChild就可以透過範本參考變數取得我們所需的DOM元件。</p>
+<blockquote>
+<p>透過ChangeDetectorRef 再次偵測畫面上的DOM樹</p>
+</blockquote>
+<p>由於剛剛我們有提到ViewChild只會在第一次的時候抓取DOM樹，因此即使後面ngIf條件為True可以顯示內容時，仍然不會去抓取，因此我們可以透過ChangeDetectorRef類別</p>
+<p>當我們注入<code>ChangeDetectorRef</code>類別後，我們可以透過<code>detectChanges()</code>方法，偵測DOM樹有無變更，若變更的話，ViewChild就會在進行一次抓取</p>
+<p>透過這樣的方式我們就可以取得畫面上的元件了，無論該DOM是否有在畫面上。</p>
+<div>
+以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
+
+<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
+<p><a href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
+</div>
+]]></content>
+      <categories>
+        <category>Angular</category>
+      </categories>
+      <tags>
+        <tag>Angular</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>C# - LINQ to Entities 查詢中無法建構實體或複雜類型</title>
+    <url>/2023/01/24/C-LINQ-to-Entities-%E6%9F%A5%E8%A9%A2%E4%B8%AD%E7%84%A1%E6%B3%95%E5%BB%BA%E6%A7%8B%E5%AF%A6%E9%AB%94%E6%88%96%E8%A4%87%E9%9B%9C%E9%A1%9E%E5%9E%8B/</url>
+    <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>在ORM盛行的時代，很多人都學會了使用LINQ來進行資料庫的撈取與操作</p>
+<p>但是LINQ在操作時，有些地方需要額外注意的。否則就會產上如標題上所說的：</p>
+<div style="color:red">
+LINQ to Entities 查詢中無法建構實體或複雜類型
+</div>
+
+<p>因此今天來跟大家談談，關於這問題，以及該如何解決。</p>
+<span id="more"></span>
+
+<p>一般來說，我們在撰寫LINQ撈取資料庫的時候，我們會這樣寫：</p>
+<figure class="highlight c#"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> data = db.Store.<span class="keyword">select</span>(x=&gt; &#123;</span><br><span class="line">   x.StoreId,</span><br><span class="line">   x.StoreName</span><br><span class="line">&#125;).ToList();</span><br></pre></td></tr></table></figure>
+<p>但是筆者在撰寫Window Form的時候，由於想要將資料庫撈取出來的值，自動Binding到Combox上</p>
+<p>並且可以針對這個資料集合做後續的操作，好讓我的Combox資料可以即時變動。</p>
+<p>因此腦筋一轉，想著在Select的時候，為什麼總是建立一個匿名類別來儲存，而不是一開始就指定為一個強型別來做操作。</p>
+<p>於是我在select後面，加上了由Entity映射所產生的類別：</p>
+<figure class="highlight c#"><table><tr><td class="code"><pre><span class="line">List&lt;Store&gt; list = <span class="keyword">new</span> List&lt;Store&gt;();</span><br><span class="line"></span><br><span class="line">list = db.Store.<span class="keyword">select</span>(x=&gt; <span class="keyword">new</span> Store&#123;</span><br><span class="line"></span><br><span class="line">   Store.Id = x.StoreId,</span><br><span class="line">   Store.Name = x.Store.Name</span><br><span class="line">&#125;).ToList();</span><br></pre></td></tr></table></figure>
+<p>結果這麼一寫，發現程式居然報錯了，原因為：</p>
+<div style="color:red"> LINQ to Entities 查詢中無法建構實體或複雜類型
+</div>
+
+<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/de0c2f99-0e51-4977-91db-9ad994206191/1500539000_96484.png"></p>
+<p>此時筆者開始好奇，是什麼樣的原因會導致這樣的錯誤發生？</p>
+<p>後來在某一篇的<a href="https://stackoverflow.com/questions/5325797/the-entity-cannot-be-constructed-in-a-linq-to-entities-query">stackoverflow</a> 當中，找到了解答：</p>
+<div class="note success">
+    <p>
+    Well, mapped entities in EF basically represent database tables. If you project onto a mapped entity, what you basically do is partially load an entity, which is not a valid state. EF won't have any clue how to e.g. handle an update of such an entity in the future (the default behaviour would be probably overwriting the non-loaded fields with nulls or whatever you'll have in your object). This would be a dangerous operation, since you would risk losing some of your data in the DB, therefore it is not allowed to partially load entities (or project onto mapped entities) in EF
+    </p>
+</div>
+
+<p>主要原因是說，由Entity映射產生出來的類別，是用來表示定義資料庫的欄位，並不是一個有效的實體</p>
+<p>也就是說，裡面的定義是為了資料庫而生，因此裡面有著許多定義資料庫的欄位、屬性 等等</p>
+<p>而這些東西，並沒辦法轉換為SQL去執行，因此如果後面採用映射出來的類別，可能會造成資料庫的數據遺失等問題存在。</p>
+<p>那…既然如此，我們應該如何解決這個問題？</p>
+<p>這邊筆者提出兩種方式來解決：</p>
+<ul>
+<li>利用匿名類別將資料從資料庫讀取並轉換為LIST，接著再下一次Select，將LIST當中的內容讀出並且轉換為強型別</li>
+<li>利用ViewModel將內容讀取出來</li>
+</ul>
+<p>首先第一種方式筆者個人比較不推薦，因為寫法來說相較並不直觀：</p>
+<figure class="highlight c#"><table><tr><td class="code"><pre><span class="line">List&lt;Store&gt; list = <span class="keyword">new</span> List&lt;Store&gt;();</span><br><span class="line"></span><br><span class="line">list = db.Store.<span class="keyword">select</span>(x=&gt; <span class="keyword">new</span> &#123;</span><br><span class="line"></span><br><span class="line">   x.StoreId,</span><br><span class="line">   x.StoreName</span><br><span class="line">&#125;).ToList().<span class="keyword">select</span>(x =&gt; <span class="keyword">new</span> Store &#123;</span><br><span class="line"></span><br><span class="line">   StoreId = x.StoreId,</span><br><span class="line">   StoreName = x.StoreName,</span><br><span class="line">&#125;).ToList();</span><br></pre></td></tr></table></figure>
+
+<p>利用以上的方式，等於我們相同的程式碼要再寫一次。雖然邏輯上來說完全不一樣，但是對開發者來說，卻要select兩次，相當不直觀。</p>
+<p>因此筆者這邊推薦採用ViewModel的方式來去接值。</p>
+<p>我們先建立一個ViewModel，裡面的欄位就是你想從資料庫當中撈取的欄位。</p>
+<p>接著我們只需要這樣做就可以了：</p>
+<figure class="highlight c#"><table><tr><td class="code"><pre><span class="line">List&lt;StoreViewModel&gt; list = <span class="keyword">new</span> List&lt;StoreViewModel&gt;();</span><br><span class="line"></span><br><span class="line">list = db.Store.<span class="keyword">select</span>(x=&gt; <span class="keyword">new</span> StoreViewModel&#123;</span><br><span class="line"></span><br><span class="line">   StoreId = x.StoreId,</span><br><span class="line">   StoreName = x.StoreName,</span><br><span class="line">&#125;).ToList();</span><br></pre></td></tr></table></figure>
+<p>透過這樣的方式，我們將資料庫撈出來的內容 Binding到我們的ViewModel上，就可以解決這樣的問題了。</p>
+<div>
+以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
+
+<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
+<p><a href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
+</div>
+]]></content>
+      <categories>
+        <category>.NET</category>
+      </categories>
+      <tags>
+        <tag>LINQ</tag>
       </tags>
   </entry>
   <entry>
@@ -255,55 +547,27 @@
       </tags>
   </entry>
   <entry>
-    <title>C# - LINQ to Entities 查詢中無法建構實體或複雜類型</title>
-    <url>/2023/01/24/C-LINQ-to-Entities-%E6%9F%A5%E8%A9%A2%E4%B8%AD%E7%84%A1%E6%B3%95%E5%BB%BA%E6%A7%8B%E5%AF%A6%E9%AB%94%E6%88%96%E8%A4%87%E9%9B%9C%E9%A1%9E%E5%9E%8B/</url>
-    <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>在ORM盛行的時代，很多人都學會了使用LINQ來進行資料庫的撈取與操作</p>
-<p>但是LINQ在操作時，有些地方需要額外注意的。否則就會產上如標題上所說的：</p>
-<div style="color:red">
-LINQ to Entities 查詢中無法建構實體或複雜類型
-</div>
-
-<p>因此今天來跟大家談談，關於這問題，以及該如何解決。</p>
+    <title>C# Visual Studio 2017 快速產生類別圖</title>
+    <url>/2020/07/27/C-Visual-Studio-2017-%E5%BF%AB%E9%80%9F%E7%94%A2%E7%94%9F%E9%A1%9E%E5%88%A5%E5%9C%96/</url>
+    <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>相信各位開發者剛接手到一個新專案時，有時候因為檔案太多而無法快速了解類別之間的關係。</p>
+<p>而在Visual Studio 2017當中，微軟官方貼心的新增一個功能-類別設計工具</p>
+<p>若要開啟「類別設計工具」這個功能，我們需要額外安裝。</p>
 <span id="more"></span>
 
-<p>一般來說，我們在撰寫LINQ撈取資料庫的時候，我們會這樣寫：</p>
-<figure class="highlight c#"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> data = db.Store.<span class="keyword">select</span>(x=&gt; &#123;</span><br><span class="line">   x.StoreId,</span><br><span class="line">   x.StoreName</span><br><span class="line">&#125;).ToList();</span><br></pre></td></tr></table></figure>
-<p>但是筆者在撰寫Window Form的時候，由於想要將資料庫撈取出來的值，自動Binding到Combox上</p>
-<p>並且可以針對這個資料集合做後續的操作，好讓我的Combox資料可以即時變動。</p>
-<p>因此腦筋一轉，想著在Select的時候，為什麼總是建立一個匿名類別來儲存，而不是一開始就指定為一個強型別來做操作。</p>
-<p>於是我在select後面，加上了由Entity映射所產生的類別：</p>
-<figure class="highlight c#"><table><tr><td class="code"><pre><span class="line">List&lt;Store&gt; list = <span class="keyword">new</span> List&lt;Store&gt;();</span><br><span class="line"></span><br><span class="line">list = db.Store.<span class="keyword">select</span>(x=&gt; <span class="keyword">new</span> Store&#123;</span><br><span class="line"></span><br><span class="line">   Store.Id = x.StoreId,</span><br><span class="line">   Store.Name = x.Store.Name</span><br><span class="line">&#125;).ToList();</span><br></pre></td></tr></table></figure>
-<p>結果這麼一寫，發現程式居然報錯了，原因為：</p>
-<div style="color:red"> LINQ to Entities 查詢中無法建構實體或複雜類型
-</div>
-
-<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/de0c2f99-0e51-4977-91db-9ad994206191/1500539000_96484.png"></p>
-<p>此時筆者開始好奇，是什麼樣的原因會導致這樣的錯誤發生？</p>
-<p>後來在某一篇的<a href="https://stackoverflow.com/questions/5325797/the-entity-cannot-be-constructed-in-a-linq-to-entities-query">stackoverflow</a> 當中，找到了解答：</p>
-<div class="note success">
-    <p>
-    Well, mapped entities in EF basically represent database tables. If you project onto a mapped entity, what you basically do is partially load an entity, which is not a valid state. EF won't have any clue how to e.g. handle an update of such an entity in the future (the default behaviour would be probably overwriting the non-loaded fields with nulls or whatever you'll have in your object). This would be a dangerous operation, since you would risk losing some of your data in the DB, therefore it is not allowed to partially load entities (or project onto mapped entities) in EF
-    </p>
-</div>
-
-<p>主要原因是說，由Entity映射產生出來的類別，是用來表示定義資料庫的欄位，並不是一個有效的實體</p>
-<p>也就是說，裡面的定義是為了資料庫而生，因此裡面有著許多定義資料庫的欄位、屬性 等等</p>
-<p>而這些東西，並沒辦法轉換為SQL去執行，因此如果後面採用映射出來的類別，可能會造成資料庫的數據遺失等問題存在。</p>
-<p>那…既然如此，我們應該如何解決這個問題？</p>
-<p>這邊筆者提出兩種方式來解決：</p>
-<ul>
-<li>利用匿名類別將資料從資料庫讀取並轉換為LIST，接著再下一次Select，將LIST當中的內容讀出並且轉換為強型別</li>
-<li>利用ViewModel將內容讀取出來</li>
-</ul>
-<p>首先第一種方式筆者個人比較不推薦，因為寫法來說相較並不直觀：</p>
-<figure class="highlight c#"><table><tr><td class="code"><pre><span class="line">List&lt;Store&gt; list = <span class="keyword">new</span> List&lt;Store&gt;();</span><br><span class="line"></span><br><span class="line">list = db.Store.<span class="keyword">select</span>(x=&gt; <span class="keyword">new</span> &#123;</span><br><span class="line"></span><br><span class="line">   x.StoreId,</span><br><span class="line">   x.StoreName</span><br><span class="line">&#125;).ToList().<span class="keyword">select</span>(x =&gt; <span class="keyword">new</span> Store &#123;</span><br><span class="line"></span><br><span class="line">   StoreId = x.StoreId,</span><br><span class="line">   StoreName = x.StoreName,</span><br><span class="line">&#125;).ToList();</span><br></pre></td></tr></table></figure>
-
-<p>利用以上的方式，等於我們相同的程式碼要再寫一次。雖然邏輯上來說完全不一樣，但是對開發者來說，卻要select兩次，相當不直觀。</p>
-<p>因此筆者這邊推薦採用ViewModel的方式來去接值。</p>
-<p>我們先建立一個ViewModel，裡面的欄位就是你想從資料庫當中撈取的欄位。</p>
-<p>接著我們只需要這樣做就可以了：</p>
-<figure class="highlight c#"><table><tr><td class="code"><pre><span class="line">List&lt;StoreViewModel&gt; list = <span class="keyword">new</span> List&lt;StoreViewModel&gt;();</span><br><span class="line"></span><br><span class="line">list = db.Store.<span class="keyword">select</span>(x=&gt; <span class="keyword">new</span> StoreViewModel&#123;</span><br><span class="line"></span><br><span class="line">   StoreId = x.StoreId,</span><br><span class="line">   StoreName = x.StoreName,</span><br><span class="line">&#125;).ToList();</span><br></pre></td></tr></table></figure>
-<p>透過這樣的方式，我們將資料庫撈出來的內容 Binding到我們的ViewModel上，就可以解決這樣的問題了。</p>
+<p>在工具-&gt;取得工具與功能，我們把 <strong>Visual Studio 2017 Installer</strong> 叫出來。</p>
+<p>接著我們可以在下圖中的「個別元件」，將類別設計工具進行勾選。</p>
+<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/064af7be-12aa-41c2-a965-fd5f7c580b0e/1551076801_40846.png"></p>
+<p>接下來回到我們的專案中，如果我們想要繪製類別圖時，可以在專案中點選<strong>右鍵-&gt;一般-&gt;類別圖</strong></p>
+<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/064af7be-12aa-41c2-a965-fd5f7c580b0e/1551076906_02002.png"></p>
+<p>那如果我們是想要將現有的類別轉換成類別圖呢？</p>
+<p>我們需要先打開「類別檢視」功能。</p>
+<p><strong>檢視-&gt;類別檢視</strong></p>
+<p>我們就可以開啟此介面。</p>
+<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/064af7be-12aa-41c2-a965-fd5f7c580b0e/1551077064_93622.png"></p>
+<p>接著在專案中，按右鍵點選 檢視-&gt;類別圖檢視</p>
+<p>VS就會自動幫你把專案中類別之間的關係給描繪出來囉！</p>
+<p>以下兩張圖是筆者最近在開發專案中的其中兩個 namespace</p>
+<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/064af7be-12aa-41c2-a965-fd5f7c580b0e/1551077165_90792.png"></p>
 <div>
 以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
 
@@ -315,7 +579,43 @@ LINQ to Entities 查詢中無法建構實體或複雜類型
         <category>.NET</category>
       </categories>
       <tags>
-        <tag>LINQ</tag>
+        <tag>.NET</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>C# 如何取得Enum的Name？-列舉(Enum)與switch應用</title>
+    <url>/2018/02/02/C-%E5%A6%82%E4%BD%95%E5%8F%96%E5%BE%97Enum%E7%9A%84Name%EF%BC%9F-%E5%88%97%E8%88%89-Enum-%E8%88%87switch%E6%87%89%E7%94%A8/</url>
+    <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>我們很常會使用 enum （列舉）來將我們的狀態做一個紀錄</p>
+<p>使用enum的優點在於我們不需要額外的打字，也不用擔心自己打錯字</p>
+<p>因此就可以利用enum來去針對狀態去做一個紀錄、判斷。</p>
+<p>而今天要介紹的是關於enum以及switch..case 搭配的方法。</p>
+<span id="more"></span>
+<p>在我們撰寫程式的時候，有時候針對多個Button功能會綁定同一個事件，再根據Button內容的不同來去執行功能。</p>
+<p>這時候我們可能會搭配Enum這樣寫：</p>
+<figure class="highlight c#"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 讀取按鈕上的文字來執行功能：</span></span><br><span class="line"><span class="comment">// 如果不是讀取到功能按鈕，則將按鈕上的文字呈現在 文字方塊(Content)上</span></span><br><span class="line">Button btn = (Button)sender;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">switch</span> (btn.Text)</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">case</span> 功能.換行.toString():</span><br><span class="line">                    Content.Text += <span class="string">&quot;\r\n&quot;</span>;</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                <span class="keyword">case</span> 功能.全部複製.toString():</span><br><span class="line">                    Content.SelectAll();</span><br><span class="line">                    Content.Copy();</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                <span class="keyword">case</span> 功能.貼上.toString():</span><br><span class="line">                    Content.Paste();</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                <span class="keyword">case</span> 功能.清空.toString():</span><br><span class="line">                    Content.Text = <span class="string">&quot;&quot;</span>;</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                <span class="literal">default</span>:</span><br><span class="line">                    Content.Text += btn.Text;</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br></pre></td></tr></table></figure>
+<p>但是這時候我們會發現編譯器錯誤：</p>
+<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/a19e7345-ece9-452b-9fed-a20cd133e9ad/1517549981_67453.png"></p>
+<p>錯誤訊息告訴我們必須是「常數值」，原因在於我們 Switch內的值以及 Case中的內容並不一致，儘管已經使用.toString()</p>
+<p>這時候我們可以使用 C# 6.0的功能- <code>nameof</code></p>
+<blockquote>
+<p>nameof 關鍵字可用來取得某變數的名稱。</p>
+</blockquote>
+<p>因此這時候我們只需要把程式碼改為如下就可以囉！</p>
+<figure class="highlight c#"><table><tr><td class="code"><pre><span class="line">Button btn = (Button)sender;</span><br><span class="line"></span><br><span class="line">           <span class="keyword">switch</span> (btn.Text)</span><br><span class="line">           &#123;</span><br><span class="line">               <span class="function"><span class="keyword">case</span> <span class="title">nameof</span>(<span class="params">功能.換行</span>): <span class="comment">//取得enum 選項中的名字-換行</span></span></span><br><span class="line"><span class="function">                   Content.Text +</span>= <span class="string">&quot;\r\n&quot;</span>;</span><br><span class="line">                   <span class="keyword">break</span>;</span><br><span class="line">               <span class="function"><span class="keyword">case</span> <span class="title">nameof</span>(<span class="params">功能.全部複製</span>):</span></span><br><span class="line"><span class="function">                   Content.<span class="title">SelectAll</span>()</span>;</span><br><span class="line">                   Content.Copy();</span><br><span class="line">                   <span class="keyword">break</span>;</span><br><span class="line">               <span class="function"><span class="keyword">case</span> <span class="title">nameof</span>(<span class="params">功能.貼上</span>):</span></span><br><span class="line"><span class="function">                   Content.<span class="title">Paste</span>()</span>;</span><br><span class="line">                   <span class="keyword">break</span>;</span><br><span class="line">               <span class="function"><span class="keyword">case</span> <span class="title">nameof</span>(<span class="params">功能.清空</span>):</span></span><br><span class="line"><span class="function">                   Content.Text</span> = <span class="string">&quot;&quot;</span>;</span><br><span class="line">                   <span class="keyword">break</span>;</span><br><span class="line">               <span class="literal">default</span>:</span><br><span class="line">                   Content.Text += btn.Text;</span><br><span class="line">                   <span class="keyword">break</span>;</span><br><span class="line">           &#125;</span><br></pre></td></tr></table></figure>
+
+
+<div>
+以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
+
+<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
+<p><a href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
+</div>
+]]></content>
+      <categories>
+        <category>C#</category>
+      </categories>
+      <tags>
+        <tag>Enum</tag>
       </tags>
   </entry>
   <entry>
@@ -410,42 +710,6 @@ LINQ to Entities 查詢中無法建構實體或複雜類型
       </categories>
       <tags>
         <tag>FlexBox</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>C# 如何取得Enum的Name？-列舉(Enum)與switch應用</title>
-    <url>/2018/02/02/C-%E5%A6%82%E4%BD%95%E5%8F%96%E5%BE%97Enum%E7%9A%84Name%EF%BC%9F-%E5%88%97%E8%88%89-Enum-%E8%88%87switch%E6%87%89%E7%94%A8/</url>
-    <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>我們很常會使用 enum （列舉）來將我們的狀態做一個紀錄</p>
-<p>使用enum的優點在於我們不需要額外的打字，也不用擔心自己打錯字</p>
-<p>因此就可以利用enum來去針對狀態去做一個紀錄、判斷。</p>
-<p>而今天要介紹的是關於enum以及switch..case 搭配的方法。</p>
-<span id="more"></span>
-<p>在我們撰寫程式的時候，有時候針對多個Button功能會綁定同一個事件，再根據Button內容的不同來去執行功能。</p>
-<p>這時候我們可能會搭配Enum這樣寫：</p>
-<figure class="highlight c#"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 讀取按鈕上的文字來執行功能：</span></span><br><span class="line"><span class="comment">// 如果不是讀取到功能按鈕，則將按鈕上的文字呈現在 文字方塊(Content)上</span></span><br><span class="line">Button btn = (Button)sender;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">switch</span> (btn.Text)</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">case</span> 功能.換行.toString():</span><br><span class="line">                    Content.Text += <span class="string">&quot;\r\n&quot;</span>;</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                <span class="keyword">case</span> 功能.全部複製.toString():</span><br><span class="line">                    Content.SelectAll();</span><br><span class="line">                    Content.Copy();</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                <span class="keyword">case</span> 功能.貼上.toString():</span><br><span class="line">                    Content.Paste();</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                <span class="keyword">case</span> 功能.清空.toString():</span><br><span class="line">                    Content.Text = <span class="string">&quot;&quot;</span>;</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                <span class="literal">default</span>:</span><br><span class="line">                    Content.Text += btn.Text;</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br></pre></td></tr></table></figure>
-<p>但是這時候我們會發現編譯器錯誤：</p>
-<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/a19e7345-ece9-452b-9fed-a20cd133e9ad/1517549981_67453.png"></p>
-<p>錯誤訊息告訴我們必須是「常數值」，原因在於我們 Switch內的值以及 Case中的內容並不一致，儘管已經使用.toString()</p>
-<p>這時候我們可以使用 C# 6.0的功能- <code>nameof</code></p>
-<blockquote>
-<p>nameof 關鍵字可用來取得某變數的名稱。</p>
-</blockquote>
-<p>因此這時候我們只需要把程式碼改為如下就可以囉！</p>
-<figure class="highlight c#"><table><tr><td class="code"><pre><span class="line">Button btn = (Button)sender;</span><br><span class="line"></span><br><span class="line">           <span class="keyword">switch</span> (btn.Text)</span><br><span class="line">           &#123;</span><br><span class="line">               <span class="function"><span class="keyword">case</span> <span class="title">nameof</span>(<span class="params">功能.換行</span>): <span class="comment">//取得enum 選項中的名字-換行</span></span></span><br><span class="line"><span class="function">                   Content.Text +</span>= <span class="string">&quot;\r\n&quot;</span>;</span><br><span class="line">                   <span class="keyword">break</span>;</span><br><span class="line">               <span class="function"><span class="keyword">case</span> <span class="title">nameof</span>(<span class="params">功能.全部複製</span>):</span></span><br><span class="line"><span class="function">                   Content.<span class="title">SelectAll</span>()</span>;</span><br><span class="line">                   Content.Copy();</span><br><span class="line">                   <span class="keyword">break</span>;</span><br><span class="line">               <span class="function"><span class="keyword">case</span> <span class="title">nameof</span>(<span class="params">功能.貼上</span>):</span></span><br><span class="line"><span class="function">                   Content.<span class="title">Paste</span>()</span>;</span><br><span class="line">                   <span class="keyword">break</span>;</span><br><span class="line">               <span class="function"><span class="keyword">case</span> <span class="title">nameof</span>(<span class="params">功能.清空</span>):</span></span><br><span class="line"><span class="function">                   Content.Text</span> = <span class="string">&quot;&quot;</span>;</span><br><span class="line">                   <span class="keyword">break</span>;</span><br><span class="line">               <span class="literal">default</span>:</span><br><span class="line">                   Content.Text += btn.Text;</span><br><span class="line">                   <span class="keyword">break</span>;</span><br><span class="line">           &#125;</span><br></pre></td></tr></table></figure>
-
-
-<div>
-以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
-
-<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
-<p><a href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
-</div>
-]]></content>
-      <categories>
-        <category>C#</category>
-      </categories>
-      <tags>
-        <tag>Enum</tag>
       </tags>
   </entry>
   <entry>
@@ -757,6 +1021,49 @@ version for package `Microsoft.EntityFrameworkCore.Tools.DotNet` could not be re
       </tags>
   </entry>
   <entry>
+    <title>.NET 如何動態生成dynamic物件-ExpandoObject</title>
+    <url>/2020/01/05/NET-%E5%A6%82%E4%BD%95%E5%8B%95%E6%85%8B%E7%94%9F%E6%88%90dynamic%E7%89%A9%E4%BB%B6-ExpandoObject/</url>
+    <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>一直以來都知道Dapper在做存取資料庫方面非常的簡單，只需要給予該SQL語法以及回傳的Model型別，就可以將對應的資料回傳並且轉換成List。</p>
+<p>而其中Dapper還有一個最厲害的地方就是：不用預先宣告強型別，查詢資料表後就可以直接傳回 dynamic 的List。</p>
+<p>例如：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">var list = cn.Query(&quot;SELECT Name,Class FROM Student&quot;).ToList();</span><br></pre></td></tr></table></figure>
+<p>該語法將傳回<code>List&lt;dynamic&gt;</code>，因此不需要特別建立Model也可以將該資料回傳並作使用。</p>
+<p>因此開始思考，如何透過dynamic動態生成物件？</p>
+<span id="more"></span>
+
+<p>ExpandoObject是在.Net Framework 4之後出現的一個類別 ，可以幫助我們為物件動態的加入或移除屬性成員。</p>
+<p>其用法為：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">dynamic data = new ExpandoObject();</span><br><span class="line">data.Name = &quot;Leo&quot;;</span><br><span class="line">data.Sex= &quot;Male&quot;;</span><br></pre></td></tr></table></figure>
+
+<p>我們需要搭配dynamic才能夠存取我們指定的Name,Sex欄位。</p>
+<p>但是僅僅這樣寫，雖然可以自動幫我們建立Namx,Sex欄位，並給予值。但若是在欄位名稱未知的情況下想要動態建立Model，可就沒辦法了。</p>
+<p>如上面所說，若需要將撈出來的SQL資料，根據其欄位建立Model並賦予值，那肯定無法做到。</p>
+<p>但值得一提的是，由於ExpandoObject本身就實作了<code>IDictionary&lt;string, object&gt;</code>，因此若是有必要我們也可以直接把它轉型成<code>IDictionary&lt;string, object&gt;</code>來操作，讓該物件擁有Add以及Remove的方法，為物件動態的加入或移除屬性成員。</p>
+<p>因此撰寫上我們會改為這樣的寫法：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">var MyDynamic = new ExpandoObject() as IDictionary&lt;string, Object&gt;;</span><br><span class="line">MyDynamic.Add(&quot;Name&quot;, &quot;leo&quot;);</span><br><span class="line">MyDynamic.Add(&quot;Sex&quot;, &quot;Male&quot;);</span><br></pre></td></tr></table></figure>
+
+<p>透過這樣的方式，將我們的屬性利用字串的方式Add至MyDynamic物件中，這樣我們就能存取Name以及Sex的值了。</p>
+<p>因此若想像Dapper一樣回傳成<code>List&lt;dynamic&gt;</code>的集合資料的話，最終的版本可以寫成這樣：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">// 本範例使用SqlDataReader做資料庫存取</span><br><span class="line"></span><br><span class="line">    List&lt;dynamic&gt; list = new List&lt;dynamic&gt;();</span><br><span class="line">    SqlCommand command = new SqlCommand(sql, connection);</span><br><span class="line">    SqlDataReader reader = command.ExecuteReader();</span><br><span class="line">    while (reader.Read())</span><br><span class="line">    &#123;</span><br><span class="line">      IDictionary&lt;String, Object&gt; MyDynamic = new ExpandoObject() as IDictionary&lt;string, Object&gt;;</span><br><span class="line"></span><br><span class="line">      for (int i = 0; i &lt; reader.FieldCount;i++) // 透過FieldCount 取得該列資料中的所有欄位數目</span><br><span class="line">      &#123;</span><br><span class="line">        MyDynamic.Add(reader.GetName(i), reader[i]); //動態將SQL存取到的欄位以及Value 放入MyDynamic中</span><br><span class="line">      &#125;</span><br><span class="line">       list.Add(MyDynamic);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p>透過這樣的方式，我們就可以像Dapper一樣，不需要建立Model類別，也能輕鬆的將資料存取回來，並轉換為List做後續操作。</p>
+<p>另外，仔細追查Dapper的原始碼，我們也可以發現到，Dapper之所以能做到不需要指定Model型別，也能回傳dynamic的List的原因，也是透過實作了<code>IDictionary&lt;string, object&gt;</code>。</p>
+<p>因此在dapper中，外表看似是dynamic其實骨子裡是DapperRow的型別。</p>
+<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/e1371ca9-eefc-4e94-a6a2-7328c0c5cd85/1578196167_77935.png"></p>
+<div>
+以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
+
+<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
+<p><a href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
+</div>
+]]></content>
+      <categories>
+        <category>.NET</category>
+      </categories>
+      <tags>
+        <tag>.NET</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>.NET 如何讓 WebAPI 支援 Session ?</title>
     <url>/2017/05/09/NET-%E5%A6%82%E4%BD%95%E8%AE%93-WebAPI-%E6%94%AF%E6%8F%B4-Session/</url>
     <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>如果你有工作上的需求需要在WebAPI當中加入Session的功能</p>
@@ -774,6 +1081,55 @@ version for package `Microsoft.EntityFrameworkCore.Tools.DotNet` could not be re
 <figure class="highlight c#"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">Application_PostAuthorizeRequest</span>()</span></span><br><span class="line">&#123;</span><br><span class="line">	System.Web.HttpContext.Current.SetSessionStateBehavior(System.Web.SessionState.SessionStateBehavior.Required);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 
+<div>
+以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
+
+<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
+<p><a href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
+</div>
+]]></content>
+      <categories>
+        <category>.NET</category>
+      </categories>
+      <tags>
+        <tag>WebAPI</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>WebAPI- 自定義RequestModel 驗證</title>
+    <url>/2017/07/03/WebAPI-%E8%87%AA%E5%AE%9A%E7%BE%A9RequestModel-%E9%A9%97%E8%AD%89/</url>
+    <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>通常我們在後端接前端Request參數的時候，我們為了省事，會建立一個Model來將前後端Binding</p>
+<p>儘管這樣的方式讓我們大幅減少了Action所需要的參數。</p>
+<p>不過如果我們想要將每一個欄位都進行驗證的時候，此時光是Action內還沒寫主要程式碼，就先因為格式的驗證佔了一大半的程式碼</p>
+<p>因此今天來介紹如何透過自定義Attribute來達到此目的。</p>
+<span id="more"></span>
+<p>首先一般來說我們在Model當中會定義像這樣的欄位來去接值：</p>
+<figure class="highlight c#"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">Member</span></span><br><span class="line">&#123;</span><br><span class="line">   <span class="comment">// 必填資訊</span></span><br><span class="line">   <span class="keyword">public</span> <span class="built_in">string</span> Name &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</span><br><span class="line"></span><br><span class="line">   <span class="comment">// 需超過20歲才可註冊</span></span><br><span class="line">   <span class="keyword">public</span> DateTime Birthday &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</span><br><span class="line"></span><br><span class="line">   <span class="comment">// 身分證</span></span><br><span class="line">   <span class="keyword">public</span> String IDCard &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>假設今天我們想要定義一些簡單的驗證，例如：</p>
+<ul>
+<li>最小輸入長度</li>
+<li>最大輸入長度</li>
+<li>Email驗證<br>那麼你只需要在上方新增一個標籤：<figure class="highlight c#"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 必填資訊</span></span><br><span class="line">  [<span class="meta">MaxLength(10,ErrorMessage =<span class="string">&quot;超過最大長度&quot;</span>)</span>] <span class="comment">//設定最大只能輸入10個字，超過就回傳錯誤訊息</span></span><br><span class="line">  <span class="keyword">public</span> <span class="built_in">string</span> Name &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</span><br></pre></td></tr></table></figure>
+當標籤定義完之後，我們就可以在C#的程式讓他進行自動驗證</li>
+</ul>
+<p>我們只需要這樣寫就可以自動幫我們做完驗證</p>
+<figure class="highlight c#"><table><tr><td class="code"><pre><span class="line"><span class="keyword">if</span>(ModelState.IsValid) <span class="comment">//當Model驗證通過時就做的事情</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="comment">//Success do something</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">else</span>&#123;</span><br><span class="line"><span class="comment">//Failure do something</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>這樣的方式，讓我們在Action當中不會看到任何的欄位驗證邏輯。</p>
+<p>不過這邊又有一個缺點：「官方預先寫好的太少」</p>
+<p>因此接下來才是我們要學的重頭戲：</p>
+<h3 id="如何自訂義RequestModel-驗證"><a href="#如何自訂義RequestModel-驗證" class="headerlink" title="如何自訂義RequestModel 驗證"></a>如何自訂義RequestModel 驗證</h3><p>首先，我們需要先建立一個類別</p>
+<p>根據<a href="https://msdn.microsoft.com/zh-tw/library/cc668224(v=vs.100).aspx">官網文件</a>，我們需要繼承 <code>ValidationAttribute</code></p>
+<p>並且去複寫 <code>IsValid</code></p>
+<p>此時會產生這樣的Code出來：</p>
+<figure class="highlight c#"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">override</span> <span class="built_in">bool</span> <span class="title">IsValid</span>(<span class="params"><span class="built_in">object</span> <span class="keyword">value</span></span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">return</span>  <span class="keyword">base</span>.IsValid(<span class="keyword">value</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>接著我們就可以在裡面寫邏輯判斷拉！，其中這邊的value，是我們從前端傳進來的參數，因此我們就可以來寫判斷拉！</p>
+<p>接下來我們來實做看看如何自定義身分證驗證，以下是程式碼：</p>
+<figure class="highlight c#"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">override</span> <span class="built_in">bool</span> <span class="title">IsValid</span>(<span class="params"><span class="built_in">object</span> <span class="keyword">value</span></span>)</span></span><br><span class="line">        &#123;</span><br><span class="line">            String ID = <span class="keyword">value</span>.ToString().ToUpper();</span><br><span class="line">            List&lt;<span class="built_in">string</span>&gt; FirstEng = <span class="keyword">new</span> List&lt;<span class="built_in">string</span>&gt; &#123; <span class="string">&quot;A&quot;</span>, <span class="string">&quot;B&quot;</span>, <span class="string">&quot;C&quot;</span>, <span class="string">&quot;D&quot;</span>, <span class="string">&quot;E&quot;</span>, <span class="string">&quot;F&quot;</span>, <span class="string">&quot;G&quot;</span>, <span class="string">&quot;H&quot;</span>, <span class="string">&quot;J&quot;</span>, <span class="string">&quot;K&quot;</span>, <span class="string">&quot;L&quot;</span>, <span class="string">&quot;M&quot;</span>, <span class="string">&quot;N&quot;</span>, <span class="string">&quot;P&quot;</span>, <span class="string">&quot;Q&quot;</span>, <span class="string">&quot;R&quot;</span>, <span class="string">&quot;S&quot;</span>, <span class="string">&quot;T&quot;</span>, <span class="string">&quot;U&quot;</span>, <span class="string">&quot;V&quot;</span>, <span class="string">&quot;X&quot;</span>, <span class="string">&quot;Y&quot;</span>, <span class="string">&quot;W&quot;</span>, <span class="string">&quot;Z&quot;</span>, <span class="string">&quot;I&quot;</span>, <span class="string">&quot;O&quot;</span> &#125;;</span><br><span class="line">            <span class="built_in">bool</span> chackFirstEnd = <span class="literal">false</span>;</span><br><span class="line">            <span class="keyword">if</span> (ID.Trim().Length == <span class="number">10</span>)</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="built_in">byte</span> firstNo = Convert.ToByte(ID.Trim().Substring(<span class="number">1</span>, <span class="number">1</span>));</span><br><span class="line">                <span class="keyword">if</span> (firstNo &gt; <span class="number">2</span> || firstNo &lt; <span class="number">1</span>)</span><br><span class="line">                &#123;</span><br><span class="line">                    <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">else</span></span><br><span class="line">                &#123;</span><br><span class="line">                    <span class="built_in">int</span> x;</span><br><span class="line">                    <span class="keyword">for</span> (x = <span class="number">0</span>; x &lt; FirstEng.Count; x++)</span><br><span class="line">                    &#123;</span><br><span class="line">                        <span class="keyword">if</span> (ID.Substring(<span class="number">0</span>, <span class="number">1</span>) == FirstEng[x])</span><br><span class="line">                        &#123;</span><br><span class="line">                            ID = <span class="built_in">string</span>.Format(<span class="string">&quot;&#123;0&#125;&#123;1&#125;&quot;</span>, x + <span class="number">10</span>, ID.Substring(<span class="number">1</span>, <span class="number">9</span>));</span><br><span class="line">                            chackFirstEnd = <span class="literal">true</span>;</span><br><span class="line">                            <span class="keyword">break</span>;</span><br><span class="line">                        &#125;</span><br><span class="line"></span><br><span class="line">                    &#125;</span><br><span class="line">                    <span class="keyword">if</span> (!chackFirstEnd)</span><br><span class="line">                        <span class="keyword">return</span> <span class="literal">false</span>; </span><br><span class="line"></span><br><span class="line">                    <span class="built_in">int</span> i = <span class="number">1</span>;</span><br><span class="line">                    <span class="built_in">int</span> ss = <span class="built_in">int</span>.Parse(ID.Substring(<span class="number">0</span>, <span class="number">1</span>));</span><br><span class="line">                    <span class="keyword">while</span> (ID.Length &gt; i)</span><br><span class="line">                    &#123;</span><br><span class="line">                        ss = ss + (<span class="built_in">int</span>.Parse(ID.Substring(i, <span class="number">1</span>)) * (<span class="number">10</span> - i));</span><br><span class="line">                        i++;</span><br><span class="line">                    &#125;</span><br><span class="line">                    ID = ss.ToString();</span><br><span class="line">                    <span class="keyword">if</span> (<span class="keyword">value</span>.ToString().Substring(<span class="number">9</span>, <span class="number">1</span>) == <span class="string">&quot;0&quot;</span>)</span><br><span class="line">                    &#123;</span><br><span class="line">                        <span class="keyword">if</span> (ID.Substring(ID.Length - <span class="number">1</span>, <span class="number">1</span>) == <span class="string">&quot;0&quot;</span>)</span><br><span class="line">                        &#123;</span><br><span class="line">                            <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">                        &#125;</span><br><span class="line">                        <span class="keyword">else</span></span><br><span class="line">                        &#123;</span><br><span class="line">                            <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">                        &#125;</span><br><span class="line">                    &#125;</span><br><span class="line">                    <span class="keyword">else</span></span><br><span class="line">                    &#123;</span><br><span class="line">                        <span class="keyword">if</span> (<span class="keyword">value</span>.ToString().Substring(<span class="number">9</span>, <span class="number">1</span>) == (<span class="number">10</span> - <span class="built_in">int</span>.Parse(ID.Substring(ID.Length - <span class="number">1</span>, <span class="number">1</span>))).ToString())</span><br><span class="line">                        &#123;</span><br><span class="line"></span><br><span class="line">                            <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">                        &#125;</span><br><span class="line">                        <span class="keyword">else</span></span><br><span class="line">                        &#123;</span><br><span class="line">                            <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">                        &#125;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">else</span></span><br><span class="line">            &#123;</span><br><span class="line"></span><br><span class="line">                <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br></pre></td></tr></table></figure>
+<p>接著在Action我們就可以這樣做囉！</p>
+<figure class="highlight c#"><table><tr><td class="code"><pre><span class="line"><span class="keyword">if</span>(ModelState.IsValid)</span><br><span class="line">          &#123;</span><br><span class="line">               <span class="keyword">return</span> <span class="keyword">this</span>.Json(<span class="string">&quot;Success&quot;</span>); <span class="comment">//驗證過後回傳成功</span></span><br><span class="line">           &#125;</span><br><span class="line">          <span class="keyword">else</span>&#123;</span><br><span class="line"></span><br><span class="line">               <span class="keyword">var</span> data = ModelState.Where(x =&gt; x.Value.Errors.Count &gt; <span class="number">0</span>) <span class="comment">//如果驗證失敗，則將錯誤訊息抓出來</span></span><br><span class="line">                            .Select(x =&gt; <span class="keyword">new</span></span><br><span class="line">                            &#123;</span><br><span class="line"></span><br><span class="line">                                x.Key,</span><br><span class="line">                                x.Value.Errors[<span class="number">0</span>].ErrorMessage</span><br><span class="line"></span><br><span class="line">                            &#125;).ToList();</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">               <span class="comment">//   List&lt;ModelState&gt; data = ModelState.Values.ToList();</span></span><br><span class="line">               <span class="keyword">return</span> <span class="keyword">this</span>.Json(data);</span><br><span class="line"></span><br><span class="line">           &#125;</span><br></pre></td></tr></table></figure>
+<p>這邊如果驗證失敗，我們則是採用linQ的方式，將ErrorMessage給取出來，至於細節部分在這邊就不攢述了</p>
+<p>各位有興趣可以下中斷點看看回傳的內容，就可以明白為什麼我會這樣寫了。</p>
 <div>
 以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
 
@@ -858,40 +1214,18 @@ version for package `Microsoft.EntityFrameworkCore.Tools.DotNet` could not be re
       </categories>
   </entry>
   <entry>
-    <title>WebAPI- 自定義RequestModel 驗證</title>
-    <url>/2017/07/03/WebAPI-%E8%87%AA%E5%AE%9A%E7%BE%A9RequestModel-%E9%A9%97%E8%AD%89/</url>
-    <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>通常我們在後端接前端Request參數的時候，我們為了省事，會建立一個Model來將前後端Binding</p>
-<p>儘管這樣的方式讓我們大幅減少了Action所需要的參數。</p>
-<p>不過如果我們想要將每一個欄位都進行驗證的時候，此時光是Action內還沒寫主要程式碼，就先因為格式的驗證佔了一大半的程式碼</p>
-<p>因此今天來介紹如何透過自定義Attribute來達到此目的。</p>
+    <title>WinForm - 解決無法對這個檔案顯示設計工具，因為檔案中沒有可以設計的類別</title>
+    <url>/2017/12/15/WinForm-%E8%A7%A3%E6%B1%BA%E7%84%A1%E6%B3%95%E5%B0%8D%E9%80%99%E5%80%8B%E6%AA%94%E6%A1%88%E9%A1%AF%E7%A4%BA%E8%A8%AD%E8%A8%88%E5%B7%A5%E5%85%B7%EF%BC%8C%E5%9B%A0%E7%82%BA%E6%AA%94%E6%A1%88%E4%B8%AD%E6%B2%92%E6%9C%89%E5%8F%AF%E4%BB%A5%E8%A8%AD%E8%A8%88%E7%9A%84%E9%A1%9E%E5%88%A5/</url>
+    <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>當我們在針對WindowsForm設計的時候，如果我們想要針對原本的Form表單增加一些功能等等，我們會需要透過繼承Form表單來實作。</p>
+<p>此時當我們繼承原本的Form頁面時，我們會發現當前繼承的頁面會出現以下錯誤訊息：</p>
 <span id="more"></span>
-<p>首先一般來說我們在Model當中會定義像這樣的欄位來去接值：</p>
-<figure class="highlight c#"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">Member</span></span><br><span class="line">&#123;</span><br><span class="line">   <span class="comment">// 必填資訊</span></span><br><span class="line">   <span class="keyword">public</span> <span class="built_in">string</span> Name &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</span><br><span class="line"></span><br><span class="line">   <span class="comment">// 需超過20歲才可註冊</span></span><br><span class="line">   <span class="keyword">public</span> DateTime Birthday &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</span><br><span class="line"></span><br><span class="line">   <span class="comment">// 身分證</span></span><br><span class="line">   <span class="keyword">public</span> String IDCard &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-<p>假設今天我們想要定義一些簡單的驗證，例如：</p>
-<ul>
-<li>最小輸入長度</li>
-<li>最大輸入長度</li>
-<li>Email驗證<br>那麼你只需要在上方新增一個標籤：<figure class="highlight c#"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 必填資訊</span></span><br><span class="line">  [<span class="meta">MaxLength(10,ErrorMessage =<span class="string">&quot;超過最大長度&quot;</span>)</span>] <span class="comment">//設定最大只能輸入10個字，超過就回傳錯誤訊息</span></span><br><span class="line">  <span class="keyword">public</span> <span class="built_in">string</span> Name &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</span><br></pre></td></tr></table></figure>
-當標籤定義完之後，我們就可以在C#的程式讓他進行自動驗證</li>
-</ul>
-<p>我們只需要這樣寫就可以自動幫我們做完驗證</p>
-<figure class="highlight c#"><table><tr><td class="code"><pre><span class="line"><span class="keyword">if</span>(ModelState.IsValid) <span class="comment">//當Model驗證通過時就做的事情</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="comment">//Success do something</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">else</span>&#123;</span><br><span class="line"><span class="comment">//Failure do something</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>這樣的方式，讓我們在Action當中不會看到任何的欄位驗證邏輯。</p>
-<p>不過這邊又有一個缺點：「官方預先寫好的太少」</p>
-<p>因此接下來才是我們要學的重頭戲：</p>
-<h3 id="如何自訂義RequestModel-驗證"><a href="#如何自訂義RequestModel-驗證" class="headerlink" title="如何自訂義RequestModel 驗證"></a>如何自訂義RequestModel 驗證</h3><p>首先，我們需要先建立一個類別</p>
-<p>根據<a href="https://msdn.microsoft.com/zh-tw/library/cc668224(v=vs.100).aspx">官網文件</a>，我們需要繼承 <code>ValidationAttribute</code></p>
-<p>並且去複寫 <code>IsValid</code></p>
-<p>此時會產生這樣的Code出來：</p>
-<figure class="highlight c#"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">override</span> <span class="built_in">bool</span> <span class="title">IsValid</span>(<span class="params"><span class="built_in">object</span> <span class="keyword">value</span></span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">return</span>  <span class="keyword">base</span>.IsValid(<span class="keyword">value</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>接著我們就可以在裡面寫邏輯判斷拉！，其中這邊的value，是我們從前端傳進來的參數，因此我們就可以來寫判斷拉！</p>
-<p>接下來我們來實做看看如何自定義身分證驗證，以下是程式碼：</p>
-<figure class="highlight c#"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">override</span> <span class="built_in">bool</span> <span class="title">IsValid</span>(<span class="params"><span class="built_in">object</span> <span class="keyword">value</span></span>)</span></span><br><span class="line">        &#123;</span><br><span class="line">            String ID = <span class="keyword">value</span>.ToString().ToUpper();</span><br><span class="line">            List&lt;<span class="built_in">string</span>&gt; FirstEng = <span class="keyword">new</span> List&lt;<span class="built_in">string</span>&gt; &#123; <span class="string">&quot;A&quot;</span>, <span class="string">&quot;B&quot;</span>, <span class="string">&quot;C&quot;</span>, <span class="string">&quot;D&quot;</span>, <span class="string">&quot;E&quot;</span>, <span class="string">&quot;F&quot;</span>, <span class="string">&quot;G&quot;</span>, <span class="string">&quot;H&quot;</span>, <span class="string">&quot;J&quot;</span>, <span class="string">&quot;K&quot;</span>, <span class="string">&quot;L&quot;</span>, <span class="string">&quot;M&quot;</span>, <span class="string">&quot;N&quot;</span>, <span class="string">&quot;P&quot;</span>, <span class="string">&quot;Q&quot;</span>, <span class="string">&quot;R&quot;</span>, <span class="string">&quot;S&quot;</span>, <span class="string">&quot;T&quot;</span>, <span class="string">&quot;U&quot;</span>, <span class="string">&quot;V&quot;</span>, <span class="string">&quot;X&quot;</span>, <span class="string">&quot;Y&quot;</span>, <span class="string">&quot;W&quot;</span>, <span class="string">&quot;Z&quot;</span>, <span class="string">&quot;I&quot;</span>, <span class="string">&quot;O&quot;</span> &#125;;</span><br><span class="line">            <span class="built_in">bool</span> chackFirstEnd = <span class="literal">false</span>;</span><br><span class="line">            <span class="keyword">if</span> (ID.Trim().Length == <span class="number">10</span>)</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="built_in">byte</span> firstNo = Convert.ToByte(ID.Trim().Substring(<span class="number">1</span>, <span class="number">1</span>));</span><br><span class="line">                <span class="keyword">if</span> (firstNo &gt; <span class="number">2</span> || firstNo &lt; <span class="number">1</span>)</span><br><span class="line">                &#123;</span><br><span class="line">                    <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">else</span></span><br><span class="line">                &#123;</span><br><span class="line">                    <span class="built_in">int</span> x;</span><br><span class="line">                    <span class="keyword">for</span> (x = <span class="number">0</span>; x &lt; FirstEng.Count; x++)</span><br><span class="line">                    &#123;</span><br><span class="line">                        <span class="keyword">if</span> (ID.Substring(<span class="number">0</span>, <span class="number">1</span>) == FirstEng[x])</span><br><span class="line">                        &#123;</span><br><span class="line">                            ID = <span class="built_in">string</span>.Format(<span class="string">&quot;&#123;0&#125;&#123;1&#125;&quot;</span>, x + <span class="number">10</span>, ID.Substring(<span class="number">1</span>, <span class="number">9</span>));</span><br><span class="line">                            chackFirstEnd = <span class="literal">true</span>;</span><br><span class="line">                            <span class="keyword">break</span>;</span><br><span class="line">                        &#125;</span><br><span class="line"></span><br><span class="line">                    &#125;</span><br><span class="line">                    <span class="keyword">if</span> (!chackFirstEnd)</span><br><span class="line">                        <span class="keyword">return</span> <span class="literal">false</span>; </span><br><span class="line"></span><br><span class="line">                    <span class="built_in">int</span> i = <span class="number">1</span>;</span><br><span class="line">                    <span class="built_in">int</span> ss = <span class="built_in">int</span>.Parse(ID.Substring(<span class="number">0</span>, <span class="number">1</span>));</span><br><span class="line">                    <span class="keyword">while</span> (ID.Length &gt; i)</span><br><span class="line">                    &#123;</span><br><span class="line">                        ss = ss + (<span class="built_in">int</span>.Parse(ID.Substring(i, <span class="number">1</span>)) * (<span class="number">10</span> - i));</span><br><span class="line">                        i++;</span><br><span class="line">                    &#125;</span><br><span class="line">                    ID = ss.ToString();</span><br><span class="line">                    <span class="keyword">if</span> (<span class="keyword">value</span>.ToString().Substring(<span class="number">9</span>, <span class="number">1</span>) == <span class="string">&quot;0&quot;</span>)</span><br><span class="line">                    &#123;</span><br><span class="line">                        <span class="keyword">if</span> (ID.Substring(ID.Length - <span class="number">1</span>, <span class="number">1</span>) == <span class="string">&quot;0&quot;</span>)</span><br><span class="line">                        &#123;</span><br><span class="line">                            <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">                        &#125;</span><br><span class="line">                        <span class="keyword">else</span></span><br><span class="line">                        &#123;</span><br><span class="line">                            <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">                        &#125;</span><br><span class="line">                    &#125;</span><br><span class="line">                    <span class="keyword">else</span></span><br><span class="line">                    &#123;</span><br><span class="line">                        <span class="keyword">if</span> (<span class="keyword">value</span>.ToString().Substring(<span class="number">9</span>, <span class="number">1</span>) == (<span class="number">10</span> - <span class="built_in">int</span>.Parse(ID.Substring(ID.Length - <span class="number">1</span>, <span class="number">1</span>))).ToString())</span><br><span class="line">                        &#123;</span><br><span class="line"></span><br><span class="line">                            <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">                        &#125;</span><br><span class="line">                        <span class="keyword">else</span></span><br><span class="line">                        &#123;</span><br><span class="line">                            <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">                        &#125;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">else</span></span><br><span class="line">            &#123;</span><br><span class="line"></span><br><span class="line">                <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br></pre></td></tr></table></figure>
-<p>接著在Action我們就可以這樣做囉！</p>
-<figure class="highlight c#"><table><tr><td class="code"><pre><span class="line"><span class="keyword">if</span>(ModelState.IsValid)</span><br><span class="line">          &#123;</span><br><span class="line">               <span class="keyword">return</span> <span class="keyword">this</span>.Json(<span class="string">&quot;Success&quot;</span>); <span class="comment">//驗證過後回傳成功</span></span><br><span class="line">           &#125;</span><br><span class="line">          <span class="keyword">else</span>&#123;</span><br><span class="line"></span><br><span class="line">               <span class="keyword">var</span> data = ModelState.Where(x =&gt; x.Value.Errors.Count &gt; <span class="number">0</span>) <span class="comment">//如果驗證失敗，則將錯誤訊息抓出來</span></span><br><span class="line">                            .Select(x =&gt; <span class="keyword">new</span></span><br><span class="line">                            &#123;</span><br><span class="line"></span><br><span class="line">                                x.Key,</span><br><span class="line">                                x.Value.Errors[<span class="number">0</span>].ErrorMessage</span><br><span class="line"></span><br><span class="line">                            &#125;).ToList();</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">               <span class="comment">//   List&lt;ModelState&gt; data = ModelState.Values.ToList();</span></span><br><span class="line">               <span class="keyword">return</span> <span class="keyword">this</span>.Json(data);</span><br><span class="line"></span><br><span class="line">           &#125;</span><br></pre></td></tr></table></figure>
-<p>這邊如果驗證失敗，我們則是採用linQ的方式，將ErrorMessage給取出來，至於細節部分在這邊就不攢述了</p>
-<p>各位有興趣可以下中斷點看看回傳的內容，就可以明白為什麼我會這樣寫了。</p>
+<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/747b607f-21d2-4185-b73d-9f525f5daf2e/1513316793_69472.png"></p>
+<p>這問題是因為 Visual Studio <font>找不到基底類別的設計工具或是基底類別是找不到或無法載入的類別。</font> </p>
+<p>因此，只需要將專案進行建置：</p>
+<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/747b607f-21d2-4185-b73d-9f525f5daf2e/1513316869_29036.png"></p>
+<p>此時會發現輸出訊息欄會有建置成功的訊息：</p>
+<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/747b607f-21d2-4185-b73d-9f525f5daf2e/1513316900_48037.png"></p>
+<p>當建置成功後，再次開啟頁面，就會發現錯誤訊息已經消失了。</p>
 <div>
 以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
 
@@ -903,7 +1237,7 @@ version for package `Microsoft.EntityFrameworkCore.Tools.DotNet` could not be re
         <category>.NET</category>
       </categories>
       <tags>
-        <tag>WebAPI</tag>
+        <tag>WinForm</tag>
       </tags>
   </entry>
   <entry>
@@ -952,33 +1286,6 @@ version for package `Microsoft.EntityFrameworkCore.Tools.DotNet` could not be re
       </categories>
       <tags>
         <tag>CI/CD</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>WinForm - 解決無法對這個檔案顯示設計工具，因為檔案中沒有可以設計的類別</title>
-    <url>/2017/12/15/WinForm-%E8%A7%A3%E6%B1%BA%E7%84%A1%E6%B3%95%E5%B0%8D%E9%80%99%E5%80%8B%E6%AA%94%E6%A1%88%E9%A1%AF%E7%A4%BA%E8%A8%AD%E8%A8%88%E5%B7%A5%E5%85%B7%EF%BC%8C%E5%9B%A0%E7%82%BA%E6%AA%94%E6%A1%88%E4%B8%AD%E6%B2%92%E6%9C%89%E5%8F%AF%E4%BB%A5%E8%A8%AD%E8%A8%88%E7%9A%84%E9%A1%9E%E5%88%A5/</url>
-    <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>當我們在針對WindowsForm設計的時候，如果我們想要針對原本的Form表單增加一些功能等等，我們會需要透過繼承Form表單來實作。</p>
-<p>此時當我們繼承原本的Form頁面時，我們會發現當前繼承的頁面會出現以下錯誤訊息：</p>
-<span id="more"></span>
-<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/747b607f-21d2-4185-b73d-9f525f5daf2e/1513316793_69472.png"></p>
-<p>這問題是因為 Visual Studio <font>找不到基底類別的設計工具或是基底類別是找不到或無法載入的類別。</font> </p>
-<p>因此，只需要將專案進行建置：</p>
-<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/747b607f-21d2-4185-b73d-9f525f5daf2e/1513316869_29036.png"></p>
-<p>此時會發現輸出訊息欄會有建置成功的訊息：</p>
-<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/747b607f-21d2-4185-b73d-9f525f5daf2e/1513316900_48037.png"></p>
-<p>當建置成功後，再次開啟頁面，就會發現錯誤訊息已經消失了。</p>
-<div>
-以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
-
-<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
-<p><a href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
-</div>
-]]></content>
-      <categories>
-        <category>.NET</category>
-      </categories>
-      <tags>
-        <tag>WinForm</tag>
       </tags>
   </entry>
   <entry>
@@ -1241,6 +1548,95 @@ version for package `Microsoft.EntityFrameworkCore.Tools.DotNet` could not be re
       </tags>
   </entry>
   <entry>
+    <title>【Modbus】 如何看懂 Modbus TCP 通訊協定</title>
+    <url>/2020/07/27/%E3%80%90Modbus%E3%80%91-%E5%A6%82%E4%BD%95%E7%9C%8B%E6%87%82-Modbus-TCP-%E9%80%9A%E8%A8%8A%E5%8D%94%E5%AE%9A/</url>
+    <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>最近筆者接了一個工控系統，其中PLC所使用的是Modbus TCP的通訊協定。</p>
+<p>由於這個部分因為從來沒有接觸過，所以花了一點時間研究。</p>
+<p>趁著現在記憶猶新，趕緊寫下來，方便日後對照，也讓讀者們能夠快速看懂Modbus TCP協定。</p>
+<p>Modbus為工業上常用的通訊協定之一，也是目前工業領域通訊協定常用的標準協定。</p>
+<span id="more"></span>
+<p>一般來說，Modbus主要可以再細分為兩種協定（Modbus RTU 、Modbus ASCII 、Modbus TCP）</p>
+<p>Modbus RTU 是一種為使用二進位表示法來進行資料的傳遞與交換，也是比較多人使用的，因為方便，也不需要轉換為ASCII</p>
+<p>Modbus ASCII 則是一種對於人類來說，可讀性較高的協定。</p>
+<p>而以上兩種方式在傳遞資料的結尾皆需要加上 CRC （錯誤檢查機制）。</p>
+<p>其中 Modbus 也可以藉由乙太網路 TCP&#x2F;IP 的方式來進行傳遞資料，叫做 Modbus TCP</p>
+<p>也是我們今天主要要介紹的協定。</p>
+<p>此種通訊格式不需要計算CRC，取而代之的是使用識別碼的方式來進行資料驗證。</p>
+<p>在學習 Modbus協定之前，我們需要先了解每一個Byte各代表的意思為何</p>
+<p>以下為 Modbus TCP request 的封包格式：</p>
+<p>TCP Header	 | Address	 | Function Code |	Start register addr	|data<br>———|———-|———|———|———|———<br> 6bytes | 1byte	 | 1byte |2byte|N bytes</p>
+<h2 id="TCP-Header"><a href="#TCP-Header" class="headerlink" title="TCP Header"></a>TCP Header</h2><p>其中我們會發現 TCP Header 一共佔了6Byte。</p>
+<p>這6個Byte主要是由三個欄位所組成，每一個欄位都佔2Byte。</p>
+<p>本次通訊的識別碼（Transaction ID）：會產生2個Byte的隨機值，用來識別該次通訊。</p>
+<p>通訊方式（Protocal ID）：基本上都是0，用來表示採用哪種通訊協定。0表示為 Modbus &#x2F; TCP</p>
+<p>資料長度（Length）：用來定義從Address開始 ~ data欄位結束，所佔的總長度為何。</p>
+<h2 id="Address"><a href="#Address" class="headerlink" title="Address"></a>Address</h2><p>共佔1Byte，用來記錄該次通訊要存取 slave端位址</p>
+<h2 id="Function-Code"><a href="#Function-Code" class="headerlink" title="Function Code"></a>Function Code</h2><p>共佔1Byte，用來定義該次通訊是要做哪種操作。</p>
+<p>其中常見的Function Code有以下幾種：</p>
+<p>01: 讀取當前 digital out status</p>
+<p>02: 讀取當前 digital input status</p>
+<p>03: 讀取當前 analog out status</p>
+<p>04: 讀取當前 analog input status</p>
+<p>05: 寫入單個  digital out value</p>
+<p>06: 寫入單個  analog out value</p>
+<p>15: 寫入多個  digital out value</p>
+<p>16: 寫入多個  analog out value</p>
+<h2 id="Start-register-addr"><a href="#Start-register-addr" class="headerlink" title="Start register addr"></a>Start register addr</h2><p>共佔2Byte，用來定義暫存器起始位址</p>
+<h2 id="data"><a href="#data" class="headerlink" title="data"></a>data</h2><p>長度為非固定，由傳送的資料長度而定。</p>
+<p>以上為每一個欄位的解說，接下來筆者擷取了一張從WireShark所側錄到的 Modbus封包來做解說。</p>
+<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/a223910e-7214-438a-9a9c-2642d39b61dd/1545820526_16343.png"></p>
+<p>上圖為， 由WireShark所側錄到的Modbus封包，用來開啟LED指示燈的控制代碼。</p>
+<p>從ac開始到 01結束是整個Modbus的封包內容。</p>
+<p>封包內容如下：<code>ac 70 00 00 00 06 58 06 00 c8 00 01</code></p>
+<p>其中我們剛剛有說到，Modbus的Header 共佔 6Byte，也就是：</p>
+<p>本次通訊的識別碼（Transaction ID）：<code>ac 70</code></p>
+<p>通訊方式（Protocal ID）：<code>00 00</code></p>
+<p>資料長度（Length）：<code>00 06</code> 其中 06代表接下來一共有 6Byte的封包內容</p>
+<p>上述的三個欄位均為Modbus的Header，每一個都佔2Byte，共佔6Byte。</p>
+<p>slave端位址（Address）：<code>58</code></p>
+<p>操作碼（Function Code）：<code>06</code> 代表寫入單一數值</p>
+<p>暫存器起始位址（Start register addr）：<code>00 c8 </code></p>
+<p>傳送資料（Data）： <code>00 01</code></p>
+<p>最後，附上一張Modbus控制的表格來做個結束。</p>
+<p>操作碼 06: 寫入LED開燈資訊</p>
+<table>
+<thead>
+<tr>
+<th>Transaction ID</th>
+<th>Protocal ID</th>
+<th>Length</th>
+<th>Address</th>
+<th>Function Code</th>
+<th>Start register addr</th>
+<th>Data</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>ac 70</td>
+<td>00 00</td>
+<td>00 06</td>
+<td>58</td>
+<td>06</td>
+<td>00 c8</td>
+<td>00 01</td>
+</tr>
+</tbody></table>
+<p>意思為：Master要求寫入資料到裝置位址58的暫存器位址 <code>00c8</code>，寫入的資訊為 <code>00 01</code>。</p>
+<div>
+以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
+
+<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
+<p><a href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
+</div>
+]]></content>
+      <categories>
+        <category>Modbus</category>
+      </categories>
+      <tags>
+        <tag>Modbus</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>【CI CD實作】允許Jenkins有sudo權限(三)</title>
     <url>/2023/02/10/%E5%85%81%E8%A8%B1Jenkins%E6%9C%89sudo%E6%AC%8A%E9%99%90/</url>
     <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>由於我們要利用Jenkins來實作CI&#x2F;CD，因此部署上的操作上往往免不了會需要sudo的權限讓我們能做一些事情，如：建立資料夾、刪除資料夾、搬遷檔案等各種操作。</p>
@@ -1304,37 +1700,6 @@ version for package `Microsoft.EntityFrameworkCore.Tools.DotNet` could not be re
       </tags>
   </entry>
   <entry>
-    <title>如何透過Postman傳遞Array參數</title>
-    <url>/2017/12/24/%E5%A6%82%E4%BD%95%E9%80%8F%E9%81%8EPostman%E5%82%B3%E9%81%9EArray%E5%8F%83%E6%95%B8/</url>
-    <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>Postman一直以來都是廣為人知開發輔助工具</p>
-<p>很多時候當我們已經開發完API的時候，想測試自己寫的程式是否沒問題</p>
-<p>但是卻因為前端的介面還沒有完成，而導致無法進行測試。</p>
-<p>這時候一般大部分的工程師會採用Postman的工具來進行測試</p>
-<p>今天來介紹一下，如何在Postman當中，傳遞Array</p>
-<span id="more"></span>
-
-<p>在最新的版本當中，Postman傳遞Array的方法，已經改為利用[]的方式進行傳遞</p>
-<p>方法其實很簡單：</p>
-<p>假設我有一個data陣列想要進行傳送</p>
-<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/a5fd7cee-1c87-44bd-a4c6-3e2eda43f573/1514081767_28554.png"></p>
-<p>只需要進行這樣的撰寫方式，Postman就會自動幫你把這幾個參數視為是陣列，在PHP當中，只需要這樣就可以接的到值了。<br><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/a5fd7cee-1c87-44bd-a4c6-3e2eda43f573/1514081858_37187.png"></p>
-<p>另外，假設我們是WebApi的話，方法也是一樣的：</p>
-<p>首先在我們的Request Model當中，定義一個Array的欄位</p>
-<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/a5fd7cee-1c87-44bd-a4c6-3e2eda43f573/1514081936_38664.png"></p>
-<p>接著一樣在我們的Postman當中，給定我們的值，只要欄位名稱相同，後面用[]來接，就可以當成陣列傳送到後端API</p>
-<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/a5fd7cee-1c87-44bd-a4c6-3e2eda43f573/1514082470_9356.png"></p>
-<div>
-以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
-
-<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
-<p><a href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
-</div>
-]]></content>
-      <categories>
-        <category>Postman</category>
-      </categories>
-  </entry>
-  <entry>
     <title>如何在Ubuntu安裝多個.NET版本環境</title>
     <url>/2023/02/11/%E5%A6%82%E4%BD%95%E5%9C%A8Ubuntu%E5%AE%89%E8%A3%9D%E5%A4%9A%E5%80%8B-NET%E7%89%88%E6%9C%AC%E7%92%B0%E5%A2%83/</url>
     <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>最近筆者在架設<code>BaGet</code>這套 private Nuget Server時，發現由於Baget是採用 .NET Core3.1的環境進行建置的，而在2023年的今天，.NETCore3.1早已被微軟淘汰不再支援了，因此無法從官網上直接安裝想要的版本。</p>
@@ -1366,6 +1731,37 @@ version for package `Microsoft.EntityFrameworkCore.Tools.DotNet` could not be re
       <tags>
         <tag>.NET</tag>
       </tags>
+  </entry>
+  <entry>
+    <title>如何透過Postman傳遞Array參數</title>
+    <url>/2017/12/24/%E5%A6%82%E4%BD%95%E9%80%8F%E9%81%8EPostman%E5%82%B3%E9%81%9EArray%E5%8F%83%E6%95%B8/</url>
+    <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>Postman一直以來都是廣為人知開發輔助工具</p>
+<p>很多時候當我們已經開發完API的時候，想測試自己寫的程式是否沒問題</p>
+<p>但是卻因為前端的介面還沒有完成，而導致無法進行測試。</p>
+<p>這時候一般大部分的工程師會採用Postman的工具來進行測試</p>
+<p>今天來介紹一下，如何在Postman當中，傳遞Array</p>
+<span id="more"></span>
+
+<p>在最新的版本當中，Postman傳遞Array的方法，已經改為利用[]的方式進行傳遞</p>
+<p>方法其實很簡單：</p>
+<p>假設我有一個data陣列想要進行傳送</p>
+<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/a5fd7cee-1c87-44bd-a4c6-3e2eda43f573/1514081767_28554.png"></p>
+<p>只需要進行這樣的撰寫方式，Postman就會自動幫你把這幾個參數視為是陣列，在PHP當中，只需要這樣就可以接的到值了。<br><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/a5fd7cee-1c87-44bd-a4c6-3e2eda43f573/1514081858_37187.png"></p>
+<p>另外，假設我們是WebApi的話，方法也是一樣的：</p>
+<p>首先在我們的Request Model當中，定義一個Array的欄位</p>
+<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/a5fd7cee-1c87-44bd-a4c6-3e2eda43f573/1514081936_38664.png"></p>
+<p>接著一樣在我們的Postman當中，給定我們的值，只要欄位名稱相同，後面用[]來接，就可以當成陣列傳送到後端API</p>
+<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/a5fd7cee-1c87-44bd-a4c6-3e2eda43f573/1514082470_9356.png"></p>
+<div>
+以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
+
+<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
+<p><a href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
+</div>
+]]></content>
+      <categories>
+        <category>Postman</category>
+      </categories>
   </entry>
   <entry>
     <title>【CI CD實作】安裝Jenkins(一)</title>
@@ -1536,6 +1932,230 @@ version for package `Microsoft.EntityFrameworkCore.Tools.DotNet` could not be re
       </tags>
   </entry>
   <entry>
+    <title>教你如何快速看懂 TCP/IP五層 網路封包</title>
+    <url>/2020/07/27/%E6%95%99%E4%BD%A0%E5%A6%82%E4%BD%95%E5%BF%AB%E9%80%9F%E7%9C%8B%E6%87%82-TCP-IP%E4%BA%94%E5%B1%A4-%E7%B6%B2%E8%B7%AF%E5%B0%81%E5%8C%85/</url>
+    <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>相信有接觸過網路通訊、封包監控的讀者來說，對於封包的內容一定都不陌生</p>
+<p>但是若有需要做到封包監控與封包過濾的話，讀懂每一個 Byte勢必是必經之路。</p>
+<p>因為，只有真正讀懂每一個 Byte 在做什麼，才能夠透過程式進行過濾以及解析。</p>
+<span id="more"></span>
+<p>在文章開始之前，首先需要先請各位記住一個很重要的觀念：</p>
+<blockquote>
+<p><font color="red"> 每一層的Data欄位都是下一層以後的內容。</font><br><font color="red"> 每一層的Data欄位都是下一層以後的內容。</font><br><font color="red"> 每一層的Data欄位都是下一層以後的內容。</font></p>
+</blockquote>
+<p>這句話非常的重要，所以講了三遍來強調，因為懂了這個概念之後，會有助於我們日後可以寫程式去解析。</p>
+<p>接下來的每一個部分，都會拆成各個章節來為各位做介紹：</p>
+<h2 id="TCP-x2F-IP五層架構"><a href="#TCP-x2F-IP五層架構" class="headerlink" title="TCP&#x2F;IP五層架構"></a>TCP&#x2F;IP五層架構</h2><p>在了解網路封包時，我們需要先知道TCP&#x2F;IP的五層網路架構到底是分為哪五層，而每一層到底又做哪些事情。</p>
+<p>這樣我們才能夠更快速地取得我們想要的資料。</p>
+<p>筆者整理了以下表格方便讓大家快速看懂：</p>
+<table>
+<thead>
+<tr>
+<th>TCP&#x2F;IP層</th>
+<th>介紹</th>
+<th>網路設備</th>
+<th>通訊協定</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>應用層</td>
+<td>任何的通訊協定、功能都會在此被定義</td>
+<td>無</td>
+<td>所有應用層的通訊協定在此定應</td>
+</tr>
+<tr>
+<td>傳輸層</td>
+<td>提供端點之間的Port用來做連結與確認</td>
+<td>Switch</td>
+<td>TCP、UDP</td>
+</tr>
+<tr>
+<td>網路層</td>
+<td>用來定義兩端點的IP位置</td>
+<td>Router</td>
+<td>IP、ICMP</td>
+</tr>
+<tr>
+<td>資料連結層</td>
+<td>定義兩端點的MAC地址</td>
+<td></td>
+<td>ARP、RARP</td>
+</tr>
+<tr>
+<td>實體層</td>
+<td>又稱物理層，走光電訊號（硬體）</td>
+<td></td>
+<td></td>
+</tr>
+</tbody></table>
+<p>從上表當中，我簡單為讀者做個說明：</p>
+<p>實體層：由於走的是光電訊號，較偏硬體設備通訊，因此不在此討論。</p>
+<p>資料連結層：主要是用來<font color="red">定義來源&#x2F;目的的MAC地址</font>，以及所使用的協定為何(IPV4&#x2F;IPV6)</p>
+<p>網路層：主要是負責處理<font color="red">將封包由來源電腦傳給目的電腦之間的路徑選擇問題，因此會在此定義該封包需要送往哪一個IP位置。</font></p>
+<p>傳輸層：主要提供系統間資料的傳輸更高階的控制，為了確保本層保證所有的資料都是以正確的順序送達，因此紀錄來源&#x2F;目的Port位置，<font color="red">此外亦會給每一個封包追蹤號碼，並在目的地進行檢查。</font></p>
+<p>而在上方筆者用紅字標示的部分當中我們可以了解到每一層所執行的功能。<font color="red"> 當來源&#x2F;目的的MAC地址、IP位置、Port號都被定義後，就能將封包正確的送往目的地。 </font></p>
+<h2 id="封包解析"><a href="#封包解析" class="headerlink" title="封包解析"></a>封包解析</h2><p>當我們用像是WireShark等其他軟體側錄封包內容時，大概會看到以下內容：</p>
+<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/0d0bca0b-d376-4656-a5e1-7337cdf2e21e/1553745858_86092.png"></p>
+<p>這是一大長串的內容，裡面的內容都是採十六進位顯示，那我們該從何讀起呢？</p>
+<p>其實Wireshark有很貼心的服務，當你點選封包上方的每一層時，它都會即時標示這一層的內容是從哪裡開始，到哪裡結束，並用藍底Mark起來。</p>
+<p>資料連結層封包區段：</p>
+<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/0d0bca0b-d376-4656-a5e1-7337cdf2e21e/1553745971_56724.png"></p>
+<p>網路層封包區段：<br><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/0d0bca0b-d376-4656-a5e1-7337cdf2e21e/1553745985_32755.png"></p>
+<p>傳輸層封包區段：<br><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/0d0bca0b-d376-4656-a5e1-7337cdf2e21e/1553746000_75769.png"></p>
+<p>應用層封包區段：<br><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/0d0bca0b-d376-4656-a5e1-7337cdf2e21e/1553746025_23156.png"></p>
+<p>眼尖的讀者們應該可以了解到，當逐層標示完後，最後一層也就是到封包的結尾做結束。</p>
+<p>這也就是呼應了我們最一開始開頭的那句話：「每一層的Data欄位都是下一層以後的內容。」</p>
+<p>對於每一層來說，它只管自己這一層所定義的欄位內容，其餘看不懂的、無法解析的，都會被視為是「資料」，</p>
+<p>讓下一層看得懂的來去解析他。</p>
+<p>一直到解析至傳輸層後，剩下的Data它看不懂了，那就輪到最後一層「應用層」來去做解析，也就是我們的Data資料。</p>
+<p>因此不管是各位常見到的<code>HTTP</code>、<code>FTP</code>、<code>Telent</code>，甚至是工業控制系統常見的Modbus協定，都會被儲存在這最後一層，因為那就是我們所要的資料。</p>
+<p>而到底每一層的封包的欄位各代表什麼意思呢？筆者上圖的封包作為範例，讓讀者能夠快速看懂。</p>
+<p>下面的這個封包主要是一個Modbus TCP的封包，是我從工控系統中所側錄得到的。</p>
+<p>但不管是何種通訊協定的封包，對於傳輸層來講，都只是data而已，所以並不影響。</p>
+<p>另外，若是要取得封包內容，除了可以自己寫程式去側錄封包外，也可以利用像Wireshark等封包監控軟體進行側錄。</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">00 18 23 3c 86 c6 00 18 23 3c d7 fb 08 00 45 00  </span><br><span class="line">00 3b 58 ac 00 00 ff 06 eb 0b c0 a8 7b 5a c0 a8  </span><br><span class="line">7b 59 35 81 01 f6 18 73 eb a1 52 d0 28 e7 50 18 </span><br><span class="line">02 00 b2 34 00 00 d7 fb 00 00 00 0d 01 10 10 03 </span><br><span class="line">00 03 06 09 cb 10 7e 03 94  </span><br></pre></td></tr></table></figure>
+
+<p><strong>而在整個封包當中，是不包含實體層(L1)的內容的，因此我們從資料連結層(L2)開始介紹起。</strong></p>
+<h2 id="資料連結層-L2-封包內容"><a href="#資料連結層-L2-封包內容" class="headerlink" title="資料連結層(L2)封包內容"></a>資料連結層(L2)封包內容</h2><p> 首先，對於資料傳輸層(L2)的封包，有以下內容： </p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">00 18 23 3c 86 c6 00 18 23 3c d7 fb 08 00</span><br></pre></td></tr></table></figure>
+
+<p>其中，前8個Byte是來源MAC，後8個Byte是目的地MAC，最後兩個Byte則是定義採用哪一種網路協定，IPv4&#x2F;IPv6</p>
+<p>因此表格由以下呈現，而資料連結層固定為14Byte。</p>
+<table>
+<thead>
+<tr>
+<th>來源MAC</th>
+<th>目的MAC</th>
+<th>Type</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>00 18 23 3c 86 c6</td>
+<td>00 18 23 3c d7 fb</td>
+<td>08 00</td>
+</tr>
+</tbody></table>
+<h2 id="網路層-L3-封包內容"><a href="#網路層-L3-封包內容" class="headerlink" title="網路層(L3)封包內容"></a>網路層(L3)封包內容</h2><p>首先，對於網路層(L3的封包，有以下內容： </p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">45 00 00 3b 58 ac 00 00 ff 06 eb 0b c0 a8 7b 5a c0 a8  </span><br><span class="line">7b 59</span><br></pre></td></tr></table></figure>
+<p>在維基百科中，有表格闡述每一個Byte在做什麼。注：下圖內的數字是以bit來顯示<br><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/0d0bca0b-d376-4656-a5e1-7337cdf2e21e/1553757056_33792.png"></p>
+<p>表格由以下呈現，而長度為不固定，需要透過Header來計算。</p>
+<table>
+<thead>
+<tr>
+<th>Type&amp;Header</th>
+<th>Service</th>
+<th>封包總長</th>
+<th>識別碼</th>
+<th>可否切割</th>
+<th>存活時</th>
+<th>協定</th>
+<th>Check Sum</th>
+<th>來源IP</th>
+<th>目的IP</th>
+<th>Data</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>45</td>
+<td>00</td>
+<td>00 3b</td>
+<td>58 ac</td>
+<td>00 00</td>
+<td>ff</td>
+<td>06</td>
+<td>eb 0b</td>
+<td>c0 a8 7b 5a</td>
+<td>c0 a8 7b 59</td>
+<td></td>
+</tr>
+</tbody></table>
+<p>接下來為各位解說常用的一些欄位在做什麼：</p>
+<p>Type&amp;Header：該欄位佔1 Byte，主要由兩個欄位組成(Type、Header)。</p>
+<p>Type 欄位占4bit，通訊雙方使用的Type必須一致。其中若使用IPv4，欄位的值是4。<br>Header欄位占4bit，用來定義網路層封包長度，但由於網路層的封包長度不固定，因此該欄位最小值為5，最大值為15，其中長度的計算為5*4&#x3D;20 (Byte) 即網路層長度為20<br>Service：該欄位佔1 Byte，一般的情況下都不使用這個欄位。只有在使用VoIP時才會被指用，因此預設值為 0 0 。</p>
+<p>封包總長：該欄位佔2 Byte，用來表示整個封包長度(但不含 資料連結層 L2 )，即L3~L5的長度。</p>
+<p>識別碼：該欄位佔 2 Byte，用來識別該連線的唯一識別碼（或是有過大的封包會被切割時，可以用該識別碼 識別切割的封包有哪些）。</p>
+<p>可否切割：該欄位佔 2 Byte，若封包過大時，則會定義該封包可否被切格為等量的小封包進行傳送。</p>
+<p>存活時間：該欄位佔 2 Byte，為了避免封包在網路中永遠存在（例如陷入路由環路），封包經過的每個路由器都將此欄位減1，當此欄位為0時，封包不再向下傳送並被丟棄，最大值是255。</p>
+<p>協定：該欄位占 1 Byte，用來定義了該封包資料區使用的協定。</p>
+<h2 id="傳輸層-L4-封包內容"><a href="#傳輸層-L4-封包內容" class="headerlink" title="傳輸層(L4)封包內容"></a>傳輸層(L4)封包內容</h2><p>首先，對於傳輸層(L4)的封包，有以下內容： </p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">35 81 01 f6 18 73 eb a1 52 d0 28 e7 50 18 </span><br><span class="line">02 00 b2 34 00 00</span><br></pre></td></tr></table></figure>
+<p>在維基百科中，有表格闡述每一個Byte在做什麼。注：下圖內的數字是以bit來顯示</p>
+<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/0d0bca0b-d376-4656-a5e1-7337cdf2e21e/1553758825_44461.png"></p>
+<p>表格由以下呈現，而長度為不固定，需要透過flag來計算。</p>
+<table>
+<thead>
+<tr>
+<th>來源Port</th>
+<th>目的Port</th>
+<th>序列號</th>
+<th>確認碼</th>
+<th>flag</th>
+<th>window size</th>
+<th>check sum</th>
+<th>緊急指標</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>35 81</td>
+<td>01 f6</td>
+<td>18 73 eb a1</td>
+<td>52 d0 28 e7</td>
+<td>50 18</td>
+<td>02 00</td>
+<td>b2 34</td>
+<td>00 00</td>
+</tr>
+</tbody></table>
+<p>接下來為各位解說常用的一些欄位在做什麼：</p>
+<p>序列號：用來識別該連線的編號，每增加一條連線，該序號就會+1</p>
+<p>確認碼：期望收到的資料的開始序列號。也即已經收到的資料的位元組長度加1。</p>
+<p>flag：該欄位由三個值組成。 </p>
+<ul>
+<li>第一個數值為定義整個傳輸層(L4)的封包長度，其中長度的計算為5*4&#x3D;20 (Byte) 即網路層長度為20。</li>
+<li>資料偏移（4位元長）—以4位元組為單位計算出的資料段開始位址的偏移值。</li>
+<li>保留（3位元長）—須置0</li>
+<li>標誌符（9位元長）<ul>
+<li>NS—ECN-nonce。</li>
+<li>CWR—Congestion Window Reduced。</li>
+<li>ECE—ECN-Echo有兩種意思，取決於SYN標誌的值。</li>
+<li>URG—為1表示高優先級封包，緊急指標欄位有效。</li>
+<li>ACK—為1表示確認號欄位有效</li>
+<li>PSH—為1表示是帶有PUSH標誌的資料，指示接收方應該儘快將這個報文段交給應用層而不用等待緩衝區裝滿。</li>
+<li>RST—為1表示出現嚴重差錯。可能需要重現建立TCP連接。還可以用於拒絕非法的報文段和拒絕連接請求。</li>
+<li>SYN—為1表示這是連接請求或是連接接受請求，用於建立連接和使順序號同步</li>
+<li>FIN—為1表示傳送方沒有資料要傳輸了，要求釋放連接</li>
+</ul>
+</li>
+</ul>
+<h2 id="應用層-L5-封包"><a href="#應用層-L5-封包" class="headerlink" title="應用層(L5)封包"></a>應用層(L5)封包</h2><p>而到最後一層，傳輸層解析不懂的內容，也就是我們所謂的「應用層」，在應用層當中，我們可以看到我們常見到的協定，如 HTTP、Telnet、FTP等，甚至是工業控制系統中的ModbusTCP協定，都會在這一層當中顯現。</p>
+<p>至於該怎麼解析，那就必須交由該協定來去做定義。以上述範例來說，我擷取的是ModbusTCP的完整封包，因此最後解析下來的，就會是剩下ModbusTCP的部分。</p>
+<p>因此接下來就必須要去找ModbusTCP的協定來去讀懂每個欄位所定義的內容了。</p>
+<p>至於該如何解析並看懂ModbusTCP的封包，筆者有另外寫一篇文章作介紹，有興趣的讀者們可以參考看看。</p>
+<h2 id="封包分層解析"><a href="#封包分層解析" class="headerlink" title="封包分層解析"></a>封包分層解析</h2><p>最後，當我們了解完每一層的封包欄位資訊後，再來就是需要透過程式的方式，去分析這一整包的資料，也同時針對整包的資料分層做解析。</p>
+<p>但就像上文所說，網路層與傳輸層的大小並不固定，因此要如何確切的取得每一層的內容，可以參考以下方法：</p>
+<p>首先當我們拿到整包封包資料後，我們需要先知道，只有資料連結層(L2)，固定為14Byte，其餘為不固定，因此我們需要透過「減法」的方式取得：</p>
+<p>資料連結層(L2)：固定為14Byte，因此直接取前14Byte資料即可</p>
+<p>網路層(L3)：由於<strong>資料長度不固定</strong>，但是我們可以透過Header欄位，我們將該欄位<em>4之後，即可得知L3長度為何。 (EX:最小值是5，因此5</em>4&#x3D;20，可得知長度為20 Byte)</p>
+<p>傳輸層(L4)：由於<strong>資料長度不固定</strong>，但是我們可以透過flag欄位，我們將該欄位的第一個數字<em>4之後，即可得知L4長度為何。 (EX:最小值是5，因此5</em>4&#x3D;20，可得知長度為20 Byte)</p>
+<p>應用層(L5)：最後一層的資料，也就是各位要解析的「資料」內容，我們可以透過 <strong>「減法」</strong>方式進行計算，將總長度減去 L2、L3、L4的長度，剩餘的資料就是應用層的資料了。</p>
+<p>而至於為什麼要採用減法的方式來去將整個封包進行分層的原因，主要是因為從L2開始的封包，長度大小就不固定了，另外因為最終我們所想要監控到的資料，都是存在應用層(L5)，</p>
+<p>因此裡面的不見得都是固定的長度，也不見得會有定義整個應用層的長度大小。</p>
+<p>所以會建議採用減法的方式，將整個封包的內容，逐一將每一層的長度減去，那麼<strong>最終剩下的就會是應用層的內容</strong>。</p>
+<p>以上就是整個封包監控的介紹，之後會再利用程式，再針對封包分析做更細部的介紹。</p>
+<div>
+以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
+
+<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
+<p><a href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
+</div>
+]]></content>
+      <categories>
+        <category>TCP/IP</category>
+      </categories>
+      <tags>
+        <tag>TCP/IP封包</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>.NET Core自動建立Entity</title>
     <url>/2023/01/24/%E8%87%AA%E5%8B%95%E5%BB%BA%E7%AB%8BEntity/</url>
     <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>在 ASP.Net FrameWork 中，我們可以透過 CodeFirst 的方式，自動幫我們建立資料庫中每一個Table，並轉換成Entity，讓我們有Model可以做對應。</p>
@@ -1664,6 +2284,242 @@ version for package `Microsoft.EntityFrameworkCore.Tools.DotNet` could not be re
       </categories>
       <tags>
         <tag>CI/CD</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>電商購物平台-信用卡刷卡串接(API授權方式)教學</title>
+    <url>/2020/07/28/%E9%9B%BB%E5%95%86%E8%B3%BC%E7%89%A9%E5%B9%B3%E5%8F%B0-%E4%BF%A1%E7%94%A8%E5%8D%A1%E5%88%B7%E5%8D%A1%E4%B8%B2%E6%8E%A5-API%E6%8E%88%E6%AC%8A%E6%96%B9%E5%BC%8F-%E6%95%99%E5%AD%B8/</url>
+    <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>有鑑於購物車的電商系統一直是前端工程師最常見的SideProject之一。</p>
+<p>但是許多人對於訂單成立後的結帳付款，卻不了解後續要做哪些事，以及有哪些常用的付款方式。</p>
+<p>因此寫了一系列的介紹文，帶各位一窺全貌，了解電商平台在使用信用卡刷卡結帳時如何進行金流串接的。</p>
+<p>本篇教學以中國信託的信用卡刷卡為教學範例。</p>
+<span id="more"></span>
+
+<h2 id="API授權方式"><a href="#API授權方式" class="headerlink" title="API授權方式"></a>API授權方式</h2><p>在上一篇教學中我們利用 URL授權的方式進行信用卡刷卡。</p>
+<p>也就是卡號的輸入以及驗證均由該銀行提供。我們的購物系統本身不涉及刷卡驗證這段。</p>
+<p>但若是需要進行退款,取消請款等操作，我們就需要透過API授權的方式才能進行操作。 因此本文會針對以中國信託為例，介紹如何進行退款，取消請款等動作。</p>
+<p>信用卡刷卡請款的動作，一共分為兩個動作:</p>
+<ol>
+<li><pre><code> 交易後入請款檔
+</code></pre>
+</li>
+<li><pre><code> 將請款檔內的帳務進行請款
+</code></pre>
+</li>
+</ol>
+<p>在上一篇URL授權當中，我們將<font color="red">AutoCap設定為1則代表刷卡交易後系統都會將該筆交易自動入中信的請款檔</font> ，也就是操作帳務管理後台的人員不需要將一筆一筆的交易設定入請款檔。只要等中國信託跑批次請款的時間到，該筆交易就會自動跟中國信託進行請款。</p>
+<p>因此在執行退款動作的時候，並不會馬上進行退款，而是批次作業。</p>
+<p>其中，在中國信託進行批次請款的時候，此時有將近兩個小時是不能針對請款檔內的帳務進行任何作業的，如：取消請款，取消退款等。</p>
+<p>因此在設計上我們不能立刻將退款的訂單做處理，必須要有一個Buffer來儲存這些已經申請退款的訂購單。</p>
+<p>為了確保每一張訂購單的退款都能妥善處理，我們的流程應該會是這樣：</p>
+<ol>
+<li><pre><code> 將所有要退款的訂購單，狀態設定為申請退款
+</code></pre>
+</li>
+<li><pre><code> 利用排程定時(每隔1~2小時)將狀態為申請退款的單據進行退款
+</code></pre>
+</li>
+<li><pre><code> 判斷該單據是否要進行取消訂單抑或是取消退款
+</code></pre>
+</li>
+<li><pre><code> 執行退款相關API
+</code></pre>
+</li>
+</ol>
+<p>在第二點的流程中，如同上述提到，並不是任何時間我們都能夠操作中國信託的API進行帳款相關的操作。</p>
+<p>因此我們需要利用排程定時去跑這些狀態為申請退款的訂購單，一旦操作成功將狀態更改為已退款。以確保單據不會重複操作。</p>
+<p>第三點的流程中，操作退款的機制分為已請款以及已結帳兩個狀態，不同狀態下的帳款，在處理退款的行為上會有不同的流程。</p>
+<p>因此流程上來說會分成兩種:</p>
+<blockquote>
+<p>已請款–&gt; CapRevTransac 取消轉入請款–&gt;AuthRevTransac 取消授權交易</p>
+</blockquote>
+<blockquote>
+<p>已請款(請款成功) –&gt; Refund 呼叫退貨</p>
+</blockquote>
+<p>以第一種狀況來說，由於還沒有進行結帳請款，只是先將此筆交易放入請款檔內，等待中信的排程進行請款檔的批次處理。因此流程上只需要將該筆交易從請款檔移出，並且取消授權。那麼就可以結束這張訂單。</p>
+<p>這裡有一點需要特別注意的地方是:<font color="red">取消授權的訂單，是不能在帳務後台再次進行請款的動作，因為這個授權的權利已經被取消了。</font></p>
+<p>而第二種狀況的話，因為已經結帳請款，並將款項撥款給公司了。因此若要進行退款操作的話，那就需要額外輸入退款金額，並且只能進行退貨，不能取消授權。</p>
+<p><font color="red">兩者的差異主要是該筆交易資料會不會顯示在刷卡人的帳單上</font>，若是第一種狀況的話，由於尚未進行結帳請款，因此可以將該筆交易退回，直接取消授權，那麼該筆交易公司就不會跟銀行進行請款，也就是說這筆交易並不存在，也就不會顯示在刷卡人的帳單中了。</p>
+<p>反之，因為該筆款項已經轉入公司帳款，因此會出現刷卡紀錄，並且以刷退的方式沖銷，退回給銀行。總之，不管是哪一種方式，都不會使刷卡人無法退款。唯一要注意的是，由於第二種狀況會需要額外輸入退款金額，所以有可能因為公司退款政策而無法全部退款，而是返回的退款比例。</p>
+<p>片段的程式碼如下:</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">CTBCCredit ctbc = new CTBCCredit(ServerName, MerID , order.oid, result.XID, result.authAmt);</span><br><span class="line"></span><br><span class="line">  Inquiry inquiry = ctbc.queryOrder();</span><br><span class="line"></span><br><span class="line">  switch ((交易狀態)inquiry.CurrentState) &#123;</span><br><span class="line"></span><br><span class="line">     case 交易狀態.已請款:</span><br><span class="line"></span><br><span class="line">          ctbc.CapRev().Reversal();</span><br><span class="line">           logger.Info($&quot;訂單編號:&#123;order.oid&#125; 已轉出請款檔並取消授權&quot;);</span><br><span class="line"></span><br><span class="line">     break;</span><br><span class="line"></span><br><span class="line">     case 交易狀態.已請款_清算成功:</span><br><span class="line"></span><br><span class="line">          ctbc.RefundOrder(refundDiscount);</span><br><span class="line"></span><br><span class="line">          logger.Info($&quot;訂單編號:&#123;order.oid&#125; 已退款&quot;);</span><br><span class="line"></span><br><span class="line">     break;</span><br><span class="line"></span><br><span class="line">     default:</span><br><span class="line">        logger.Error($&quot;訂單編號:&#123;order.oid&#125;,訂單編號交易狀態有誤(&#123;inquiry.CurrentState&#125;)，無法退款&quot;);</span><br><span class="line">     break;</span><br><span class="line"></span><br><span class="line"> &#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>由於牽涉到一些公司機密，所以細節的部分的操作以及程式碼的部分沒辦法講得太仔細。</p>
+<p>僅列出大方向的運作流程，搭配中國信託給的金流文件，快速了解整的脈絡。</p>
+<p>因此若有讀者在實作中有問題，歡迎來信詢問。</p>
+<p><font color="red"> 最後提醒一下，信用卡刷卡測試完成後，要開通正式環境需要約兩週的時間開通，並且只限定有開通的IP才能連到他們的正式主機 </font></p>
+<p>這點還請注意一下。</p>
+<div>
+以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
+
+<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
+<p><a href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
+</div>
+]]></content>
+      <categories>
+        <category>金流串接</category>
+      </categories>
+      <tags>
+        <tag>信用卡刷卡串接</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>電商購物平台-信用卡刷卡串接(URL授權方式)教學</title>
+    <url>/2020/07/28/%E9%9B%BB%E5%95%86%E8%B3%BC%E7%89%A9%E5%B9%B3%E5%8F%B0-%E4%BF%A1%E7%94%A8%E5%8D%A1%E5%88%B7%E5%8D%A1%E4%B8%B2%E6%8E%A5-URL%E6%8E%88%E6%AC%8A%E6%96%B9%E5%BC%8F-%E6%95%99%E5%AD%B8/</url>
+    <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>有鑑於購物車的電商系統一直是前端工程師最常見的SideProject之一。</p>
+<p>但是許多人對於訂單成立後的結帳付款，卻不了解後續要做哪些事，以及有哪些常用的付款方式。</p>
+<p>因此寫了一系列的介紹文，帶各位一窺全貌，了解電商平台在使用信用卡刷卡結帳時如何進行金流串接的。</p>
+<span id="more"></span>
+
+<p>本篇教學以中國信託的信用卡刷卡為教學範例。</p>
+<p>信用卡刷卡付款的方式，又細分為兩種開發方式:</p>
+<ul>
+<li><p>URL授權方式</p>
+</li>
+<li><p>API授權方式</p>
+</li>
+</ul>
+<h2 id="URL授權方式"><a href="#URL授權方式" class="headerlink" title="URL授權方式"></a>URL授權方式</h2><blockquote>
+<p>URL授權方式，是使用銀行所提供的刷卡介面作為使用者卡號的輸入。</p>
+</blockquote>
+<p>這樣的方式我方不經手使用者信用卡刷卡的部分，所有卡號及到期日年月的輸入都在銀行的信用卡刷卡頁面操作，因此也就不會有儲存卡號的疑慮。</p>
+<p>以中國信託刷卡為例:當進行信用卡刷卡結帳時，系統會自動跳轉到中信的刷卡介面，並在使用者輸入完卡號，授權碼以及手機的3D驗證後回傳刷卡結果。</p>
+<p>因此整個流程會是這個樣子:</p>
+<p><img src="https://lh3.googleusercontent.com/MVf29t_6NLqF3-fwgPh8978K8iYerK5hBEwaFel4uJ5Js4KErr6jsJihoOtKn6rUXBVCcSz5IRyNqAm4UjXyCXphPxQRXOBiPfYc-eF5wKySA9XP0HufdPG_vdZPtPrw27sAPQIo"></p>
+<p>根據上圖的流程我們可以分為以下幾個步驟，以中國信託刷卡為例:</p>
+<p>消費者刷卡結帳&#x3D;&gt;呼叫結帳API進行結帳&#x3D;&gt;產生刷卡頁URL給前端Redirect&#x3D;&gt;消費者填寫卡號與驗證碼&#x3D;&gt;驗證完成&#x3D;&gt;回傳成功&#x2F;失敗結果。</p>
+<h2 id="產生刷卡頁URL"><a href="#產生刷卡頁URL" class="headerlink" title="產生刷卡頁URL"></a>產生刷卡頁URL</h2><ol>
+<li>前端將訂單提交至後端API，在處理完訂單後，會使用中國信託提供的加密library 將特店編號、訂單編號、金額、壓碼等資料進行加密，再將參數帶入中信所提供的SSLAuthUI.jsp內，最終回傳給前端url進行Redirect。</li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">Encrypt enc = new Encrypt();</span><br><span class="line"></span><br><span class="line">enc.MerchantID = MerchantID;</span><br><span class="line"></span><br><span class="line">enc.TerminalID = TerminalID;</span><br><span class="line"></span><br><span class="line">enc.OrderNo = OrderId;</span><br><span class="line"></span><br><span class="line">enc.AuthAmt = price;// 刷卡金額</span><br><span class="line"></span><br><span class="line">enc.TxType = &quot;0&quot;; // 交易方式 0 一般交易 1分期交易</span><br><span class="line"></span><br><span class="line">enc.AuthResURL = $&quot;&#123;apiUrl&#125;Order/Redirect/&#123;phone&#125;&quot;;//刷卡完   成後要導向的頁面</span><br><span class="line"></span><br><span class="line">enc.Key = Key;</span><br><span class="line"></span><br><span class="line">enc.MerchantName = &quot;購物平台&quot;;</span><br><span class="line"></span><br><span class="line">enc.AutoCap = &quot;1&quot;;// 是否自動入請款檔</span><br></pre></td></tr></table></figure>
+
+<h2 id="填寫卡號資訊"><a href="#填寫卡號資訊" class="headerlink" title="填寫卡號資訊"></a>填寫卡號資訊</h2><ol start="2">
+<li>在步驟一填完這些資訊後，會產生一組SSLAuthUI.jsp的URL，後面會帶上merID與URLEnc作為參數，返回給前端Redirect做卡號填寫。</li>
+</ol>
+<h2 id="回傳交易結果"><a href="#回傳交易結果" class="headerlink" title="回傳交易結果"></a>回傳交易結果</h2><ol start="3">
+<li>使用者輸入完刷卡資訊後，中國信託會根據步驟一所填寫的AuthResURL 參數，呼叫我們填寫的API，並將刷卡後的結果回傳至API內。此時就可以根據刷卡後的交易結果判斷判斷，返回給前端的刷卡成功或失敗的頁面。</li>
+</ol>
+<p>到這裡刷卡交易的流程就結束了。</p>
+<p>透過中國信託的信用卡授權頁，我們只需要判斷刷卡交易回傳的結果來決定要顯示給user成功&#x2F;失敗的頁面就行了。</p>
+<p>至於退款、取消請款的功能就無法透過url授權的方式來完成，必須要透過API授權的方式才能完成此交易。</p>
+<p>下一篇我們將講到信用卡刷卡串接API授權的方式：</p>
+<div>
+以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
+
+<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
+<p><a href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
+</div>
+]]></content>
+      <categories>
+        <category>金流串接</category>
+      </categories>
+      <tags>
+        <tag>信用卡刷卡串接</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>電商購物平台-金流串接介紹</title>
+    <url>/2020/07/28/%E9%9B%BB%E5%95%86%E8%B3%BC%E7%89%A9%E5%B9%B3%E5%8F%B0-%E9%87%91%E6%B5%81%E4%B8%B2%E6%8E%A5%E4%BB%8B%E7%B4%B9/</url>
+    <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>有鑑於購物車的電商系統一直是前端工程師最常見的SideProject之一。</p>
+<p>但是許多人對於訂單成立後的結帳付款，卻不了解後續要做哪些事，以及有哪些常用的付款方式。</p>
+<p>因此寫了一系列的介紹文，帶各位一窺全貌，了解電商平台在付款結帳時是如何進行金流串接的。</p>
+<span id="more"></span>
+
+<p>通常我們在做電商平台的時候，在最後購物車要進行結帳時都會遇到需要選擇付款方式來進行付款。而其中付款方式通常可以分為以下幾類:</p>
+<blockquote>
+<p>信用卡刷卡</p>
+</blockquote>
+<blockquote>
+<p>虛擬帳戶轉帳</p>
+</blockquote>
+<blockquote>
+<p>電子支付平台(如 pi錢包,Line pay 等)</p>
+</blockquote>
+<p><strong>每一種付款方式的開發都不太一樣，後續要做的事情也不同。</strong></p>
+<p><strong>但不管如何最後都需要進行開立發票的動作。</strong></p>
+<p><strong>因此整個流程會是</strong></p>
+<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/58856ea2-f6ee-4b78-8d23-26b829451fe0/1596154540.png"></p>
+<p>當訂單交易成立時，會根據所選擇的付款方式來決定要呼叫刷卡api或是產生虛擬帳號。</p>
+<p>當付款流程成功後，就會進行電子發票開立，可以選擇使用財政部的TurnKey開立發票，或是串接電子發票加值服務中心進行發票開立。</p>
+<p>因此金流付款與發票開立並無關係，是兩件獨立的事情。</p>
+<p>接下來下一篇會針對信用卡刷卡的部分來介紹</p>
+<div>
+以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
+
+<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
+<p><a href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
+</div>
+]]></content>
+      <categories>
+        <category>金流串接</category>
+      </categories>
+      <tags>
+        <tag>金流串接</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>電商購物平台-電子發票開立介紹</title>
+    <url>/2020/07/28/%E9%9B%BB%E5%95%86%E8%B3%BC%E7%89%A9%E5%B9%B3%E5%8F%B0-%E9%9B%BB%E5%AD%90%E7%99%BC%E7%A5%A8%E9%96%8B%E7%AB%8B%E4%BB%8B%E7%B4%B9/</url>
+    <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>有鑑於購物車的電商系統一直是前端工程師最常見的SideProject之一。</p>
+<p>但是許多人對於訂單成立後的結帳付款，卻不了解後續要做哪些事以及付款完成後，要如何開立發票等。</p>
+<p>因此寫了一系列的介紹文，帶各位一窺全貌，了解電商平台在結帳時如何進行發票開立的。</p>
+<span id="more"></span>
+
+<p>在開始之前，有一個觀念需要先釐清：<font color="red">結帳付款與發票開立是兩個獨立的事件，並不影響彼此。 </font> </p>
+<p>只是一般在電商平台結帳並付款完成後，會需要進行發票開立的作業。<br><font color="red"><br>發票開立的流程主要是跟財政部申請字軌發票號碼，會是一個區間:前兩碼為英文(稱之為字軌)，後面則是數字。</font></p>
+<p>申請發票號碼時，例如申請 XB-46558200 ~ XB-46558299。</p>
+<p>就代表申請了一百組的發票號碼，而這一百組的發票號碼就是給該單位做使用，其他人不能跟你搶這區間的發票號碼。<br></p>
+<p>如下圖所示，發票號碼233，就是在XB-46558200 ~ XB-46558299之間的其中一組發票號碼。</p>
+<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/de07a9c6-7698-4fd5-bec1-d924259268f2/1596080839.jpg"></p>
+<p>這邊要注意的是，開出去的發票是不能取消的。若開錯品項，就需要將該發票進行作廢，並在開立一張新的發票號碼。</p>
+<p>若仍想沿用原來舊的發票號碼，那麼就要同時進行作廢與註銷的動作。</p>
+<p>其中，發票若跨期的話，則要改以折讓單進行開立。</p>
+<p>簡單幫大家整理一下：</p>
+<blockquote>
+<p>取消發票(當期)&#x3D;&gt;作廢發票</p>
+</blockquote>
+<blockquote>
+<p>取消發票(非當期)&#x3D;&gt;開立折讓單</p>
+</blockquote>
+<blockquote>
+<p>重開發票(沿用原號碼) &#x3D;&gt; 作廢+註銷發票</p>
+</blockquote>
+<p>以上是發票在開立後可能會遇到的情況，對應的作法相關的發票文件會提供，這裡就不攢述了。</p>
+<p>而在電商所開立的發票並不是像上圖一樣開立二聯式的紙本發票，而是改用雲端電子發票。</p>
+<p>也由於消費者無法拿到實體的紙本發票，因此必須要有一個地方存放消費者過去消費的發票紀錄，並將開立的發票自動上傳到財政部，這個我們稱之為載具。</p>
+<p>載具又有細分為:會員載具，手機條碼載具，信用卡及悠遊卡載具，自然人憑證等。</p>
+<p>但不管是哪一種載具，都只是一個儲存的空間而已，去紀錄消費者過去的發票紀錄。</p>
+<p>因此整個電子發票開立的步驟，需要執行以下幾步驟：</p>
+<p><img src="/2020/07/28/%E9%9B%BB%E5%95%86%E8%B3%BC%E7%89%A9%E5%B9%B3%E5%8F%B0-%E9%9B%BB%E5%AD%90%E7%99%BC%E7%A5%A8%E9%96%8B%E7%AB%8B%E4%BB%8B%E7%B4%B9/process.png"></p>
+<p>可以至<a href="https://einvoice.nat.gov.tw/ein_upload/html/ESQ/ESQ101W.html#step2">財政部官網</a>查看完整流程介紹，這邊簡單介紹每一步要做哪些事。</p>
+<p>第一步的準備憑證指的是營業人憑證，也就是該營業機構必須要在財政部有資料登入，才知道是由哪個單位開立出來的發票</p>
+<p>第二部則是透過財政部給的TurnKey(API)，或是找其他委外的電子發票加值服務中心進行發票開立作業。</p>
+<p>Turnkey的申請流程複雜繁瑣且需要透過他們的軟體進行上傳。因此也可以委外的電子發票加值服務中心來進行申請。</p>
+<p>目前有在財政部登記的<a href="https://www.einvoice.nat.gov.tw/index!showAddCenter?CSRT=15303897498494013429">電子發票加值中心</a>有以下廠商:</p>
+<p><img src="/2020/07/28/%E9%9B%BB%E5%95%86%E8%B3%BC%E7%89%A9%E5%B9%B3%E5%8F%B0-%E9%9B%BB%E5%AD%90%E7%99%BC%E7%A5%A8%E9%96%8B%E7%AB%8B%E4%BB%8B%E7%B4%B9/vendor.png"></p>
+<p>但若是串接電子發票加值服務中心的話，就不需要再串接財政部的API。</p>
+<p>只需要跟加值中心串接即可。發票開立後，會自動在48小時內上傳至財政部。</p>
+<font color="red">
+兩種方法中，會建議直接串接電子發票加值服務中心會比較快，原因是加值中心可以提供會員載具功能
+
+<p>同時也會幫我們去做字軌的管理，讓我們不需要知道目前發票號碼開立到哪，下一張的發票號碼為何。<br></p></font><p></p>
+<p>至於如何使用程式碼進行發票的開立，在串接加值中心時，合作的加值中心廠商都會提供API文件給予串接，</p>
+<p>因此在這邊就不做細部的發票開立作業的介紹。</p>
+<p>也由於牽涉到一些公司機密，所以細節的部分的操作以及程式碼的部分沒辦法講得太仔細。</p>
+<p>僅列出大方向的運作流程，只是提供一個初步的介紹，並搭配由電子發票加值服務中心的文件，快速了解整的脈絡。</p>
+<p>若有讀者在實作中有問題，也歡迎來信詢問詳談，可以私下做詳細的教學。</p>
+<div>
+以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
+
+<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
+<p><a href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
+</div>
+]]></content>
+      <categories>
+        <category>金流串接</category>
+      </categories>
+      <tags>
+        <tag>電子發票開立</tag>
       </tags>
   </entry>
 </search>

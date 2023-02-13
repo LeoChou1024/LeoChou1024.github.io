@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta http-equiv="Cache-Control" content="no-transform">
+  <meta http-equiv="Cache-Control" content="no-siteapp">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-undefined.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"blog.zhenghui.idv.tw","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"slideDownIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="前言有鑑於購物車的電商系統一直是前端工程師最常見的SideProject之一。 但是許多人對於訂單成立後的結帳付款，卻不了解後續要做哪些事以及付款完成後，要如何開立發票等。 因此寫了一系列的介紹文，帶各位一窺全貌，了解電商平台在結帳時如何進行發票開立的。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="電商購物平台-電子發票開立介紹">
+<meta property="og:url" content="https://blog.zhenghui.idv.tw/2020/07/28/%E9%9B%BB%E5%95%86%E8%B3%BC%E7%89%A9%E5%B9%B3%E5%8F%B0-%E9%9B%BB%E5%AD%90%E7%99%BC%E7%A5%A8%E9%96%8B%E7%AB%8B%E4%BB%8B%E7%B4%B9/index.html">
+<meta property="og:site_name" content="Leo程式筆記">
+<meta property="og:description" content="前言有鑑於購物車的電商系統一直是前端工程師最常見的SideProject之一。 但是許多人對於訂單成立後的結帳付款，卻不了解後續要做哪些事以及付款完成後，要如何開立發票等。 因此寫了一系列的介紹文，帶各位一窺全貌，了解電商平台在結帳時如何進行發票開立的。">
+<meta property="og:locale" content="zh_TW">
+<meta property="og:image" content="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/de07a9c6-7698-4fd5-bec1-d924259268f2/1596080839.jpg">
+<meta property="og:image" content="https://blog.zhenghui.idv.tw/2020/07/28/%E9%9B%BB%E5%95%86%E8%B3%BC%E7%89%A9%E5%B9%B3%E5%8F%B0-%E9%9B%BB%E5%AD%90%E7%99%BC%E7%A5%A8%E9%96%8B%E7%AB%8B%E4%BB%8B%E7%B4%B9/process.png">
+<meta property="og:image" content="https://blog.zhenghui.idv.tw/2020/07/28/%E9%9B%BB%E5%95%86%E8%B3%BC%E7%89%A9%E5%B9%B3%E5%8F%B0-%E9%9B%BB%E5%AD%90%E7%99%BC%E7%A5%A8%E9%96%8B%E7%AB%8B%E4%BB%8B%E7%B4%B9/vendor.png">
+<meta property="article:published_time" content="2020-07-27T20:55:46.000Z">
+<meta property="article:modified_time" content="2023-02-13T21:00:14.220Z">
+<meta property="article:author" content="Leo Zhou">
+<meta property="article:tag" content="電子發票開立">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/de07a9c6-7698-4fd5-bec1-d924259268f2/1596080839.jpg">
+
+<link rel="canonical" href="https://blog.zhenghui.idv.tw/2020/07/28/%E9%9B%BB%E5%95%86%E8%B3%BC%E7%89%A9%E5%B9%B3%E5%8F%B0-%E9%9B%BB%E5%AD%90%E7%99%BC%E7%A5%A8%E9%96%8B%E7%AB%8B%E4%BB%8B%E7%B4%B9/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-TW'
+  };
+</script>
+
+  <title>電商購物平台-電子發票開立介紹 | Leo程式筆記</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切換導航欄">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Leo程式筆記</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首頁</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>標籤</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分類</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>歸檔</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜尋
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" placeholder="搜尋..." spellcheck="false" type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-TW">
+    <link itemprop="mainEntityOfPage" href="https://blog.zhenghui.idv.tw/2020/07/28/%E9%9B%BB%E5%95%86%E8%B3%BC%E7%89%A9%E5%B9%B3%E5%8F%B0-%E9%9B%BB%E5%AD%90%E7%99%BC%E7%A5%A8%E9%96%8B%E7%AB%8B%E4%BB%8B%E7%B4%B9/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/avatar.jpg">
+      <meta itemprop="name" content="Leo Zhou">
+      <meta itemprop="description" content>
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Leo程式筆記">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          電商購物平台-電子發票開立介紹
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">發表於</span>
+
+              <time title="創建時間：2020-07-28 04:55:46" itemprop="dateCreated datePublished" datetime="2020-07-28T04:55:46+08:00">2020-07-28</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新於</span>
+                <time title="修改時間：2023-02-14 05:00:14" itemprop="dateModified" datetime="2023-02-14T05:00:14+08:00">2023-02-14</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分類於</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E9%87%91%E6%B5%81%E4%B8%B2%E6%8E%A5/" itemprop="url" rel="index"><span itemprop="name">金流串接</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="閱讀次數">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-users"></i>
+              </span>
+              <span class="post-meta-item-text">閱讀次數：</span>
+              <span class="firestore-visitors-count"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/2020/07/28/%E9%9B%BB%E5%95%86%E8%B3%BC%E7%89%A9%E5%B9%B3%E5%8F%B0-%E9%9B%BB%E5%AD%90%E7%99%BC%E7%A5%A8%E9%96%8B%E7%AB%8B%E4%BB%8B%E7%B4%B9/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2020/07/28/電商購物平台-電子發票開立介紹/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+            <span class="post-meta-item" title="文章字數">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">文章字數：</span>
+              <span>1.5k</span>
+            </span>
+            <span class="post-meta-item" title="所需閱讀時間">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">所需閱讀時間 &asymp;</span>
+              <span>1 分鐘</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>有鑑於購物車的電商系統一直是前端工程師最常見的SideProject之一。</p>
+<p>但是許多人對於訂單成立後的結帳付款，卻不了解後續要做哪些事以及付款完成後，要如何開立發票等。</p>
+<p>因此寫了一系列的介紹文，帶各位一窺全貌，了解電商平台在結帳時如何進行發票開立的。</p>
+<span id="more"></span>
+
+<p>在開始之前，有一個觀念需要先釐清：<font color="red">結帳付款與發票開立是兩個獨立的事件，並不影響彼此。 </font> </p>
+<p>只是一般在電商平台結帳並付款完成後，會需要進行發票開立的作業。<br><font color="red"><br>發票開立的流程主要是跟財政部申請字軌發票號碼，會是一個區間:前兩碼為英文(稱之為字軌)，後面則是數字。</font></p>
+<p>申請發票號碼時，例如申請 XB-46558200 ~ XB-46558299。</p>
+<p>就代表申請了一百組的發票號碼，而這一百組的發票號碼就是給該單位做使用，其他人不能跟你搶這區間的發票號碼。<br></p>
+<p>如下圖所示，發票號碼233，就是在XB-46558200 ~ XB-46558299之間的其中一組發票號碼。</p>
+<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/de07a9c6-7698-4fd5-bec1-d924259268f2/1596080839.jpg"></p>
+<p>這邊要注意的是，開出去的發票是不能取消的。若開錯品項，就需要將該發票進行作廢，並在開立一張新的發票號碼。</p>
+<p>若仍想沿用原來舊的發票號碼，那麼就要同時進行作廢與註銷的動作。</p>
+<p>其中，發票若跨期的話，則要改以折讓單進行開立。</p>
+<p>簡單幫大家整理一下：</p>
+<blockquote>
+<p>取消發票(當期)&#x3D;&gt;作廢發票</p>
+</blockquote>
+<blockquote>
+<p>取消發票(非當期)&#x3D;&gt;開立折讓單</p>
+</blockquote>
+<blockquote>
+<p>重開發票(沿用原號碼) &#x3D;&gt; 作廢+註銷發票</p>
+</blockquote>
+<p>以上是發票在開立後可能會遇到的情況，對應的作法相關的發票文件會提供，這裡就不攢述了。</p>
+<p>而在電商所開立的發票並不是像上圖一樣開立二聯式的紙本發票，而是改用雲端電子發票。</p>
+<p>也由於消費者無法拿到實體的紙本發票，因此必須要有一個地方存放消費者過去消費的發票紀錄，並將開立的發票自動上傳到財政部，這個我們稱之為載具。</p>
+<p>載具又有細分為:會員載具，手機條碼載具，信用卡及悠遊卡載具，自然人憑證等。</p>
+<p>但不管是哪一種載具，都只是一個儲存的空間而已，去紀錄消費者過去的發票紀錄。</p>
+<p>因此整個電子發票開立的步驟，需要執行以下幾步驟：</p>
+<p><img src="/2020/07/28/%E9%9B%BB%E5%95%86%E8%B3%BC%E7%89%A9%E5%B9%B3%E5%8F%B0-%E9%9B%BB%E5%AD%90%E7%99%BC%E7%A5%A8%E9%96%8B%E7%AB%8B%E4%BB%8B%E7%B4%B9/process.png"></p>
+<p>可以至<a target="_blank" rel="external nofollow noopener noreferrer" href="https://einvoice.nat.gov.tw/ein_upload/html/ESQ/ESQ101W.html#step2">財政部官網</a>查看完整流程介紹，這邊簡單介紹每一步要做哪些事。</p>
+<p>第一步的準備憑證指的是營業人憑證，也就是該營業機構必須要在財政部有資料登入，才知道是由哪個單位開立出來的發票</p>
+<p>第二部則是透過財政部給的TurnKey(API)，或是找其他委外的電子發票加值服務中心進行發票開立作業。</p>
+<p>Turnkey的申請流程複雜繁瑣且需要透過他們的軟體進行上傳。因此也可以委外的電子發票加值服務中心來進行申請。</p>
+<p>目前有在財政部登記的<a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.einvoice.nat.gov.tw/index!showAddCenter?CSRT=15303897498494013429">電子發票加值中心</a>有以下廠商:</p>
+<p><img src="/2020/07/28/%E9%9B%BB%E5%95%86%E8%B3%BC%E7%89%A9%E5%B9%B3%E5%8F%B0-%E9%9B%BB%E5%AD%90%E7%99%BC%E7%A5%A8%E9%96%8B%E7%AB%8B%E4%BB%8B%E7%B4%B9/vendor.png"></p>
+<p>但若是串接電子發票加值服務中心的話，就不需要再串接財政部的API。</p>
+<p>只需要跟加值中心串接即可。發票開立後，會自動在48小時內上傳至財政部。</p>
+<font color="red">
+兩種方法中，會建議直接串接電子發票加值服務中心會比較快，原因是加值中心可以提供會員載具功能
+
+<p>同時也會幫我們去做字軌的管理，讓我們不需要知道目前發票號碼開立到哪，下一張的發票號碼為何。<br></p></font><p></p>
+<p>至於如何使用程式碼進行發票的開立，在串接加值中心時，合作的加值中心廠商都會提供API文件給予串接，</p>
+<p>因此在這邊就不做細部的發票開立作業的介紹。</p>
+<p>也由於牽涉到一些公司機密，所以細節的部分的操作以及程式碼的部分沒辦法講得太仔細。</p>
+<p>僅列出大方向的運作流程，只是提供一個初步的介紹，並搭配由電子發票加值服務中心的文件，快速了解整的脈絡。</p>
+<p>若有讀者在實作中有問題，也歡迎來信詢問詳談，可以私下做詳細的教學。</p>
+<div>
+以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
+
+<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
+<p><a target="_blank" rel="external nofollow noopener noreferrer" href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
+</div>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E9%9B%BB%E5%AD%90%E7%99%BC%E7%A5%A8%E9%96%8B%E7%AB%8B/" rel="tag"># 電子發票開立</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/07/28/%E9%9B%BB%E5%95%86%E8%B3%BC%E7%89%A9%E5%B9%B3%E5%8F%B0-%E4%BF%A1%E7%94%A8%E5%8D%A1%E5%88%B7%E5%8D%A1%E4%B8%B2%E6%8E%A5-API%E6%8E%88%E6%AC%8A%E6%96%B9%E5%BC%8F-%E6%95%99%E5%AD%B8/" rel="prev" title="電商購物平台-信用卡刷卡串接(API授權方式)教學">
+      <i class="fa fa-chevron-left"></i> 電商購物平台-信用卡刷卡串接(API授權方式)教學
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2023/01/24/Controller%E7%9A%84%E5%87%BD%E6%95%B8%E7%84%A1%E6%B3%95%E5%82%B3%E5%85%A5%E5%A4%9A%E5%80%8B%E5%8F%83%E6%95%B8/" rel="next" title="Controller的函數無法傳入多個參數">
+      Controller的函數無法傳入多個參數 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目錄
+        </li>
+        <li class="sidebar-nav-overview">
+          本站概要
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Leo Zhou" src="/uploads/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Leo Zhou</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">46</span>
+          <span class="site-state-item-name">文章</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">15</span>
+        <span class="site-state-item-name">分類</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">28</span>
+        <span class="site-state-item-name">標籤</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="mailto:leo604leo604@gmail.com" title="E-Mail → mailto:leo604leo604@gmail.com" rel="external nofollow noopener noreferrer" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://zhenghui.idv.tw/" title="Weibo → https:&#x2F;&#x2F;zhenghui.idv.tw" rel="external nofollow noopener noreferrer" target="_blank"><i class="fab fa-chrome fa-fw"></i>Weibo</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Leo Zhou</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+      <span class="post-meta-item-text">總字數：</span>
+    <span title="總字數">88k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span class="post-meta-item-text">所需總閱讀時間 &asymp;</span>
+    <span title="所需總閱讀時間">1:20</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="external nofollow noopener noreferrer" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="external nofollow noopener noreferrer" target="_blank">NexT.Pisces</a> 強力驅動
+  </div><script color="45,115,227" opacity="0.7" zindex="-1" count="150" src="https://cdn.jsdelivr.net/npm/canvas-nest.js@1/dist/canvas-nest.js"></script>
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+        
+
+
+
+
+  <script src="https://www.gstatic.com/firebasejs/6.3.3/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/6.3.3/firebase-firestore.js"></script>
+  <script>
+    firebase.initializeApp({
+      apiKey   : 'AIzaSyA7oeqkvnULHStAiHfWGos2fE4zMbN5Xew',
+      projectId: 'hexo-93c87'
+    });
+
+    function getCount(doc, increaseCount) {
+      // IncreaseCount will be false when not in article page
+      return doc.get().then(d => {
+        var count = 0;
+        if (!d.exists) { // Has no data, initialize count
+          if (increaseCount) {
+            doc.set({
+              count: 1
+            });
+            count = 1;
+          }
+        } else { // Has data
+          count = d.data().count;
+          if (increaseCount) {
+            // If first view this article
+            doc.set({ // Increase count
+              count: count + 1
+            });
+            count++;
+          }
+        }
+
+        return count;
+      });
+    }
+
+    function appendCountTo(el) {
+      return count => {
+        el.innerText = count;
+      }
+    }
+  </script>
+  <script>
+    (function() {
+      var db = firebase.firestore();
+      var articles = db.collection('articles');
+
+      if (CONFIG.page.isPost) { // Is article page
+        var title = document.querySelector('.post-title').innerText.trim();
+        var doc = articles.doc(title);
+        var increaseCount = CONFIG.hostname === location.hostname;
+        if (localStorage.getItem(title)) {
+          increaseCount = false;
+        } else {
+          // Mark as visited
+          localStorage.setItem(title, true);
+        }
+        getCount(doc, increaseCount).then(appendCountTo(document.querySelector('.firestore-visitors-count')));
+      } else if (CONFIG.page.isHome) { // Is index page
+        var promises = [...document.querySelectorAll('.post-title')].map(element => {
+          var title = element.innerText.trim();
+          var doc = articles.doc(title);
+          return getCount(doc);
+        });
+        Promise.all(promises).then(counts => {
+          var metas = document.querySelectorAll('.firestore-visitors-count');
+          counts.forEach((val, idx) => {
+            appendCountTo(metas[idx])(val);
+          });
+        });
+      }
+    })();
+  </script>
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://zhenghui-blog.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "https://blog.zhenghui.idv.tw/2020/07/28/%E9%9B%BB%E5%95%86%E8%B3%BC%E7%89%A9%E5%B9%B3%E5%8F%B0-%E9%9B%BB%E5%AD%90%E7%99%BC%E7%A5%A8%E9%96%8B%E7%AB%8B%E4%BB%8B%E7%B4%B9/";
+    this.page.identifier = "2020/07/28/電商購物平台-電子發票開立介紹/";
+    this.page.title = "電商購物平台-電子發票開立介紹";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://zhenghui-blog.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>

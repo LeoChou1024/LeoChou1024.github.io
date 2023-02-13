@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta http-equiv="Cache-Control" content="no-transform">
+  <meta http-equiv="Cache-Control" content="no-siteapp">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-undefined.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"blog.zhenghui.idv.tw","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"slideDownIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="前言相信有接觸過網路通訊、封包監控的讀者來說，對於封包的內容一定都不陌生 但是若有需要做到封包監控與封包過濾的話，讀懂每一個 Byte勢必是必經之路。 因為，只有真正讀懂每一個 Byte 在做什麼，才能夠透過程式進行過濾以及解析。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="教你如何快速看懂 TCP&#x2F;IP五層 網路封包">
+<meta property="og:url" content="https://blog.zhenghui.idv.tw/2020/07/27/%E6%95%99%E4%BD%A0%E5%A6%82%E4%BD%95%E5%BF%AB%E9%80%9F%E7%9C%8B%E6%87%82-TCP-IP%E4%BA%94%E5%B1%A4-%E7%B6%B2%E8%B7%AF%E5%B0%81%E5%8C%85/index.html">
+<meta property="og:site_name" content="Leo程式筆記">
+<meta property="og:description" content="前言相信有接觸過網路通訊、封包監控的讀者來說，對於封包的內容一定都不陌生 但是若有需要做到封包監控與封包過濾的話，讀懂每一個 Byte勢必是必經之路。 因為，只有真正讀懂每一個 Byte 在做什麼，才能夠透過程式進行過濾以及解析。">
+<meta property="og:locale" content="zh_TW">
+<meta property="og:image" content="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/0d0bca0b-d376-4656-a5e1-7337cdf2e21e/1553745858_86092.png">
+<meta property="og:image" content="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/0d0bca0b-d376-4656-a5e1-7337cdf2e21e/1553745971_56724.png">
+<meta property="og:image" content="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/0d0bca0b-d376-4656-a5e1-7337cdf2e21e/1553745985_32755.png">
+<meta property="og:image" content="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/0d0bca0b-d376-4656-a5e1-7337cdf2e21e/1553746000_75769.png">
+<meta property="og:image" content="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/0d0bca0b-d376-4656-a5e1-7337cdf2e21e/1553746025_23156.png">
+<meta property="og:image" content="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/0d0bca0b-d376-4656-a5e1-7337cdf2e21e/1553757056_33792.png">
+<meta property="og:image" content="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/0d0bca0b-d376-4656-a5e1-7337cdf2e21e/1553758825_44461.png">
+<meta property="article:published_time" content="2020-07-26T20:10:34.000Z">
+<meta property="article:modified_time" content="2023-02-13T20:33:01.270Z">
+<meta property="article:author" content="Leo Zhou">
+<meta property="article:tag" content="TCP&#x2F;IP封包">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/0d0bca0b-d376-4656-a5e1-7337cdf2e21e/1553745858_86092.png">
+
+<link rel="canonical" href="https://blog.zhenghui.idv.tw/2020/07/27/%E6%95%99%E4%BD%A0%E5%A6%82%E4%BD%95%E5%BF%AB%E9%80%9F%E7%9C%8B%E6%87%82-TCP-IP%E4%BA%94%E5%B1%A4-%E7%B6%B2%E8%B7%AF%E5%B0%81%E5%8C%85/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-TW'
+  };
+</script>
+
+  <title>教你如何快速看懂 TCP/IP五層 網路封包 | Leo程式筆記</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切換導航欄">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Leo程式筆記</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首頁</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>標籤</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分類</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>歸檔</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜尋
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" placeholder="搜尋..." spellcheck="false" type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-TW">
+    <link itemprop="mainEntityOfPage" href="https://blog.zhenghui.idv.tw/2020/07/27/%E6%95%99%E4%BD%A0%E5%A6%82%E4%BD%95%E5%BF%AB%E9%80%9F%E7%9C%8B%E6%87%82-TCP-IP%E4%BA%94%E5%B1%A4-%E7%B6%B2%E8%B7%AF%E5%B0%81%E5%8C%85/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/avatar.jpg">
+      <meta itemprop="name" content="Leo Zhou">
+      <meta itemprop="description" content>
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Leo程式筆記">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          教你如何快速看懂 TCP/IP五層 網路封包
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">發表於</span>
+
+              <time title="創建時間：2020-07-27 04:10:34" itemprop="dateCreated datePublished" datetime="2020-07-27T04:10:34+08:00">2020-07-27</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新於</span>
+                <time title="修改時間：2023-02-14 04:33:01" itemprop="dateModified" datetime="2023-02-14T04:33:01+08:00">2023-02-14</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分類於</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/TCP-IP/" itemprop="url" rel="index"><span itemprop="name">TCP/IP</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="閱讀次數">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-users"></i>
+              </span>
+              <span class="post-meta-item-text">閱讀次數：</span>
+              <span class="firestore-visitors-count"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/2020/07/27/%E6%95%99%E4%BD%A0%E5%A6%82%E4%BD%95%E5%BF%AB%E9%80%9F%E7%9C%8B%E6%87%82-TCP-IP%E4%BA%94%E5%B1%A4-%E7%B6%B2%E8%B7%AF%E5%B0%81%E5%8C%85/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2020/07/27/教你如何快速看懂-TCP-IP五層-網路封包/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+            <span class="post-meta-item" title="文章字數">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">文章字數：</span>
+              <span>4.7k</span>
+            </span>
+            <span class="post-meta-item" title="所需閱讀時間">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">所需閱讀時間 &asymp;</span>
+              <span>4 分鐘</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>相信有接觸過網路通訊、封包監控的讀者來說，對於封包的內容一定都不陌生</p>
+<p>但是若有需要做到封包監控與封包過濾的話，讀懂每一個 Byte勢必是必經之路。</p>
+<p>因為，只有真正讀懂每一個 Byte 在做什麼，才能夠透過程式進行過濾以及解析。</p>
+<span id="more"></span>
+<p>在文章開始之前，首先需要先請各位記住一個很重要的觀念：</p>
+<blockquote>
+<p><font color="red"> 每一層的Data欄位都是下一層以後的內容。</font><br><font color="red"> 每一層的Data欄位都是下一層以後的內容。</font><br><font color="red"> 每一層的Data欄位都是下一層以後的內容。</font></p>
+</blockquote>
+<p>這句話非常的重要，所以講了三遍來強調，因為懂了這個概念之後，會有助於我們日後可以寫程式去解析。</p>
+<p>接下來的每一個部分，都會拆成各個章節來為各位做介紹：</p>
+<h2 id="TCP-x2F-IP五層架構"><a href="#TCP-x2F-IP五層架構" class="headerlink" title="TCP&#x2F;IP五層架構"></a>TCP&#x2F;IP五層架構</h2><p>在了解網路封包時，我們需要先知道TCP&#x2F;IP的五層網路架構到底是分為哪五層，而每一層到底又做哪些事情。</p>
+<p>這樣我們才能夠更快速地取得我們想要的資料。</p>
+<p>筆者整理了以下表格方便讓大家快速看懂：</p>
+<table>
+<thead>
+<tr>
+<th>TCP&#x2F;IP層</th>
+<th>介紹</th>
+<th>網路設備</th>
+<th>通訊協定</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>應用層</td>
+<td>任何的通訊協定、功能都會在此被定義</td>
+<td>無</td>
+<td>所有應用層的通訊協定在此定應</td>
+</tr>
+<tr>
+<td>傳輸層</td>
+<td>提供端點之間的Port用來做連結與確認</td>
+<td>Switch</td>
+<td>TCP、UDP</td>
+</tr>
+<tr>
+<td>網路層</td>
+<td>用來定義兩端點的IP位置</td>
+<td>Router</td>
+<td>IP、ICMP</td>
+</tr>
+<tr>
+<td>資料連結層</td>
+<td>定義兩端點的MAC地址</td>
+<td></td>
+<td>ARP、RARP</td>
+</tr>
+<tr>
+<td>實體層</td>
+<td>又稱物理層，走光電訊號（硬體）</td>
+<td></td>
+<td></td>
+</tr>
+</tbody></table>
+<p>從上表當中，我簡單為讀者做個說明：</p>
+<p>實體層：由於走的是光電訊號，較偏硬體設備通訊，因此不在此討論。</p>
+<p>資料連結層：主要是用來<font color="red">定義來源&#x2F;目的的MAC地址</font>，以及所使用的協定為何(IPV4&#x2F;IPV6)</p>
+<p>網路層：主要是負責處理<font color="red">將封包由來源電腦傳給目的電腦之間的路徑選擇問題，因此會在此定義該封包需要送往哪一個IP位置。</font></p>
+<p>傳輸層：主要提供系統間資料的傳輸更高階的控制，為了確保本層保證所有的資料都是以正確的順序送達，因此紀錄來源&#x2F;目的Port位置，<font color="red">此外亦會給每一個封包追蹤號碼，並在目的地進行檢查。</font></p>
+<p>而在上方筆者用紅字標示的部分當中我們可以了解到每一層所執行的功能。<font color="red"> 當來源&#x2F;目的的MAC地址、IP位置、Port號都被定義後，就能將封包正確的送往目的地。 </font></p>
+<h2 id="封包解析"><a href="#封包解析" class="headerlink" title="封包解析"></a>封包解析</h2><p>當我們用像是WireShark等其他軟體側錄封包內容時，大概會看到以下內容：</p>
+<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/0d0bca0b-d376-4656-a5e1-7337cdf2e21e/1553745858_86092.png"></p>
+<p>這是一大長串的內容，裡面的內容都是採十六進位顯示，那我們該從何讀起呢？</p>
+<p>其實Wireshark有很貼心的服務，當你點選封包上方的每一層時，它都會即時標示這一層的內容是從哪裡開始，到哪裡結束，並用藍底Mark起來。</p>
+<p>資料連結層封包區段：</p>
+<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/0d0bca0b-d376-4656-a5e1-7337cdf2e21e/1553745971_56724.png"></p>
+<p>網路層封包區段：<br><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/0d0bca0b-d376-4656-a5e1-7337cdf2e21e/1553745985_32755.png"></p>
+<p>傳輸層封包區段：<br><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/0d0bca0b-d376-4656-a5e1-7337cdf2e21e/1553746000_75769.png"></p>
+<p>應用層封包區段：<br><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/0d0bca0b-d376-4656-a5e1-7337cdf2e21e/1553746025_23156.png"></p>
+<p>眼尖的讀者們應該可以了解到，當逐層標示完後，最後一層也就是到封包的結尾做結束。</p>
+<p>這也就是呼應了我們最一開始開頭的那句話：「每一層的Data欄位都是下一層以後的內容。」</p>
+<p>對於每一層來說，它只管自己這一層所定義的欄位內容，其餘看不懂的、無法解析的，都會被視為是「資料」，</p>
+<p>讓下一層看得懂的來去解析他。</p>
+<p>一直到解析至傳輸層後，剩下的Data它看不懂了，那就輪到最後一層「應用層」來去做解析，也就是我們的Data資料。</p>
+<p>因此不管是各位常見到的<code>HTTP</code>、<code>FTP</code>、<code>Telent</code>，甚至是工業控制系統常見的Modbus協定，都會被儲存在這最後一層，因為那就是我們所要的資料。</p>
+<p>而到底每一層的封包的欄位各代表什麼意思呢？筆者上圖的封包作為範例，讓讀者能夠快速看懂。</p>
+<p>下面的這個封包主要是一個Modbus TCP的封包，是我從工控系統中所側錄得到的。</p>
+<p>但不管是何種通訊協定的封包，對於傳輸層來講，都只是data而已，所以並不影響。</p>
+<p>另外，若是要取得封包內容，除了可以自己寫程式去側錄封包外，也可以利用像Wireshark等封包監控軟體進行側錄。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">00 18 23 3c 86 c6 00 18 23 3c d7 fb 08 00 45 00  </span><br><span class="line">00 3b 58 ac 00 00 ff 06 eb 0b c0 a8 7b 5a c0 a8  </span><br><span class="line">7b 59 35 81 01 f6 18 73 eb a1 52 d0 28 e7 50 18 </span><br><span class="line">02 00 b2 34 00 00 d7 fb 00 00 00 0d 01 10 10 03 </span><br><span class="line">00 03 06 09 cb 10 7e 03 94  </span><br></pre></td></tr></table></figure>
+
+<p><strong>而在整個封包當中，是不包含實體層(L1)的內容的，因此我們從資料連結層(L2)開始介紹起。</strong></p>
+<h2 id="資料連結層-L2-封包內容"><a href="#資料連結層-L2-封包內容" class="headerlink" title="資料連結層(L2)封包內容"></a>資料連結層(L2)封包內容</h2><p> 首先，對於資料傳輸層(L2)的封包，有以下內容： </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">00 18 23 3c 86 c6 00 18 23 3c d7 fb 08 00</span><br></pre></td></tr></table></figure>
+
+<p>其中，前8個Byte是來源MAC，後8個Byte是目的地MAC，最後兩個Byte則是定義採用哪一種網路協定，IPv4&#x2F;IPv6</p>
+<p>因此表格由以下呈現，而資料連結層固定為14Byte。</p>
+<table>
+<thead>
+<tr>
+<th>來源MAC</th>
+<th>目的MAC</th>
+<th>Type</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>00 18 23 3c 86 c6</td>
+<td>00 18 23 3c d7 fb</td>
+<td>08 00</td>
+</tr>
+</tbody></table>
+<h2 id="網路層-L3-封包內容"><a href="#網路層-L3-封包內容" class="headerlink" title="網路層(L3)封包內容"></a>網路層(L3)封包內容</h2><p>首先，對於網路層(L3的封包，有以下內容： </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">45 00 00 3b 58 ac 00 00 ff 06 eb 0b c0 a8 7b 5a c0 a8  </span><br><span class="line">7b 59</span><br></pre></td></tr></table></figure>
+<p>在維基百科中，有表格闡述每一個Byte在做什麼。注：下圖內的數字是以bit來顯示<br><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/0d0bca0b-d376-4656-a5e1-7337cdf2e21e/1553757056_33792.png"></p>
+<p>表格由以下呈現，而長度為不固定，需要透過Header來計算。</p>
+<table>
+<thead>
+<tr>
+<th>Type&amp;Header</th>
+<th>Service</th>
+<th>封包總長</th>
+<th>識別碼</th>
+<th>可否切割</th>
+<th>存活時</th>
+<th>協定</th>
+<th>Check Sum</th>
+<th>來源IP</th>
+<th>目的IP</th>
+<th>Data</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>45</td>
+<td>00</td>
+<td>00 3b</td>
+<td>58 ac</td>
+<td>00 00</td>
+<td>ff</td>
+<td>06</td>
+<td>eb 0b</td>
+<td>c0 a8 7b 5a</td>
+<td>c0 a8 7b 59</td>
+<td></td>
+</tr>
+</tbody></table>
+<p>接下來為各位解說常用的一些欄位在做什麼：</p>
+<p>Type&amp;Header：該欄位佔1 Byte，主要由兩個欄位組成(Type、Header)。</p>
+<p>Type 欄位占4bit，通訊雙方使用的Type必須一致。其中若使用IPv4，欄位的值是4。<br>Header欄位占4bit，用來定義網路層封包長度，但由於網路層的封包長度不固定，因此該欄位最小值為5，最大值為15，其中長度的計算為5*4&#x3D;20 (Byte) 即網路層長度為20<br>Service：該欄位佔1 Byte，一般的情況下都不使用這個欄位。只有在使用VoIP時才會被指用，因此預設值為 0 0 。</p>
+<p>封包總長：該欄位佔2 Byte，用來表示整個封包長度(但不含 資料連結層 L2 )，即L3~L5的長度。</p>
+<p>識別碼：該欄位佔 2 Byte，用來識別該連線的唯一識別碼（或是有過大的封包會被切割時，可以用該識別碼 識別切割的封包有哪些）。</p>
+<p>可否切割：該欄位佔 2 Byte，若封包過大時，則會定義該封包可否被切格為等量的小封包進行傳送。</p>
+<p>存活時間：該欄位佔 2 Byte，為了避免封包在網路中永遠存在（例如陷入路由環路），封包經過的每個路由器都將此欄位減1，當此欄位為0時，封包不再向下傳送並被丟棄，最大值是255。</p>
+<p>協定：該欄位占 1 Byte，用來定義了該封包資料區使用的協定。</p>
+<h2 id="傳輸層-L4-封包內容"><a href="#傳輸層-L4-封包內容" class="headerlink" title="傳輸層(L4)封包內容"></a>傳輸層(L4)封包內容</h2><p>首先，對於傳輸層(L4)的封包，有以下內容： </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">35 81 01 f6 18 73 eb a1 52 d0 28 e7 50 18 </span><br><span class="line">02 00 b2 34 00 00</span><br></pre></td></tr></table></figure>
+<p>在維基百科中，有表格闡述每一個Byte在做什麼。注：下圖內的數字是以bit來顯示</p>
+<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/0d0bca0b-d376-4656-a5e1-7337cdf2e21e/1553758825_44461.png"></p>
+<p>表格由以下呈現，而長度為不固定，需要透過flag來計算。</p>
+<table>
+<thead>
+<tr>
+<th>來源Port</th>
+<th>目的Port</th>
+<th>序列號</th>
+<th>確認碼</th>
+<th>flag</th>
+<th>window size</th>
+<th>check sum</th>
+<th>緊急指標</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>35 81</td>
+<td>01 f6</td>
+<td>18 73 eb a1</td>
+<td>52 d0 28 e7</td>
+<td>50 18</td>
+<td>02 00</td>
+<td>b2 34</td>
+<td>00 00</td>
+</tr>
+</tbody></table>
+<p>接下來為各位解說常用的一些欄位在做什麼：</p>
+<p>序列號：用來識別該連線的編號，每增加一條連線，該序號就會+1</p>
+<p>確認碼：期望收到的資料的開始序列號。也即已經收到的資料的位元組長度加1。</p>
+<p>flag：該欄位由三個值組成。 </p>
+<ul>
+<li>第一個數值為定義整個傳輸層(L4)的封包長度，其中長度的計算為5*4&#x3D;20 (Byte) 即網路層長度為20。</li>
+<li>資料偏移（4位元長）—以4位元組為單位計算出的資料段開始位址的偏移值。</li>
+<li>保留（3位元長）—須置0</li>
+<li>標誌符（9位元長）<ul>
+<li>NS—ECN-nonce。</li>
+<li>CWR—Congestion Window Reduced。</li>
+<li>ECE—ECN-Echo有兩種意思，取決於SYN標誌的值。</li>
+<li>URG—為1表示高優先級封包，緊急指標欄位有效。</li>
+<li>ACK—為1表示確認號欄位有效</li>
+<li>PSH—為1表示是帶有PUSH標誌的資料，指示接收方應該儘快將這個報文段交給應用層而不用等待緩衝區裝滿。</li>
+<li>RST—為1表示出現嚴重差錯。可能需要重現建立TCP連接。還可以用於拒絕非法的報文段和拒絕連接請求。</li>
+<li>SYN—為1表示這是連接請求或是連接接受請求，用於建立連接和使順序號同步</li>
+<li>FIN—為1表示傳送方沒有資料要傳輸了，要求釋放連接</li>
+</ul>
+</li>
+</ul>
+<h2 id="應用層-L5-封包"><a href="#應用層-L5-封包" class="headerlink" title="應用層(L5)封包"></a>應用層(L5)封包</h2><p>而到最後一層，傳輸層解析不懂的內容，也就是我們所謂的「應用層」，在應用層當中，我們可以看到我們常見到的協定，如 HTTP、Telnet、FTP等，甚至是工業控制系統中的ModbusTCP協定，都會在這一層當中顯現。</p>
+<p>至於該怎麼解析，那就必須交由該協定來去做定義。以上述範例來說，我擷取的是ModbusTCP的完整封包，因此最後解析下來的，就會是剩下ModbusTCP的部分。</p>
+<p>因此接下來就必須要去找ModbusTCP的協定來去讀懂每個欄位所定義的內容了。</p>
+<p>至於該如何解析並看懂ModbusTCP的封包，筆者有另外寫一篇文章作介紹，有興趣的讀者們可以參考看看。</p>
+<h2 id="封包分層解析"><a href="#封包分層解析" class="headerlink" title="封包分層解析"></a>封包分層解析</h2><p>最後，當我們了解完每一層的封包欄位資訊後，再來就是需要透過程式的方式，去分析這一整包的資料，也同時針對整包的資料分層做解析。</p>
+<p>但就像上文所說，網路層與傳輸層的大小並不固定，因此要如何確切的取得每一層的內容，可以參考以下方法：</p>
+<p>首先當我們拿到整包封包資料後，我們需要先知道，只有資料連結層(L2)，固定為14Byte，其餘為不固定，因此我們需要透過「減法」的方式取得：</p>
+<p>資料連結層(L2)：固定為14Byte，因此直接取前14Byte資料即可</p>
+<p>網路層(L3)：由於<strong>資料長度不固定</strong>，但是我們可以透過Header欄位，我們將該欄位<em>4之後，即可得知L3長度為何。 (EX:最小值是5，因此5</em>4&#x3D;20，可得知長度為20 Byte)</p>
+<p>傳輸層(L4)：由於<strong>資料長度不固定</strong>，但是我們可以透過flag欄位，我們將該欄位的第一個數字<em>4之後，即可得知L4長度為何。 (EX:最小值是5，因此5</em>4&#x3D;20，可得知長度為20 Byte)</p>
+<p>應用層(L5)：最後一層的資料，也就是各位要解析的「資料」內容，我們可以透過 <strong>「減法」</strong>方式進行計算，將總長度減去 L2、L3、L4的長度，剩餘的資料就是應用層的資料了。</p>
+<p>而至於為什麼要採用減法的方式來去將整個封包進行分層的原因，主要是因為從L2開始的封包，長度大小就不固定了，另外因為最終我們所想要監控到的資料，都是存在應用層(L5)，</p>
+<p>因此裡面的不見得都是固定的長度，也不見得會有定義整個應用層的長度大小。</p>
+<p>所以會建議採用減法的方式，將整個封包的內容，逐一將每一層的長度減去，那麼<strong>最終剩下的就會是應用層的內容</strong>。</p>
+<p>以上就是整個封包監控的介紹，之後會再利用程式，再針對封包分析做更細部的介紹。</p>
+<div>
+以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
+
+<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
+<p><a target="_blank" rel="external nofollow noopener noreferrer" href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
+</div>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/TCP-IP%E5%B0%81%E5%8C%85/" rel="tag"># TCP/IP封包</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/07/27/C-Visual-Studio-2017-%E5%BF%AB%E9%80%9F%E7%94%A2%E7%94%9F%E9%A1%9E%E5%88%A5%E5%9C%96/" rel="prev" title="C# Visual Studio 2017 快速產生類別圖">
+      <i class="fa fa-chevron-left"></i> C# Visual Studio 2017 快速產生類別圖
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/07/27/Angular-%E8%A7%A3%E6%B1%BAViewChild-undefined-%E5%95%8F%E9%A1%8C/" rel="next" title="Angular - 解決ViewChild undefined 問題">
+      Angular - 解決ViewChild undefined 問題 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目錄
+        </li>
+        <li class="sidebar-nav-overview">
+          本站概要
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#TCP-x2F-IP%E4%BA%94%E5%B1%A4%E6%9E%B6%E6%A7%8B"><span class="nav-number">2.</span> <span class="nav-text">TCP&#x2F;IP五層架構</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B0%81%E5%8C%85%E8%A7%A3%E6%9E%90"><span class="nav-number">3.</span> <span class="nav-text">封包解析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%B3%87%E6%96%99%E9%80%A3%E7%B5%90%E5%B1%A4-L2-%E5%B0%81%E5%8C%85%E5%85%A7%E5%AE%B9"><span class="nav-number">4.</span> <span class="nav-text">資料連結層(L2)封包內容</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%B6%B2%E8%B7%AF%E5%B1%A4-L3-%E5%B0%81%E5%8C%85%E5%85%A7%E5%AE%B9"><span class="nav-number">5.</span> <span class="nav-text">網路層(L3)封包內容</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%82%B3%E8%BC%B8%E5%B1%A4-L4-%E5%B0%81%E5%8C%85%E5%85%A7%E5%AE%B9"><span class="nav-number">6.</span> <span class="nav-text">傳輸層(L4)封包內容</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%87%89%E7%94%A8%E5%B1%A4-L5-%E5%B0%81%E5%8C%85"><span class="nav-number">7.</span> <span class="nav-text">應用層(L5)封包</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B0%81%E5%8C%85%E5%88%86%E5%B1%A4%E8%A7%A3%E6%9E%90"><span class="nav-number">8.</span> <span class="nav-text">封包分層解析</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Leo Zhou" src="/uploads/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Leo Zhou</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">46</span>
+          <span class="site-state-item-name">文章</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">15</span>
+        <span class="site-state-item-name">分類</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">28</span>
+        <span class="site-state-item-name">標籤</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="mailto:leo604leo604@gmail.com" title="E-Mail → mailto:leo604leo604@gmail.com" rel="external nofollow noopener noreferrer" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://zhenghui.idv.tw/" title="Weibo → https:&#x2F;&#x2F;zhenghui.idv.tw" rel="external nofollow noopener noreferrer" target="_blank"><i class="fab fa-chrome fa-fw"></i>Weibo</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Leo Zhou</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+      <span class="post-meta-item-text">總字數：</span>
+    <span title="總字數">88k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span class="post-meta-item-text">所需總閱讀時間 &asymp;</span>
+    <span title="所需總閱讀時間">1:20</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="external nofollow noopener noreferrer" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="external nofollow noopener noreferrer" target="_blank">NexT.Pisces</a> 強力驅動
+  </div><script color="45,115,227" opacity="0.7" zindex="-1" count="150" src="https://cdn.jsdelivr.net/npm/canvas-nest.js@1/dist/canvas-nest.js"></script>
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+        
+
+
+
+
+  <script src="https://www.gstatic.com/firebasejs/6.3.3/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/6.3.3/firebase-firestore.js"></script>
+  <script>
+    firebase.initializeApp({
+      apiKey   : 'AIzaSyA7oeqkvnULHStAiHfWGos2fE4zMbN5Xew',
+      projectId: 'hexo-93c87'
+    });
+
+    function getCount(doc, increaseCount) {
+      // IncreaseCount will be false when not in article page
+      return doc.get().then(d => {
+        var count = 0;
+        if (!d.exists) { // Has no data, initialize count
+          if (increaseCount) {
+            doc.set({
+              count: 1
+            });
+            count = 1;
+          }
+        } else { // Has data
+          count = d.data().count;
+          if (increaseCount) {
+            // If first view this article
+            doc.set({ // Increase count
+              count: count + 1
+            });
+            count++;
+          }
+        }
+
+        return count;
+      });
+    }
+
+    function appendCountTo(el) {
+      return count => {
+        el.innerText = count;
+      }
+    }
+  </script>
+  <script>
+    (function() {
+      var db = firebase.firestore();
+      var articles = db.collection('articles');
+
+      if (CONFIG.page.isPost) { // Is article page
+        var title = document.querySelector('.post-title').innerText.trim();
+        var doc = articles.doc(title);
+        var increaseCount = CONFIG.hostname === location.hostname;
+        if (localStorage.getItem(title)) {
+          increaseCount = false;
+        } else {
+          // Mark as visited
+          localStorage.setItem(title, true);
+        }
+        getCount(doc, increaseCount).then(appendCountTo(document.querySelector('.firestore-visitors-count')));
+      } else if (CONFIG.page.isHome) { // Is index page
+        var promises = [...document.querySelectorAll('.post-title')].map(element => {
+          var title = element.innerText.trim();
+          var doc = articles.doc(title);
+          return getCount(doc);
+        });
+        Promise.all(promises).then(counts => {
+          var metas = document.querySelectorAll('.firestore-visitors-count');
+          counts.forEach((val, idx) => {
+            appendCountTo(metas[idx])(val);
+          });
+        });
+      }
+    })();
+  </script>
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://zhenghui-blog.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "https://blog.zhenghui.idv.tw/2020/07/27/%E6%95%99%E4%BD%A0%E5%A6%82%E4%BD%95%E5%BF%AB%E9%80%9F%E7%9C%8B%E6%87%82-TCP-IP%E4%BA%94%E5%B1%A4-%E7%B6%B2%E8%B7%AF%E5%B0%81%E5%8C%85/";
+    this.page.identifier = "2020/07/27/教你如何快速看懂-TCP-IP五層-網路封包/";
+    this.page.title = "教你如何快速看懂 TCP/IP五層 網路封包";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://zhenghui-blog.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>

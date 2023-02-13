@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta http-equiv="Cache-Control" content="no-transform">
+  <meta http-equiv="Cache-Control" content="no-siteapp">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-undefined.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"blog.zhenghui.idv.tw","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"slideDownIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="前言有鑑於購物車的電商系統一直是前端工程師最常見的SideProject之一。 但是許多人對於訂單成立後的結帳付款，卻不了解後續要做哪些事，以及有哪些常用的付款方式。 因此寫了一系列的介紹文，帶各位一窺全貌，了解電商平台在使用信用卡刷卡結帳時如何進行金流串接的。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="電商購物平台-信用卡刷卡串接(URL授權方式)教學">
+<meta property="og:url" content="https://blog.zhenghui.idv.tw/2020/07/28/%E9%9B%BB%E5%95%86%E8%B3%BC%E7%89%A9%E5%B9%B3%E5%8F%B0-%E4%BF%A1%E7%94%A8%E5%8D%A1%E5%88%B7%E5%8D%A1%E4%B8%B2%E6%8E%A5-URL%E6%8E%88%E6%AC%8A%E6%96%B9%E5%BC%8F-%E6%95%99%E5%AD%B8/index.html">
+<meta property="og:site_name" content="Leo程式筆記">
+<meta property="og:description" content="前言有鑑於購物車的電商系統一直是前端工程師最常見的SideProject之一。 但是許多人對於訂單成立後的結帳付款，卻不了解後續要做哪些事，以及有哪些常用的付款方式。 因此寫了一系列的介紹文，帶各位一窺全貌，了解電商平台在使用信用卡刷卡結帳時如何進行金流串接的。">
+<meta property="og:locale" content="zh_TW">
+<meta property="og:image" content="https://lh3.googleusercontent.com/MVf29t_6NLqF3-fwgPh8978K8iYerK5hBEwaFel4uJ5Js4KErr6jsJihoOtKn6rUXBVCcSz5IRyNqAm4UjXyCXphPxQRXOBiPfYc-eF5wKySA9XP0HufdPG_vdZPtPrw27sAPQIo">
+<meta property="article:published_time" content="2020-07-27T20:49:16.000Z">
+<meta property="article:modified_time" content="2023-02-13T20:51:50.088Z">
+<meta property="article:author" content="Leo Zhou">
+<meta property="article:tag" content="信用卡刷卡串接">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://lh3.googleusercontent.com/MVf29t_6NLqF3-fwgPh8978K8iYerK5hBEwaFel4uJ5Js4KErr6jsJihoOtKn6rUXBVCcSz5IRyNqAm4UjXyCXphPxQRXOBiPfYc-eF5wKySA9XP0HufdPG_vdZPtPrw27sAPQIo">
+
+<link rel="canonical" href="https://blog.zhenghui.idv.tw/2020/07/28/%E9%9B%BB%E5%95%86%E8%B3%BC%E7%89%A9%E5%B9%B3%E5%8F%B0-%E4%BF%A1%E7%94%A8%E5%8D%A1%E5%88%B7%E5%8D%A1%E4%B8%B2%E6%8E%A5-URL%E6%8E%88%E6%AC%8A%E6%96%B9%E5%BC%8F-%E6%95%99%E5%AD%B8/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-TW'
+  };
+</script>
+
+  <title>電商購物平台-信用卡刷卡串接(URL授權方式)教學 | Leo程式筆記</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切換導航欄">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Leo程式筆記</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首頁</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>標籤</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分類</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>歸檔</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜尋
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" placeholder="搜尋..." spellcheck="false" type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-TW">
+    <link itemprop="mainEntityOfPage" href="https://blog.zhenghui.idv.tw/2020/07/28/%E9%9B%BB%E5%95%86%E8%B3%BC%E7%89%A9%E5%B9%B3%E5%8F%B0-%E4%BF%A1%E7%94%A8%E5%8D%A1%E5%88%B7%E5%8D%A1%E4%B8%B2%E6%8E%A5-URL%E6%8E%88%E6%AC%8A%E6%96%B9%E5%BC%8F-%E6%95%99%E5%AD%B8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/avatar.jpg">
+      <meta itemprop="name" content="Leo Zhou">
+      <meta itemprop="description" content>
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Leo程式筆記">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          電商購物平台-信用卡刷卡串接(URL授權方式)教學
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">發表於</span>
+
+              <time title="創建時間：2020-07-28 04:49:16" itemprop="dateCreated datePublished" datetime="2020-07-28T04:49:16+08:00">2020-07-28</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新於</span>
+                <time title="修改時間：2023-02-14 04:51:50" itemprop="dateModified" datetime="2023-02-14T04:51:50+08:00">2023-02-14</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分類於</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E9%87%91%E6%B5%81%E4%B8%B2%E6%8E%A5/" itemprop="url" rel="index"><span itemprop="name">金流串接</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="閱讀次數">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-users"></i>
+              </span>
+              <span class="post-meta-item-text">閱讀次數：</span>
+              <span class="firestore-visitors-count"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/2020/07/28/%E9%9B%BB%E5%95%86%E8%B3%BC%E7%89%A9%E5%B9%B3%E5%8F%B0-%E4%BF%A1%E7%94%A8%E5%8D%A1%E5%88%B7%E5%8D%A1%E4%B8%B2%E6%8E%A5-URL%E6%8E%88%E6%AC%8A%E6%96%B9%E5%BC%8F-%E6%95%99%E5%AD%B8/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2020/07/28/電商購物平台-信用卡刷卡串接-URL授權方式-教學/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+            <span class="post-meta-item" title="文章字數">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">文章字數：</span>
+              <span>1.5k</span>
+            </span>
+            <span class="post-meta-item" title="所需閱讀時間">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">所需閱讀時間 &asymp;</span>
+              <span>1 分鐘</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>有鑑於購物車的電商系統一直是前端工程師最常見的SideProject之一。</p>
+<p>但是許多人對於訂單成立後的結帳付款，卻不了解後續要做哪些事，以及有哪些常用的付款方式。</p>
+<p>因此寫了一系列的介紹文，帶各位一窺全貌，了解電商平台在使用信用卡刷卡結帳時如何進行金流串接的。</p>
+<span id="more"></span>
+
+<p>本篇教學以中國信託的信用卡刷卡為教學範例。</p>
+<p>信用卡刷卡付款的方式，又細分為兩種開發方式:</p>
+<ul>
+<li><p>URL授權方式</p>
+</li>
+<li><p>API授權方式</p>
+</li>
+</ul>
+<h2 id="URL授權方式"><a href="#URL授權方式" class="headerlink" title="URL授權方式"></a>URL授權方式</h2><blockquote>
+<p>URL授權方式，是使用銀行所提供的刷卡介面作為使用者卡號的輸入。</p>
+</blockquote>
+<p>這樣的方式我方不經手使用者信用卡刷卡的部分，所有卡號及到期日年月的輸入都在銀行的信用卡刷卡頁面操作，因此也就不會有儲存卡號的疑慮。</p>
+<p>以中國信託刷卡為例:當進行信用卡刷卡結帳時，系統會自動跳轉到中信的刷卡介面，並在使用者輸入完卡號，授權碼以及手機的3D驗證後回傳刷卡結果。</p>
+<p>因此整個流程會是這個樣子:</p>
+<p><img src="https://lh3.googleusercontent.com/MVf29t_6NLqF3-fwgPh8978K8iYerK5hBEwaFel4uJ5Js4KErr6jsJihoOtKn6rUXBVCcSz5IRyNqAm4UjXyCXphPxQRXOBiPfYc-eF5wKySA9XP0HufdPG_vdZPtPrw27sAPQIo"></p>
+<p>根據上圖的流程我們可以分為以下幾個步驟，以中國信託刷卡為例:</p>
+<p>消費者刷卡結帳&#x3D;&gt;呼叫結帳API進行結帳&#x3D;&gt;產生刷卡頁URL給前端Redirect&#x3D;&gt;消費者填寫卡號與驗證碼&#x3D;&gt;驗證完成&#x3D;&gt;回傳成功&#x2F;失敗結果。</p>
+<h2 id="產生刷卡頁URL"><a href="#產生刷卡頁URL" class="headerlink" title="產生刷卡頁URL"></a>產生刷卡頁URL</h2><ol>
+<li>前端將訂單提交至後端API，在處理完訂單後，會使用中國信託提供的加密library 將特店編號、訂單編號、金額、壓碼等資料進行加密，再將參數帶入中信所提供的SSLAuthUI.jsp內，最終回傳給前端url進行Redirect。</li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">Encrypt enc = new Encrypt();</span><br><span class="line"></span><br><span class="line">enc.MerchantID = MerchantID;</span><br><span class="line"></span><br><span class="line">enc.TerminalID = TerminalID;</span><br><span class="line"></span><br><span class="line">enc.OrderNo = OrderId;</span><br><span class="line"></span><br><span class="line">enc.AuthAmt = price;// 刷卡金額</span><br><span class="line"></span><br><span class="line">enc.TxType = &quot;0&quot;; // 交易方式 0 一般交易 1分期交易</span><br><span class="line"></span><br><span class="line">enc.AuthResURL = $&quot;&#123;apiUrl&#125;Order/Redirect/&#123;phone&#125;&quot;;//刷卡完   成後要導向的頁面</span><br><span class="line"></span><br><span class="line">enc.Key = Key;</span><br><span class="line"></span><br><span class="line">enc.MerchantName = &quot;購物平台&quot;;</span><br><span class="line"></span><br><span class="line">enc.AutoCap = &quot;1&quot;;// 是否自動入請款檔</span><br></pre></td></tr></table></figure>
+
+<h2 id="填寫卡號資訊"><a href="#填寫卡號資訊" class="headerlink" title="填寫卡號資訊"></a>填寫卡號資訊</h2><ol start="2">
+<li>在步驟一填完這些資訊後，會產生一組SSLAuthUI.jsp的URL，後面會帶上merID與URLEnc作為參數，返回給前端Redirect做卡號填寫。</li>
+</ol>
+<h2 id="回傳交易結果"><a href="#回傳交易結果" class="headerlink" title="回傳交易結果"></a>回傳交易結果</h2><ol start="3">
+<li>使用者輸入完刷卡資訊後，中國信託會根據步驟一所填寫的AuthResURL 參數，呼叫我們填寫的API，並將刷卡後的結果回傳至API內。此時就可以根據刷卡後的交易結果判斷判斷，返回給前端的刷卡成功或失敗的頁面。</li>
+</ol>
+<p>到這裡刷卡交易的流程就結束了。</p>
+<p>透過中國信託的信用卡授權頁，我們只需要判斷刷卡交易回傳的結果來決定要顯示給user成功&#x2F;失敗的頁面就行了。</p>
+<p>至於退款、取消請款的功能就無法透過url授權的方式來完成，必須要透過API授權的方式才能完成此交易。</p>
+<p>下一篇我們將講到信用卡刷卡串接API授權的方式：</p>
+<div>
+以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
+
+<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
+<p><a target="_blank" rel="external nofollow noopener noreferrer" href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
+</div>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E4%BF%A1%E7%94%A8%E5%8D%A1%E5%88%B7%E5%8D%A1%E4%B8%B2%E6%8E%A5/" rel="tag"># 信用卡刷卡串接</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/07/28/%E9%9B%BB%E5%95%86%E8%B3%BC%E7%89%A9%E5%B9%B3%E5%8F%B0-%E9%87%91%E6%B5%81%E4%B8%B2%E6%8E%A5%E4%BB%8B%E7%B4%B9/" rel="prev" title="電商購物平台-金流串接介紹">
+      <i class="fa fa-chevron-left"></i> 電商購物平台-金流串接介紹
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/07/28/%E9%9B%BB%E5%95%86%E8%B3%BC%E7%89%A9%E5%B9%B3%E5%8F%B0-%E4%BF%A1%E7%94%A8%E5%8D%A1%E5%88%B7%E5%8D%A1%E4%B8%B2%E6%8E%A5-API%E6%8E%88%E6%AC%8A%E6%96%B9%E5%BC%8F-%E6%95%99%E5%AD%B8/" rel="next" title="電商購物平台-信用卡刷卡串接(API授權方式)教學">
+      電商購物平台-信用卡刷卡串接(API授權方式)教學 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目錄
+        </li>
+        <li class="sidebar-nav-overview">
+          本站概要
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#URL%E6%8E%88%E6%AC%8A%E6%96%B9%E5%BC%8F"><span class="nav-number">2.</span> <span class="nav-text">URL授權方式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%94%A2%E7%94%9F%E5%88%B7%E5%8D%A1%E9%A0%81URL"><span class="nav-number">3.</span> <span class="nav-text">產生刷卡頁URL</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A1%AB%E5%AF%AB%E5%8D%A1%E8%99%9F%E8%B3%87%E8%A8%8A"><span class="nav-number">4.</span> <span class="nav-text">填寫卡號資訊</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9E%E5%82%B3%E4%BA%A4%E6%98%93%E7%B5%90%E6%9E%9C"><span class="nav-number">5.</span> <span class="nav-text">回傳交易結果</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Leo Zhou" src="/uploads/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Leo Zhou</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">46</span>
+          <span class="site-state-item-name">文章</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">15</span>
+        <span class="site-state-item-name">分類</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">28</span>
+        <span class="site-state-item-name">標籤</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="mailto:leo604leo604@gmail.com" title="E-Mail → mailto:leo604leo604@gmail.com" rel="external nofollow noopener noreferrer" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://zhenghui.idv.tw/" title="Weibo → https:&#x2F;&#x2F;zhenghui.idv.tw" rel="external nofollow noopener noreferrer" target="_blank"><i class="fab fa-chrome fa-fw"></i>Weibo</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Leo Zhou</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+      <span class="post-meta-item-text">總字數：</span>
+    <span title="總字數">88k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span class="post-meta-item-text">所需總閱讀時間 &asymp;</span>
+    <span title="所需總閱讀時間">1:20</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="external nofollow noopener noreferrer" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="external nofollow noopener noreferrer" target="_blank">NexT.Pisces</a> 強力驅動
+  </div><script color="45,115,227" opacity="0.7" zindex="-1" count="150" src="https://cdn.jsdelivr.net/npm/canvas-nest.js@1/dist/canvas-nest.js"></script>
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+        
+
+
+
+
+  <script src="https://www.gstatic.com/firebasejs/6.3.3/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/6.3.3/firebase-firestore.js"></script>
+  <script>
+    firebase.initializeApp({
+      apiKey   : 'AIzaSyA7oeqkvnULHStAiHfWGos2fE4zMbN5Xew',
+      projectId: 'hexo-93c87'
+    });
+
+    function getCount(doc, increaseCount) {
+      // IncreaseCount will be false when not in article page
+      return doc.get().then(d => {
+        var count = 0;
+        if (!d.exists) { // Has no data, initialize count
+          if (increaseCount) {
+            doc.set({
+              count: 1
+            });
+            count = 1;
+          }
+        } else { // Has data
+          count = d.data().count;
+          if (increaseCount) {
+            // If first view this article
+            doc.set({ // Increase count
+              count: count + 1
+            });
+            count++;
+          }
+        }
+
+        return count;
+      });
+    }
+
+    function appendCountTo(el) {
+      return count => {
+        el.innerText = count;
+      }
+    }
+  </script>
+  <script>
+    (function() {
+      var db = firebase.firestore();
+      var articles = db.collection('articles');
+
+      if (CONFIG.page.isPost) { // Is article page
+        var title = document.querySelector('.post-title').innerText.trim();
+        var doc = articles.doc(title);
+        var increaseCount = CONFIG.hostname === location.hostname;
+        if (localStorage.getItem(title)) {
+          increaseCount = false;
+        } else {
+          // Mark as visited
+          localStorage.setItem(title, true);
+        }
+        getCount(doc, increaseCount).then(appendCountTo(document.querySelector('.firestore-visitors-count')));
+      } else if (CONFIG.page.isHome) { // Is index page
+        var promises = [...document.querySelectorAll('.post-title')].map(element => {
+          var title = element.innerText.trim();
+          var doc = articles.doc(title);
+          return getCount(doc);
+        });
+        Promise.all(promises).then(counts => {
+          var metas = document.querySelectorAll('.firestore-visitors-count');
+          counts.forEach((val, idx) => {
+            appendCountTo(metas[idx])(val);
+          });
+        });
+      }
+    })();
+  </script>
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://zhenghui-blog.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "https://blog.zhenghui.idv.tw/2020/07/28/%E9%9B%BB%E5%95%86%E8%B3%BC%E7%89%A9%E5%B9%B3%E5%8F%B0-%E4%BF%A1%E7%94%A8%E5%8D%A1%E5%88%B7%E5%8D%A1%E4%B8%B2%E6%8E%A5-URL%E6%8E%88%E6%AC%8A%E6%96%B9%E5%BC%8F-%E6%95%99%E5%AD%B8/";
+    this.page.identifier = "2020/07/28/電商購物平台-信用卡刷卡串接-URL授權方式-教學/";
+    this.page.title = "電商購物平台-信用卡刷卡串接(URL授權方式)教學";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://zhenghui-blog.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>

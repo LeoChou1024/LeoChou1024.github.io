@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta http-equiv="Cache-Control" content="no-transform">
+  <meta http-equiv="Cache-Control" content="no-siteapp">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-undefined.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"blog.zhenghui.idv.tw","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"slideDownIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="前言找了各式各樣的文章，一直沒有看到完整關於Angular Univeral的詳細步驟教學 而在設定時也會有一些小細節需要處理，因此本文將完整從 Client Side Render 如何成功導入 Server Side Render 讓 Google的爬蟲能夠搜尋的到使用 Angular開發的網站。 在2020的今天，隨著Web Framework的竄起，使用前端框架 如:Angular，Rea">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Angular Universal教學-將現有專案導入Server Side Render">
+<meta property="og:url" content="https://blog.zhenghui.idv.tw/2020/07/24/Angular-Universal%E6%95%99%E5%AD%B8-%E5%B0%87%E7%8F%BE%E6%9C%89%E5%B0%88%E6%A1%88%E5%B0%8E%E5%85%A5Server-Side-Render/index.html">
+<meta property="og:site_name" content="Leo程式筆記">
+<meta property="og:description" content="前言找了各式各樣的文章，一直沒有看到完整關於Angular Univeral的詳細步驟教學 而在設定時也會有一些小細節需要處理，因此本文將完整從 Client Side Render 如何成功導入 Server Side Render 讓 Google的爬蟲能夠搜尋的到使用 Angular開發的網站。 在2020的今天，隨著Web Framework的竄起，使用前端框架 如:Angular，Rea">
+<meta property="og:locale" content="zh_TW">
+<meta property="og:image" content="https://i.imgur.com/YUTHd6d.png">
+<meta property="og:image" content="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/a9760cbf-efad-422e-99d7-a97f83e02a96/1595576984.png">
+<meta property="og:image" content="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/a9760cbf-efad-422e-99d7-a97f83e02a96/1595577448.png">
+<meta property="og:image" content="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/a9760cbf-efad-422e-99d7-a97f83e02a96/1595578196.png">
+<meta property="og:image" content="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/a9760cbf-efad-422e-99d7-a97f83e02a96/1595578221.png">
+<meta property="article:published_time" content="2020-07-23T20:36:35.000Z">
+<meta property="article:modified_time" content="2023-02-13T20:47:10.658Z">
+<meta property="article:author" content="Leo Zhou">
+<meta property="article:tag" content="Angular Universal">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.imgur.com/YUTHd6d.png">
+
+<link rel="canonical" href="https://blog.zhenghui.idv.tw/2020/07/24/Angular-Universal%E6%95%99%E5%AD%B8-%E5%B0%87%E7%8F%BE%E6%9C%89%E5%B0%88%E6%A1%88%E5%B0%8E%E5%85%A5Server-Side-Render/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-TW'
+  };
+</script>
+
+  <title>Angular Universal教學-將現有專案導入Server Side Render | Leo程式筆記</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切換導航欄">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Leo程式筆記</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首頁</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>標籤</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分類</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>歸檔</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜尋
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" placeholder="搜尋..." spellcheck="false" type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-TW">
+    <link itemprop="mainEntityOfPage" href="https://blog.zhenghui.idv.tw/2020/07/24/Angular-Universal%E6%95%99%E5%AD%B8-%E5%B0%87%E7%8F%BE%E6%9C%89%E5%B0%88%E6%A1%88%E5%B0%8E%E5%85%A5Server-Side-Render/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/avatar.jpg">
+      <meta itemprop="name" content="Leo Zhou">
+      <meta itemprop="description" content>
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Leo程式筆記">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Angular Universal教學-將現有專案導入Server Side Render
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">發表於</span>
+
+              <time title="創建時間：2020-07-24 04:36:35" itemprop="dateCreated datePublished" datetime="2020-07-24T04:36:35+08:00">2020-07-24</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新於</span>
+                <time title="修改時間：2023-02-14 04:47:10" itemprop="dateModified" datetime="2023-02-14T04:47:10+08:00">2023-02-14</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分類於</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Angular-Universal/" itemprop="url" rel="index"><span itemprop="name">Angular Universal</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="閱讀次數">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-users"></i>
+              </span>
+              <span class="post-meta-item-text">閱讀次數：</span>
+              <span class="firestore-visitors-count"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/2020/07/24/Angular-Universal%E6%95%99%E5%AD%B8-%E5%B0%87%E7%8F%BE%E6%9C%89%E5%B0%88%E6%A1%88%E5%B0%8E%E5%85%A5Server-Side-Render/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2020/07/24/Angular-Universal教學-將現有專案導入Server-Side-Render/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+            <span class="post-meta-item" title="文章字數">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">文章字數：</span>
+              <span>2.5k</span>
+            </span>
+            <span class="post-meta-item" title="所需閱讀時間">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">所需閱讀時間 &asymp;</span>
+              <span>2 分鐘</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>找了各式各樣的文章，一直沒有看到完整關於Angular Univeral的詳細步驟教學</p>
+<p>而在設定時也會有一些小細節需要處理，因此本文將完整從 Client Side Render 如何成功導入 Server Side Render</p>
+<p>讓 Google的爬蟲能夠搜尋的到使用 Angular開發的網站。</p>
+<p>在2020的今天，隨著Web Framework的竄起，使用前端框架 如:Angular，React，Vue開發系統早已是見怪不怪的事。</p>
+<p>但這種前端主流框架，對於 SPA 沒辦法進行SEO一直以來都是開發者最為頭痛的事。</p>
+<p>因此就有 Next.js 這類的工具可以協助我們進行Server-Side-Render。</p>
+<span id="more"></span>
+<p>而在Angular中，則有Angular Universal可以幫助我們解決問題。</p>
+<p>早期 Angular 要使用 SSR 技術要新增不少的檔案與內容，但現在只需要使用cli的指令就可以達成。</p>
+<blockquote>
+<p>加入 @nguniversal&#x2F;express-engine 到專案中</p>
+</blockquote>
+<p>在Angular專案下，我們可以安裝</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ng add @nguniversal/express-engine --clientProject 專案名稱(可以由angular.json查看名稱)</span><br></pre></td></tr></table></figure>
+<p><img src="https://i.imgur.com/YUTHd6d.png"></p>
+<p>安裝後，我們會發現cli指令幫我們建立了不少檔案。</p>
+<p>其中最主要的部份則以server.ts 以及 app.server.module.ts這兩支檔案為主。</p>
+<p>這邊簡單說明一下:</p>
+<p>server.ts主要是運行我們SSR最主要的程式，透過這支程式，會自動在部屬時自動將首頁進行編譯，讓我們的angular的程式，能夠預先載入到index.html中</p>
+<p>而不是透過瀏覽器執行的時候才將js渲染到畫面上。簡單來說，就是該程式就是將首頁的js進行編譯，並載入到html中回傳靜態的網頁內容。</p>
+<p>app.server.module.ts 則是與app.module.ts相同，但不同的是，透過ssr編譯時，會採用的是app.server.module.ts進行呼叫。</p>
+<p>在安裝好express-engine 套件後，接下來要運行 Universal Web Server。</p>
+<p>這裡跟一般我們平時在使用 <code>ng serve </code>一樣，都是去呼叫 node.js的express起來，進行監聽。</p>
+<p>輸入以下指令</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm run build:ssr;npm run serve:ssr</span><br></pre></td></tr></table></figure>
+<p>就會執行 ssr 的build(部屬)以及serve(運行)。</p>
+<p>如果正確無誤的話，那麼你將會看到以下畫面:<br><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/a9760cbf-efad-422e-99d7-a97f83e02a96/1595576984.png"></p>
+<p>但如果不能build 出現 <font color="red"> can’t find window &#x2F; localstorage </font>的話。由於SSR是透過nodejs預先將頁面進行編譯以及載入。</p>
+<p>因此在nodejs中並沒有 windows 或是 localStorage等其他在Web上的功能。</p>
+<p>儘管可以透過 nodeJS進行部分模擬，放入到 server.ts中，讓node.js讀懂這些語法是什麼。</p>
+<p><font color="red">但大多數在Client Side中的語法，還是得需要透過瀏覽器去運行。</font></p>
+<p>讓node.js讀懂的語法如下:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">import &#x27;localStorage-polyfill&#x27;;</span><br><span class="line">global[&#x27;localStorage&#x27;] = localStorage;</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/a9760cbf-efad-422e-99d7-a97f83e02a96/1595577448.png"></p>
+<p>但如果是其他的套件，例如應該要在Client端運行的 Ex: jQuery&#x2F;scroll …等<br>就不應該由Server編譯的時候執行。</p>
+<p>必須區分哪些程式碼應該要在Server進行SSR編譯時執行，哪些該由Client執行的時候運行。</p>
+<p>因此我們需要在 Component的 constructor 中 注入:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">constructor(@Inject(PLATFORM_ID) private platformId: any) &#123; &#125;</span><br></pre></td></tr></table></figure>
+<p>並且在需要由Client端執行的程式碼加入以下判斷:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">if (isPlatformBrowser(this.platformId)) &#123;</span><br><span class="line">    const anchorOffset = $(&#x27;div.anchor-&#x27; + this.anchor);</span><br><span class="line">    $(&#x27;html,body&#x27;).animate(&#123;</span><br><span class="line">      scrollTop: anchorOffset.offset().top - 100</span><br><span class="line">    &#125;, 100);</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+
+<p>像上面這種有使用到 jQuery還有scroll，牽涉到畫面甚至是動畫效果的，都應該由Client端執行，而非在 Server端中執行。</p>
+<p>因此我們就需要透過 isPlatformBrowser(this.platformId) 來判斷當前執行此段程式碼是否為Browser</p>
+<p>若是在SSR編譯時期，則該段程式就不會被運行。</p>
+<p><font color="red">註記: 若使用 ngModel的話，使用到該物件的所有兜必須要先初始化 才能使用，讓nodejs編譯。 </font></p>
+<p>若上述都完成，則會在dist建立browser以及server這兩個資料夾 。<br>browser:編譯完後所產生的程式碼，內含有index.html (和過去使用 ng build –prod相同)<br>server&#x3D;&gt;在SSR渲染的第一頁中，所有用到的圖檔，以及js都會在這裡</p>
+<p>若正常完成的話，會自動在 localhost端 監聽 4000 port 來運行SSR<br>Node Express server listening on <a target="_blank" rel="external nofollow noopener noreferrer" href="http://localhost:4000/">http://localhost:4000</a></p>
+<p>此時將網頁按右鍵檢視原始碼，將會看到 在 <code>&lt;app-root&gt;&lt;/app-root&gt;</code> 中的程式碼已經被自動帶入。</p>
+<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/a9760cbf-efad-422e-99d7-a97f83e02a96/1595578196.png"></p>
+<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/a9760cbf-efad-422e-99d7-a97f83e02a96/1595578221.png"></p>
+<div>
+以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
+
+<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
+<p><a target="_blank" rel="external nofollow noopener noreferrer" href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
+</div>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Angular-Universal/" rel="tag"># Angular Universal</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/01/05/NET-%E5%A6%82%E4%BD%95%E5%8B%95%E6%85%8B%E7%94%9F%E6%88%90dynamic%E7%89%A9%E4%BB%B6-ExpandoObject/" rel="prev" title=".NET 如何動態生成dynamic物件-ExpandoObject">
+      <i class="fa fa-chevron-left"></i> .NET 如何動態生成dynamic物件-ExpandoObject
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/07/24/Angular-Universal%E6%95%99%E5%AD%B8-%E5%A6%82%E4%BD%95%E5%B0%87Server-Side-Render-%E5%B0%88%E6%A1%88%E9%83%A8%E5%B1%AC%E5%88%B0IIS%E4%B8%8A/" rel="next" title="Angular Universal 教學-如何將Server Side Render 專案部屬到IIS上">
+      Angular Universal 教學-如何將Server Side Render 專案部屬到IIS上 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目錄
+        </li>
+        <li class="sidebar-nav-overview">
+          本站概要
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Leo Zhou" src="/uploads/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Leo Zhou</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">46</span>
+          <span class="site-state-item-name">文章</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">15</span>
+        <span class="site-state-item-name">分類</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">28</span>
+        <span class="site-state-item-name">標籤</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="mailto:leo604leo604@gmail.com" title="E-Mail → mailto:leo604leo604@gmail.com" rel="external nofollow noopener noreferrer" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://zhenghui.idv.tw/" title="Weibo → https:&#x2F;&#x2F;zhenghui.idv.tw" rel="external nofollow noopener noreferrer" target="_blank"><i class="fab fa-chrome fa-fw"></i>Weibo</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Leo Zhou</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+      <span class="post-meta-item-text">總字數：</span>
+    <span title="總字數">88k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span class="post-meta-item-text">所需總閱讀時間 &asymp;</span>
+    <span title="所需總閱讀時間">1:20</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="external nofollow noopener noreferrer" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="external nofollow noopener noreferrer" target="_blank">NexT.Pisces</a> 強力驅動
+  </div><script color="45,115,227" opacity="0.7" zindex="-1" count="150" src="https://cdn.jsdelivr.net/npm/canvas-nest.js@1/dist/canvas-nest.js"></script>
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+        
+
+
+
+
+  <script src="https://www.gstatic.com/firebasejs/6.3.3/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/6.3.3/firebase-firestore.js"></script>
+  <script>
+    firebase.initializeApp({
+      apiKey   : 'AIzaSyA7oeqkvnULHStAiHfWGos2fE4zMbN5Xew',
+      projectId: 'hexo-93c87'
+    });
+
+    function getCount(doc, increaseCount) {
+      // IncreaseCount will be false when not in article page
+      return doc.get().then(d => {
+        var count = 0;
+        if (!d.exists) { // Has no data, initialize count
+          if (increaseCount) {
+            doc.set({
+              count: 1
+            });
+            count = 1;
+          }
+        } else { // Has data
+          count = d.data().count;
+          if (increaseCount) {
+            // If first view this article
+            doc.set({ // Increase count
+              count: count + 1
+            });
+            count++;
+          }
+        }
+
+        return count;
+      });
+    }
+
+    function appendCountTo(el) {
+      return count => {
+        el.innerText = count;
+      }
+    }
+  </script>
+  <script>
+    (function() {
+      var db = firebase.firestore();
+      var articles = db.collection('articles');
+
+      if (CONFIG.page.isPost) { // Is article page
+        var title = document.querySelector('.post-title').innerText.trim();
+        var doc = articles.doc(title);
+        var increaseCount = CONFIG.hostname === location.hostname;
+        if (localStorage.getItem(title)) {
+          increaseCount = false;
+        } else {
+          // Mark as visited
+          localStorage.setItem(title, true);
+        }
+        getCount(doc, increaseCount).then(appendCountTo(document.querySelector('.firestore-visitors-count')));
+      } else if (CONFIG.page.isHome) { // Is index page
+        var promises = [...document.querySelectorAll('.post-title')].map(element => {
+          var title = element.innerText.trim();
+          var doc = articles.doc(title);
+          return getCount(doc);
+        });
+        Promise.all(promises).then(counts => {
+          var metas = document.querySelectorAll('.firestore-visitors-count');
+          counts.forEach((val, idx) => {
+            appendCountTo(metas[idx])(val);
+          });
+        });
+      }
+    })();
+  </script>
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://zhenghui-blog.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "https://blog.zhenghui.idv.tw/2020/07/24/Angular-Universal%E6%95%99%E5%AD%B8-%E5%B0%87%E7%8F%BE%E6%9C%89%E5%B0%88%E6%A1%88%E5%B0%8E%E5%85%A5Server-Side-Render/";
+    this.page.identifier = "2020/07/24/Angular-Universal教學-將現有專案導入Server-Side-Render/";
+    this.page.title = "Angular Universal教學-將現有專案導入Server Side Render";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://zhenghui-blog.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>
