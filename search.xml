@@ -982,74 +982,6 @@ version for package `Microsoft.EntityFrameworkCore.Tools.DotNet` could not be re
       </tags>
   </entry>
   <entry>
-    <title>【Cordova】 將Angular 部署至 android手機</title>
-    <url>/2018/08/21/%E3%80%90Cordova%E3%80%91-%E5%B0%87Angular-%E9%83%A8%E7%BD%B2%E8%87%B3-android%E6%89%8B%E6%A9%9F/</url>
-    <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>在很久以前，筆者曾經寫過一篇利用<a href="%E3%80%90Cordova%E3%80%91-%E5%B0%87%E9%96%8B%E7%99%BC%E5%A5%BD%E7%9A%84WebApp%E9%83%A8%E7%BD%B2%E8%87%B3-ios.md">jQueryMobile 部署至ios</a>的文章</p>
-<p>而在網路上利用將Cordova 將 WebAPP 發行至Android的相關教學文件非常的多，因此難度的門檻其實是相當低的。</p>
-<p>但時隔一年，隨著前端的FrameWork不斷推陳出新，大部分的都以採用前端FrameWork進行開發。(如：Angular、React、Vue)</p>
-<p>今天我們就來看看，如何利用Cordova搭配前端FrameWork來部署到Android手機吧！(同樣的方式依然可以部署到ios手機上，請參閱之前寫的文章)</p>
-<span id="more"></span>
-
-<p>在現在這個前端大亂鬥的時代，很多前端工具都如雨後春筍般冒出。</p>
-<p>其中在寫手機應用時，我們第一直覺會想到使用 ionic 這套FrameWork來完成。</p>
-<p>而ionic本身也是透過Cordova來進行包裝。</p>
-<p>而其中ionic本身與Angular語意相近、寫法雷同，因此也有不少人紛紛投入至此。</p>
-<p>但隨著現在Material的樣式不斷高漲，Angular也推出了 Angular Material作為網頁介面。</p>
-<p>因此本篇文章將告訴你，如何實現任務的最快途徑。</p>
-<h3 id="第一步-一一-環境建置"><a href="#第一步-一一-環境建置" class="headerlink" title="第一步 一一 環境建置"></a>第一步 一一 環境建置</h3><p>首先我們需要安裝Cordova CLI幫我們做環境建置</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">npm install -g cordova</span><br></pre></td></tr></table></figure>
-<p>接著我們會需要以下的工具，因此請各位讀者先行安裝。</p>
-<p>需要的工具有以下三樣：</p>
-<p>1、<a href="https://nodejs.org/en/download/">NodeJS</a></p>
-<p>2、<a href="http://www.oracle.com/technetwork/java/javase/downloads/jdk10-downloads-4416644.html">Java JDK</a></p>
-<p>3、<a href="http://developer.android.com/studio/">Android Studio</a></p>
-<p> 前面兩項作為Android 手機開發因此是必需要安裝的，後面一項則可以選擇自己是否要安裝。</p>
-<p>這裡之所以要安裝 AndroidStudio是因為本身自帶 Gradle，可以將專案自動建置起來。</p>
-<p>當然如果不想安裝肥大的 AndroidStudio，可以透過指令方式，直接安裝Gradle也可以。</p>
-<p>安裝網址在這： <a href="https://gradle.org/install/">https://gradle.org/install/</a></p>
-<p>安裝完成後，可以輸入 <code>gradle -v</code>，查看版本。如果看到此圖就代表安裝成功</p>
-<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/0ed903e0-c200-4c01-a557-22c6756da5c7/1534818636_36865.png"></p>
-<p>接下來我們就可以透過Cordova 來建立我們的專案了。</p>
-<p>此時的指令有點多，我們一步步進行。</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">// 建立一個名叫MyAPP的專案，在myApp這個資料夾底下。</span><br><span class="line">cordova create myAPP mis.kuas.edu.tw MyAPP</span><br><span class="line"></span><br><span class="line">//進入到此專案資料夾</span><br><span class="line"><span class="built_in">cd</span> myAPP</span><br><span class="line"></span><br><span class="line">//在myAPP的資料夾當中，建立想要部署的平台</span><br><span class="line">cordova platform add android --save</span><br><span class="line"></span><br><span class="line">//將專案進行Build</span><br><span class="line">cordova build android</span><br></pre></td></tr></table></figure>
-
-<h3 id="第二步-ㄧㄧ-使用-Cordova-Plugin-套件"><a href="#第二步-ㄧㄧ-使用-Cordova-Plugin-套件" class="headerlink" title="第二步 ㄧㄧ 使用 Cordova Plugin 套件"></a>第二步 ㄧㄧ 使用 Cordova Plugin 套件</h3><p>若是你的APP有需要啟用其他的硬體元件，如：相機、定位、藍芽…等等</p>
-<p>那麼在這個步驟當中，你需要到你Angular的專案，在index.html裡引入</p>
-<figure class="highlight html"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">type</span>=<span class="string">”text/javascript”</span> <span class="attr">src</span>=<span class="string">”cordova.js”</span>&gt;</span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<p>請注意，當您嘗試在本地端服務器上進行測試時，由於你沒有cordova.js，因此將會拋出&#x2F;顯示錯誤。</p>
-<p>接著使用以下指令添加Cordova Device套件：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">cordova plugin add cordova-plugin-device</span><br></pre></td></tr></table></figure>
-<p>到這裡之後，我們差不多完成了，現在讓我們使用cordova獲取設備。</p>
-<p>接著在Angular專案中，實作OnInit函數，並添加套件的call back 函數</p>
-<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">Component</span> , <span class="title class_">OnInit</span>&#125; <span class="keyword">from</span> ‘@angular/core’;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">AppComponent</span> implements <span class="title class_">OnInit</span>&#123; </span><br><span class="line"> <span class="keyword">var</span> device; <span class="comment">// 由於Typescript不認識 device.platform 因此要先宣告</span></span><br><span class="line"> <span class="title function_">ngOnInit</span>(<span class="params"></span>) &#123; </span><br><span class="line"> <span class="variable language_">document</span>.<span class="title function_">addEventListener</span>(<span class="string">&quot;deviceread&quot;</span>, <span class="keyword">function</span>(<span class="params"></span>) &#123; </span><br><span class="line"> <span class="title function_">alert</span>(device.<span class="property">platform</span>); </span><br><span class="line"> &#125;, <span class="literal">false</span>); </span><br><span class="line"> &#125; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="第三部-ㄧㄧ-打包你的-Angular專案"><a href="#第三部-ㄧㄧ-打包你的-Angular專案" class="headerlink" title="第三部 ㄧㄧ 打包你的 Angular專案"></a>第三部 ㄧㄧ 打包你的 Angular專案</h3><p>接下來也就是最重要的一步了。</p>
-<p>我們透過 ng build –prod 打包完專案後</p>
-<p>會在專案中找到dist的資料夾。裡面是我們打包過後的專案</p>
-<p>其中點開index.html 我們需要將<base href="/">標記更新為<base href="./">，這樣才能使angular能夠訪問目錄路徑中的文件。</p>
-<p>最後將整個dist資料夾內的檔案，複製一份到我們剛剛透過cordova建置的專案目錄中 （myapp&#x2F;www 的資料夾內 ）</p>
-<p>最後，輸入</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">cordova build android</span><br></pre></td></tr></table></figure>
-<p>產生APK檔案，即可大功告成！</p>
-<p>而產生出來的檔案會存放在：</p>
-<p>myapp&#x2F;platforms&#x2F;android&#x2F;app&#x2F;build&#x2F;outputs&#x2F;apk&#x2F;debug 底下。</p>
-<p>附上一張完整部署成功的圖：<br><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/0ed903e0-c200-4c01-a557-22c6756da5c7/1534820679_13908.png"></p>
-<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/0ed903e0-c200-4c01-a557-22c6756da5c7/1534821256_45537.png"></p>
-<div>
-以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
-
-<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
-<p><a href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
-</div>
-]]></content>
-      <categories>
-        <category>Cordova</category>
-      </categories>
-      <tags>
-        <tag>Angular</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>【Cordova】 將開發好的WebApp部署至 ios</title>
     <url>/2020/07/27/%E3%80%90Cordova%E3%80%91-%E5%B0%87%E9%96%8B%E7%99%BC%E5%A5%BD%E7%9A%84WebApp%E9%83%A8%E7%BD%B2%E8%87%B3-ios/</url>
     <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>這是筆者在大學期間修的一門手機應用課程。</p>
@@ -1139,6 +1071,74 @@ version for package `Microsoft.EntityFrameworkCore.Tools.DotNet` could not be re
       </categories>
       <tags>
         <tag>WebApp</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>【Cordova】 將Angular 部署至 android手機</title>
+    <url>/2018/08/21/%E3%80%90Cordova%E3%80%91-%E5%B0%87Angular-%E9%83%A8%E7%BD%B2%E8%87%B3-android%E6%89%8B%E6%A9%9F/</url>
+    <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>在很久以前，筆者曾經寫過一篇利用<a href="%E3%80%90Cordova%E3%80%91-%E5%B0%87%E9%96%8B%E7%99%BC%E5%A5%BD%E7%9A%84WebApp%E9%83%A8%E7%BD%B2%E8%87%B3-ios.md">jQueryMobile 部署至ios</a>的文章</p>
+<p>而在網路上利用將Cordova 將 WebAPP 發行至Android的相關教學文件非常的多，因此難度的門檻其實是相當低的。</p>
+<p>但時隔一年，隨著前端的FrameWork不斷推陳出新，大部分的都以採用前端FrameWork進行開發。(如：Angular、React、Vue)</p>
+<p>今天我們就來看看，如何利用Cordova搭配前端FrameWork來部署到Android手機吧！(同樣的方式依然可以部署到ios手機上，請參閱之前寫的文章)</p>
+<span id="more"></span>
+
+<p>在現在這個前端大亂鬥的時代，很多前端工具都如雨後春筍般冒出。</p>
+<p>其中在寫手機應用時，我們第一直覺會想到使用 ionic 這套FrameWork來完成。</p>
+<p>而ionic本身也是透過Cordova來進行包裝。</p>
+<p>而其中ionic本身與Angular語意相近、寫法雷同，因此也有不少人紛紛投入至此。</p>
+<p>但隨著現在Material的樣式不斷高漲，Angular也推出了 Angular Material作為網頁介面。</p>
+<p>因此本篇文章將告訴你，如何實現任務的最快途徑。</p>
+<h3 id="第一步-一一-環境建置"><a href="#第一步-一一-環境建置" class="headerlink" title="第一步 一一 環境建置"></a>第一步 一一 環境建置</h3><p>首先我們需要安裝Cordova CLI幫我們做環境建置</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">npm install -g cordova</span><br></pre></td></tr></table></figure>
+<p>接著我們會需要以下的工具，因此請各位讀者先行安裝。</p>
+<p>需要的工具有以下三樣：</p>
+<p>1、<a href="https://nodejs.org/en/download/">NodeJS</a></p>
+<p>2、<a href="http://www.oracle.com/technetwork/java/javase/downloads/jdk10-downloads-4416644.html">Java JDK</a></p>
+<p>3、<a href="http://developer.android.com/studio/">Android Studio</a></p>
+<p> 前面兩項作為Android 手機開發因此是必需要安裝的，後面一項則可以選擇自己是否要安裝。</p>
+<p>這裡之所以要安裝 AndroidStudio是因為本身自帶 Gradle，可以將專案自動建置起來。</p>
+<p>當然如果不想安裝肥大的 AndroidStudio，可以透過指令方式，直接安裝Gradle也可以。</p>
+<p>安裝網址在這： <a href="https://gradle.org/install/">https://gradle.org/install/</a></p>
+<p>安裝完成後，可以輸入 <code>gradle -v</code>，查看版本。如果看到此圖就代表安裝成功</p>
+<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/0ed903e0-c200-4c01-a557-22c6756da5c7/1534818636_36865.png"></p>
+<p>接下來我們就可以透過Cordova 來建立我們的專案了。</p>
+<p>此時的指令有點多，我們一步步進行。</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">// 建立一個名叫MyAPP的專案，在myApp這個資料夾底下。</span><br><span class="line">cordova create myAPP mis.kuas.edu.tw MyAPP</span><br><span class="line"></span><br><span class="line">//進入到此專案資料夾</span><br><span class="line"><span class="built_in">cd</span> myAPP</span><br><span class="line"></span><br><span class="line">//在myAPP的資料夾當中，建立想要部署的平台</span><br><span class="line">cordova platform add android --save</span><br><span class="line"></span><br><span class="line">//將專案進行Build</span><br><span class="line">cordova build android</span><br></pre></td></tr></table></figure>
+
+<h3 id="第二步-ㄧㄧ-使用-Cordova-Plugin-套件"><a href="#第二步-ㄧㄧ-使用-Cordova-Plugin-套件" class="headerlink" title="第二步 ㄧㄧ 使用 Cordova Plugin 套件"></a>第二步 ㄧㄧ 使用 Cordova Plugin 套件</h3><p>若是你的APP有需要啟用其他的硬體元件，如：相機、定位、藍芽…等等</p>
+<p>那麼在這個步驟當中，你需要到你Angular的專案，在index.html裡引入</p>
+<figure class="highlight html"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">type</span>=<span class="string">”text/javascript”</span> <span class="attr">src</span>=<span class="string">”cordova.js”</span>&gt;</span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>請注意，當您嘗試在本地端服務器上進行測試時，由於你沒有cordova.js，因此將會拋出&#x2F;顯示錯誤。</p>
+<p>接著使用以下指令添加Cordova Device套件：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">cordova plugin add cordova-plugin-device</span><br></pre></td></tr></table></figure>
+<p>到這裡之後，我們差不多完成了，現在讓我們使用cordova獲取設備。</p>
+<p>接著在Angular專案中，實作OnInit函數，並添加套件的call back 函數</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">Component</span> , <span class="title class_">OnInit</span>&#125; <span class="keyword">from</span> ‘@angular/core’;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">AppComponent</span> implements <span class="title class_">OnInit</span>&#123; </span><br><span class="line"> <span class="keyword">var</span> device; <span class="comment">// 由於Typescript不認識 device.platform 因此要先宣告</span></span><br><span class="line"> <span class="title function_">ngOnInit</span>(<span class="params"></span>) &#123; </span><br><span class="line"> <span class="variable language_">document</span>.<span class="title function_">addEventListener</span>(<span class="string">&quot;deviceread&quot;</span>, <span class="keyword">function</span>(<span class="params"></span>) &#123; </span><br><span class="line"> <span class="title function_">alert</span>(device.<span class="property">platform</span>); </span><br><span class="line"> &#125;, <span class="literal">false</span>); </span><br><span class="line"> &#125; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="第三部-ㄧㄧ-打包你的-Angular專案"><a href="#第三部-ㄧㄧ-打包你的-Angular專案" class="headerlink" title="第三部 ㄧㄧ 打包你的 Angular專案"></a>第三部 ㄧㄧ 打包你的 Angular專案</h3><p>接下來也就是最重要的一步了。</p>
+<p>我們透過 ng build –prod 打包完專案後</p>
+<p>會在專案中找到dist的資料夾。裡面是我們打包過後的專案</p>
+<p>其中點開index.html 我們需要將<base href="/">標記更新為<base href="./">，這樣才能使angular能夠訪問目錄路徑中的文件。</p>
+<p>最後將整個dist資料夾內的檔案，複製一份到我們剛剛透過cordova建置的專案目錄中 （myapp&#x2F;www 的資料夾內 ）</p>
+<p>最後，輸入</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">cordova build android</span><br></pre></td></tr></table></figure>
+<p>產生APK檔案，即可大功告成！</p>
+<p>而產生出來的檔案會存放在：</p>
+<p>myapp&#x2F;platforms&#x2F;android&#x2F;app&#x2F;build&#x2F;outputs&#x2F;apk&#x2F;debug 底下。</p>
+<p>附上一張完整部署成功的圖：<br><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/0ed903e0-c200-4c01-a557-22c6756da5c7/1534820679_13908.png"></p>
+<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/0ed903e0-c200-4c01-a557-22c6756da5c7/1534821256_45537.png"></p>
+<div>
+以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
+
+<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
+<p><a href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
+</div>
+]]></content>
+      <categories>
+        <category>Cordova</category>
+      </categories>
+      <tags>
+        <tag>Angular</tag>
       </tags>
   </entry>
   <entry>
