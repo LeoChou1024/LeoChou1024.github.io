@@ -255,42 +255,6 @@
       </tags>
   </entry>
   <entry>
-    <title>C# 如何取得Enum的Name？-列舉(Enum)與switch應用</title>
-    <url>/2018/02/02/C-%E5%A6%82%E4%BD%95%E5%8F%96%E5%BE%97Enum%E7%9A%84Name%EF%BC%9F-%E5%88%97%E8%88%89-Enum-%E8%88%87switch%E6%87%89%E7%94%A8/</url>
-    <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>我們很常會使用 enum （列舉）來將我們的狀態做一個紀錄</p>
-<p>使用enum的優點在於我們不需要額外的打字，也不用擔心自己打錯字</p>
-<p>因此就可以利用enum來去針對狀態去做一個紀錄、判斷。</p>
-<p>而今天要介紹的是關於enum以及switch..case 搭配的方法。</p>
-<span id="more"></span>
-<p>在我們撰寫程式的時候，有時候針對多個Button功能會綁定同一個事件，再根據Button內容的不同來去執行功能。</p>
-<p>這時候我們可能會搭配Enum這樣寫：</p>
-<figure class="highlight c#"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 讀取按鈕上的文字來執行功能：</span></span><br><span class="line"><span class="comment">// 如果不是讀取到功能按鈕，則將按鈕上的文字呈現在 文字方塊(Content)上</span></span><br><span class="line">Button btn = (Button)sender;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">switch</span> (btn.Text)</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">case</span> 功能.換行.toString():</span><br><span class="line">                    Content.Text += <span class="string">&quot;\r\n&quot;</span>;</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                <span class="keyword">case</span> 功能.全部複製.toString():</span><br><span class="line">                    Content.SelectAll();</span><br><span class="line">                    Content.Copy();</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                <span class="keyword">case</span> 功能.貼上.toString():</span><br><span class="line">                    Content.Paste();</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                <span class="keyword">case</span> 功能.清空.toString():</span><br><span class="line">                    Content.Text = <span class="string">&quot;&quot;</span>;</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                <span class="literal">default</span>:</span><br><span class="line">                    Content.Text += btn.Text;</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br></pre></td></tr></table></figure>
-<p>但是這時候我們會發現編譯器錯誤：</p>
-<p><img data-src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/a19e7345-ece9-452b-9fed-a20cd133e9ad/1517549981_67453.png"></p>
-<p>錯誤訊息告訴我們必須是「常數值」，原因在於我們 Switch內的值以及 Case中的內容並不一致，儘管已經使用.toString()</p>
-<p>這時候我們可以使用 C# 6.0的功能- <code>nameof</code></p>
-<blockquote>
-<p>nameof 關鍵字可用來取得某變數的名稱。</p>
-</blockquote>
-<p>因此這時候我們只需要把程式碼改為如下就可以囉！</p>
-<figure class="highlight c#"><table><tr><td class="code"><pre><span class="line">Button btn = (Button)sender;</span><br><span class="line"></span><br><span class="line">           <span class="keyword">switch</span> (btn.Text)</span><br><span class="line">           &#123;</span><br><span class="line">               <span class="function"><span class="keyword">case</span> <span class="title">nameof</span>(<span class="params">功能.換行</span>): <span class="comment">//取得enum 選項中的名字-換行</span></span></span><br><span class="line"><span class="function">                   Content.Text +</span>= <span class="string">&quot;\r\n&quot;</span>;</span><br><span class="line">                   <span class="keyword">break</span>;</span><br><span class="line">               <span class="function"><span class="keyword">case</span> <span class="title">nameof</span>(<span class="params">功能.全部複製</span>):</span></span><br><span class="line"><span class="function">                   Content.<span class="title">SelectAll</span>()</span>;</span><br><span class="line">                   Content.Copy();</span><br><span class="line">                   <span class="keyword">break</span>;</span><br><span class="line">               <span class="function"><span class="keyword">case</span> <span class="title">nameof</span>(<span class="params">功能.貼上</span>):</span></span><br><span class="line"><span class="function">                   Content.<span class="title">Paste</span>()</span>;</span><br><span class="line">                   <span class="keyword">break</span>;</span><br><span class="line">               <span class="function"><span class="keyword">case</span> <span class="title">nameof</span>(<span class="params">功能.清空</span>):</span></span><br><span class="line"><span class="function">                   Content.Text</span> = <span class="string">&quot;&quot;</span>;</span><br><span class="line">                   <span class="keyword">break</span>;</span><br><span class="line">               <span class="literal">default</span>:</span><br><span class="line">                   Content.Text += btn.Text;</span><br><span class="line">                   <span class="keyword">break</span>;</span><br><span class="line">           &#125;</span><br></pre></td></tr></table></figure>
-
-
-<div>
-以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
-
-<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
-<p><a href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
-</div>
-]]></content>
-      <categories>
-        <category>C#</category>
-      </categories>
-      <tags>
-        <tag>Enum</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>C# - LINQ to Entities 查詢中無法建構實體或複雜類型</title>
     <url>/2023/01/24/C-LINQ-to-Entities-%E6%9F%A5%E8%A9%A2%E4%B8%AD%E7%84%A1%E6%B3%95%E5%BB%BA%E6%A7%8B%E5%AF%A6%E9%AB%94%E6%88%96%E8%A4%87%E9%9B%9C%E9%A1%9E%E5%9E%8B/</url>
     <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>在ORM盛行的時代，很多人都學會了使用LINQ來進行資料庫的撈取與操作</p>
@@ -352,6 +316,42 @@ LINQ to Entities 查詢中無法建構實體或複雜類型
       </categories>
       <tags>
         <tag>LINQ</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>C# 如何取得Enum的Name？-列舉(Enum)與switch應用</title>
+    <url>/2018/02/02/C-%E5%A6%82%E4%BD%95%E5%8F%96%E5%BE%97Enum%E7%9A%84Name%EF%BC%9F-%E5%88%97%E8%88%89-Enum-%E8%88%87switch%E6%87%89%E7%94%A8/</url>
+    <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>我們很常會使用 enum （列舉）來將我們的狀態做一個紀錄</p>
+<p>使用enum的優點在於我們不需要額外的打字，也不用擔心自己打錯字</p>
+<p>因此就可以利用enum來去針對狀態去做一個紀錄、判斷。</p>
+<p>而今天要介紹的是關於enum以及switch..case 搭配的方法。</p>
+<span id="more"></span>
+<p>在我們撰寫程式的時候，有時候針對多個Button功能會綁定同一個事件，再根據Button內容的不同來去執行功能。</p>
+<p>這時候我們可能會搭配Enum這樣寫：</p>
+<figure class="highlight c#"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 讀取按鈕上的文字來執行功能：</span></span><br><span class="line"><span class="comment">// 如果不是讀取到功能按鈕，則將按鈕上的文字呈現在 文字方塊(Content)上</span></span><br><span class="line">Button btn = (Button)sender;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">switch</span> (btn.Text)</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">case</span> 功能.換行.toString():</span><br><span class="line">                    Content.Text += <span class="string">&quot;\r\n&quot;</span>;</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                <span class="keyword">case</span> 功能.全部複製.toString():</span><br><span class="line">                    Content.SelectAll();</span><br><span class="line">                    Content.Copy();</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                <span class="keyword">case</span> 功能.貼上.toString():</span><br><span class="line">                    Content.Paste();</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                <span class="keyword">case</span> 功能.清空.toString():</span><br><span class="line">                    Content.Text = <span class="string">&quot;&quot;</span>;</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                <span class="literal">default</span>:</span><br><span class="line">                    Content.Text += btn.Text;</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br></pre></td></tr></table></figure>
+<p>但是這時候我們會發現編譯器錯誤：</p>
+<p><img data-src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/a19e7345-ece9-452b-9fed-a20cd133e9ad/1517549981_67453.png"></p>
+<p>錯誤訊息告訴我們必須是「常數值」，原因在於我們 Switch內的值以及 Case中的內容並不一致，儘管已經使用.toString()</p>
+<p>這時候我們可以使用 C# 6.0的功能- <code>nameof</code></p>
+<blockquote>
+<p>nameof 關鍵字可用來取得某變數的名稱。</p>
+</blockquote>
+<p>因此這時候我們只需要把程式碼改為如下就可以囉！</p>
+<figure class="highlight c#"><table><tr><td class="code"><pre><span class="line">Button btn = (Button)sender;</span><br><span class="line"></span><br><span class="line">           <span class="keyword">switch</span> (btn.Text)</span><br><span class="line">           &#123;</span><br><span class="line">               <span class="function"><span class="keyword">case</span> <span class="title">nameof</span>(<span class="params">功能.換行</span>): <span class="comment">//取得enum 選項中的名字-換行</span></span></span><br><span class="line"><span class="function">                   Content.Text +</span>= <span class="string">&quot;\r\n&quot;</span>;</span><br><span class="line">                   <span class="keyword">break</span>;</span><br><span class="line">               <span class="function"><span class="keyword">case</span> <span class="title">nameof</span>(<span class="params">功能.全部複製</span>):</span></span><br><span class="line"><span class="function">                   Content.<span class="title">SelectAll</span>()</span>;</span><br><span class="line">                   Content.Copy();</span><br><span class="line">                   <span class="keyword">break</span>;</span><br><span class="line">               <span class="function"><span class="keyword">case</span> <span class="title">nameof</span>(<span class="params">功能.貼上</span>):</span></span><br><span class="line"><span class="function">                   Content.<span class="title">Paste</span>()</span>;</span><br><span class="line">                   <span class="keyword">break</span>;</span><br><span class="line">               <span class="function"><span class="keyword">case</span> <span class="title">nameof</span>(<span class="params">功能.清空</span>):</span></span><br><span class="line"><span class="function">                   Content.Text</span> = <span class="string">&quot;&quot;</span>;</span><br><span class="line">                   <span class="keyword">break</span>;</span><br><span class="line">               <span class="literal">default</span>:</span><br><span class="line">                   Content.Text += btn.Text;</span><br><span class="line">                   <span class="keyword">break</span>;</span><br><span class="line">           &#125;</span><br></pre></td></tr></table></figure>
+
+
+<div>
+以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
+
+<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
+<p><a href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
+</div>
+]]></content>
+      <categories>
+        <category>C#</category>
+      </categories>
+      <tags>
+        <tag>Enum</tag>
       </tags>
   </entry>
   <entry>
@@ -643,6 +643,59 @@ LINQ to Entities 查詢中無法建構實體或複雜類型
       </tags>
   </entry>
   <entry>
+    <title>.NET - 在VS Code 中用.net core 安裝 Entity Framework</title>
+    <url>/2018/06/16/NET-%E5%9C%A8VS-Code-%E4%B8%AD%E7%94%A8-net-core-%E5%AE%89%E8%A3%9D-Entity-Framework/</url>
+    <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>.Net Core 出來了很久，作為一個.Net的忠實信徒，卻這麼久沒有去觸碰它，實在慚愧。</p>
+<p>最近，因為碩班實在忙碌，很多珍貴技術想碰卻苦無時間，甚至連發部落格的時間都少得可憐。</p>
+<p>一直想用 Angular6 + .NET Core 2 開發一套系統，於是花了一點時間鑽研一下文件。</p>
+<p>而身為.NET 愛好者，方便的工具肯定是少不了。以前在寫 WebAPI的時候，簡單的 EF + Code First就可以讓我省去大半開發時間</p>
+<p>於是現在轉換到了.NET Core，當然也要來好好利用這些工具。</p>
+<span id="more"></span>
+
+<p>基本安裝.NET Core的教學也很簡單，只需要安裝 <a href="https://www.microsoft.com/net/download/macos">.NET Core  SDK</a></p>
+<p>註：此連結為 MacOS SDK下載，Windows用戶請自行切換</p>
+<p>接著下一步到底就可以使用 .NET Cli了。</p>
+<p>如果有看到下圖就代表你安裝成功了。</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">dotnet --info</span><br></pre></td></tr></table></figure>
+<p><img data-src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/be4ed7ee-7296-4341-bd60-99a3fe6184f4/1529137632_94568.png"></p>
+<p>接下來我們來回歸到重點，要如何安裝 Entity framework (EF) ?</p>
+<p>在 .net Core SDK中，預設是沒有 EF的，因此需要額外安裝 packages 才可以使用。</p>
+<p>於是我們打開我們的 Command Line 輸入：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">dotnet add package Microsoft.EntityFrameworkCore.Design</span><br></pre></td></tr></table></figure>
+<p>這時會將 EntityFrameworkCore 的 package安裝到你的專案中。</p>
+<p>你以為這樣就可以使用了嗎？</p>
+<p>不，還沒完！</p>
+<p><del>如果光是這樣簡單我就不會寫這篇文章了。</del></p>
+<p>接著，打開你的 Project，找到 專案名稱.csproj</p>
+<p><img data-src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/be4ed7ee-7296-4341-bd60-99a3fe6184f4/1529138208_60082.png"></p>
+<p>點進去後，將這一段 XML加入進去，讓我們待會的 dotnet Cli 可以知道要去這裡面找到 EntityFrameworkCore的 packages。</p>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"> <span class="tag">&lt;<span class="name">ItemGroup</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">DotNetCliToolReference</span> <span class="attr">Include</span>=<span class="string">&quot;Microsoft.EntityFrameworkCore.Tools.DotNet&quot;</span> <span class="attr">Version</span>=<span class="string">&quot;2.0.0&quot;</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">ItemGroup</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>按下存檔之後，我們繼續打開 Command Line 輸入dotnet ef 試試。</p>
+<p>如果是下圖，恭喜你，成功了一半了！</p>
+<p><img data-src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/be4ed7ee-7296-4341-bd60-99a3fe6184f4/1529138461_56441.png"></p>
+<p>但如果你跟我一樣不幸運，出現的是這一段紅字：</p>
+<font color="red"> 
+version for package `Microsoft.EntityFrameworkCore.Tools.DotNet` could not be resolved.
+</font>
+
+<p>不用擔心，我也解決了。我在這個網頁中找到的<a href="https://stackoverflow.com/questions/43375734/version-for-package-microsoft-entityframeworkcore-tools-dotnet-could-not-be-re">答案</a></p>
+<p>那麼你就需要再輸入 <code>dotnet restore</code></p>
+<p>就可以完成安裝。</p>
+<div>
+以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
+
+<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
+<p><a href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
+</div>
+]]></content>
+      <categories>
+        <category>.NET</category>
+      </categories>
+      <tags>
+        <tag>.net core  Entity Framework</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>JavaScript- 解決多次實體化物件會造成物件無法正常使用</title>
     <url>/2017/01/09/JavaScript-%E8%A7%A3%E6%B1%BA%E5%A4%9A%E6%AC%A1%E5%AF%A6%E9%AB%94%E5%8C%96%E7%89%A9%E4%BB%B6%E6%9C%83%E9%80%A0%E6%88%90%E7%89%A9%E4%BB%B6%E7%84%A1%E6%B3%95%E6%AD%A3%E5%B8%B8%E4%BD%BF%E7%94%A8/</url>
     <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>因為JavaScript的物件導向與一般大家所認識的物件導向有所不同</p>
@@ -701,59 +754,6 @@ LINQ to Entities 查詢中無法建構實體或複雜類型
       </categories>
       <tags>
         <tag>this</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>.NET - 在VS Code 中用.net core 安裝 Entity Framework</title>
-    <url>/2018/06/16/NET-%E5%9C%A8VS-Code-%E4%B8%AD%E7%94%A8-net-core-%E5%AE%89%E8%A3%9D-Entity-Framework/</url>
-    <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>.Net Core 出來了很久，作為一個.Net的忠實信徒，卻這麼久沒有去觸碰它，實在慚愧。</p>
-<p>最近，因為碩班實在忙碌，很多珍貴技術想碰卻苦無時間，甚至連發部落格的時間都少得可憐。</p>
-<p>一直想用 Angular6 + .NET Core 2 開發一套系統，於是花了一點時間鑽研一下文件。</p>
-<p>而身為.NET 愛好者，方便的工具肯定是少不了。以前在寫 WebAPI的時候，簡單的 EF + Code First就可以讓我省去大半開發時間</p>
-<p>於是現在轉換到了.NET Core，當然也要來好好利用這些工具。</p>
-<span id="more"></span>
-
-<p>基本安裝.NET Core的教學也很簡單，只需要安裝 <a href="https://www.microsoft.com/net/download/macos">.NET Core  SDK</a></p>
-<p>註：此連結為 MacOS SDK下載，Windows用戶請自行切換</p>
-<p>接著下一步到底就可以使用 .NET Cli了。</p>
-<p>如果有看到下圖就代表你安裝成功了。</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">dotnet --info</span><br></pre></td></tr></table></figure>
-<p><img data-src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/be4ed7ee-7296-4341-bd60-99a3fe6184f4/1529137632_94568.png"></p>
-<p>接下來我們來回歸到重點，要如何安裝 Entity framework (EF) ?</p>
-<p>在 .net Core SDK中，預設是沒有 EF的，因此需要額外安裝 packages 才可以使用。</p>
-<p>於是我們打開我們的 Command Line 輸入：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">dotnet add package Microsoft.EntityFrameworkCore.Design</span><br></pre></td></tr></table></figure>
-<p>這時會將 EntityFrameworkCore 的 package安裝到你的專案中。</p>
-<p>你以為這樣就可以使用了嗎？</p>
-<p>不，還沒完！</p>
-<p><del>如果光是這樣簡單我就不會寫這篇文章了。</del></p>
-<p>接著，打開你的 Project，找到 專案名稱.csproj</p>
-<p><img data-src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/be4ed7ee-7296-4341-bd60-99a3fe6184f4/1529138208_60082.png"></p>
-<p>點進去後，將這一段 XML加入進去，讓我們待會的 dotnet Cli 可以知道要去這裡面找到 EntityFrameworkCore的 packages。</p>
-<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"> <span class="tag">&lt;<span class="name">ItemGroup</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">DotNetCliToolReference</span> <span class="attr">Include</span>=<span class="string">&quot;Microsoft.EntityFrameworkCore.Tools.DotNet&quot;</span> <span class="attr">Version</span>=<span class="string">&quot;2.0.0&quot;</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">ItemGroup</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<p>按下存檔之後，我們繼續打開 Command Line 輸入dotnet ef 試試。</p>
-<p>如果是下圖，恭喜你，成功了一半了！</p>
-<p><img data-src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/be4ed7ee-7296-4341-bd60-99a3fe6184f4/1529138461_56441.png"></p>
-<p>但如果你跟我一樣不幸運，出現的是這一段紅字：</p>
-<font color="red"> 
-version for package `Microsoft.EntityFrameworkCore.Tools.DotNet` could not be resolved.
-</font>
-
-<p>不用擔心，我也解決了。我在這個網頁中找到的<a href="https://stackoverflow.com/questions/43375734/version-for-package-microsoft-entityframeworkcore-tools-dotnet-could-not-be-re">答案</a></p>
-<p>那麼你就需要再輸入 <code>dotnet restore</code></p>
-<p>就可以完成安裝。</p>
-<div>
-以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
-
-<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
-<p><a href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
-</div>
-]]></content>
-      <categories>
-        <category>.NET</category>
-      </categories>
-      <tags>
-        <tag>.net core  Entity Framework</tag>
       </tags>
   </entry>
   <entry>
@@ -907,6 +907,22 @@ version for package `Microsoft.EntityFrameworkCore.Tools.DotNet` could not be re
       </tags>
   </entry>
   <entry>
+    <title>Test</title>
+    <url>/2023/02/14/Test/</url>
+    <content><![CDATA[<p>AAAA</p>
+<span id="more"></span>
+
+<p>TEST</p>
+<p><img data-src="/./Test/tst.png"></p>
+<div>
+以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
+
+<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
+<p><a href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
+</div>
+]]></content>
+  </entry>
+  <entry>
     <title>【CI/CD實作】透過Github Webhook觸發Jenkins實現CI/CD(四)</title>
     <url>/2023/02/10/Webhook%E8%A7%B8%E7%99%BCJenkins%E5%AF%A6%E7%8F%BECI-CD/</url>
     <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>在前面的文章中，我們已經成功設置好了Jenkins並讓Jenkins擁有sudo權限能更讓我們做更多事情了。<br>接下來就準備進到重頭戲，開始設定GitHub Webhook並觸發Jenkins來將專案Clone下來後，實現CI&#x2F;CD吧！</p>
@@ -979,74 +995,6 @@ version for package `Microsoft.EntityFrameworkCore.Tools.DotNet` could not be re
       </categories>
       <tags>
         <tag>WinForm</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>【Cordova】 將Angular 部署至 android手機</title>
-    <url>/2018/08/21/%E3%80%90Cordova%E3%80%91-%E5%B0%87Angular-%E9%83%A8%E7%BD%B2%E8%87%B3-android%E6%89%8B%E6%A9%9F/</url>
-    <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>在很久以前，筆者曾經寫過一篇利用<a href="%E3%80%90Cordova%E3%80%91-%E5%B0%87%E9%96%8B%E7%99%BC%E5%A5%BD%E7%9A%84WebApp%E9%83%A8%E7%BD%B2%E8%87%B3-ios.md">jQueryMobile 部署至ios</a>的文章</p>
-<p>而在網路上利用將Cordova 將 WebAPP 發行至Android的相關教學文件非常的多，因此難度的門檻其實是相當低的。</p>
-<p>但時隔一年，隨著前端的FrameWork不斷推陳出新，大部分的都以採用前端FrameWork進行開發。(如：Angular、React、Vue)</p>
-<p>今天我們就來看看，如何利用Cordova搭配前端FrameWork來部署到Android手機吧！(同樣的方式依然可以部署到ios手機上，請參閱之前寫的文章)</p>
-<span id="more"></span>
-
-<p>在現在這個前端大亂鬥的時代，很多前端工具都如雨後春筍般冒出。</p>
-<p>其中在寫手機應用時，我們第一直覺會想到使用 ionic 這套FrameWork來完成。</p>
-<p>而ionic本身也是透過Cordova來進行包裝。</p>
-<p>而其中ionic本身與Angular語意相近、寫法雷同，因此也有不少人紛紛投入至此。</p>
-<p>但隨著現在Material的樣式不斷高漲，Angular也推出了 Angular Material作為網頁介面。</p>
-<p>因此本篇文章將告訴你，如何實現任務的最快途徑。</p>
-<h3 id="第一步-一一-環境建置"><a href="#第一步-一一-環境建置" class="headerlink" title="第一步 一一 環境建置"></a>第一步 一一 環境建置</h3><p>首先我們需要安裝Cordova CLI幫我們做環境建置</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">npm install -g cordova</span><br></pre></td></tr></table></figure>
-<p>接著我們會需要以下的工具，因此請各位讀者先行安裝。</p>
-<p>需要的工具有以下三樣：</p>
-<p>1、<a href="https://nodejs.org/en/download/">NodeJS</a></p>
-<p>2、<a href="http://www.oracle.com/technetwork/java/javase/downloads/jdk10-downloads-4416644.html">Java JDK</a></p>
-<p>3、<a href="http://developer.android.com/studio/">Android Studio</a></p>
-<p> 前面兩項作為Android 手機開發因此是必需要安裝的，後面一項則可以選擇自己是否要安裝。</p>
-<p>這裡之所以要安裝 AndroidStudio是因為本身自帶 Gradle，可以將專案自動建置起來。</p>
-<p>當然如果不想安裝肥大的 AndroidStudio，可以透過指令方式，直接安裝Gradle也可以。</p>
-<p>安裝網址在這： <a href="https://gradle.org/install/">https://gradle.org/install/</a></p>
-<p>安裝完成後，可以輸入 <code>gradle -v</code>，查看版本。如果看到此圖就代表安裝成功</p>
-<p><img data-src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/0ed903e0-c200-4c01-a557-22c6756da5c7/1534818636_36865.png"></p>
-<p>接下來我們就可以透過Cordova 來建立我們的專案了。</p>
-<p>此時的指令有點多，我們一步步進行。</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">// 建立一個名叫MyAPP的專案，在myApp這個資料夾底下。</span><br><span class="line">cordova create myAPP mis.kuas.edu.tw MyAPP</span><br><span class="line"></span><br><span class="line">//進入到此專案資料夾</span><br><span class="line"><span class="built_in">cd</span> myAPP</span><br><span class="line"></span><br><span class="line">//在myAPP的資料夾當中，建立想要部署的平台</span><br><span class="line">cordova platform add android --save</span><br><span class="line"></span><br><span class="line">//將專案進行Build</span><br><span class="line">cordova build android</span><br></pre></td></tr></table></figure>
-
-<h3 id="第二步-ㄧㄧ-使用-Cordova-Plugin-套件"><a href="#第二步-ㄧㄧ-使用-Cordova-Plugin-套件" class="headerlink" title="第二步 ㄧㄧ 使用 Cordova Plugin 套件"></a>第二步 ㄧㄧ 使用 Cordova Plugin 套件</h3><p>若是你的APP有需要啟用其他的硬體元件，如：相機、定位、藍芽…等等</p>
-<p>那麼在這個步驟當中，你需要到你Angular的專案，在index.html裡引入</p>
-<figure class="highlight html"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">type</span>=<span class="string">”text/javascript”</span> <span class="attr">src</span>=<span class="string">”cordova.js”</span>&gt;</span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<p>請注意，當您嘗試在本地端服務器上進行測試時，由於你沒有cordova.js，因此將會拋出&#x2F;顯示錯誤。</p>
-<p>接著使用以下指令添加Cordova Device套件：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">cordova plugin add cordova-plugin-device</span><br></pre></td></tr></table></figure>
-<p>到這裡之後，我們差不多完成了，現在讓我們使用cordova獲取設備。</p>
-<p>接著在Angular專案中，實作OnInit函數，並添加套件的call back 函數</p>
-<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">Component</span> , <span class="title class_">OnInit</span>&#125; <span class="keyword">from</span> ‘@angular/core’;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">AppComponent</span> implements <span class="title class_">OnInit</span>&#123; </span><br><span class="line"> <span class="keyword">var</span> device; <span class="comment">// 由於Typescript不認識 device.platform 因此要先宣告</span></span><br><span class="line"> <span class="title function_">ngOnInit</span>(<span class="params"></span>) &#123; </span><br><span class="line"> <span class="variable language_">document</span>.<span class="title function_">addEventListener</span>(<span class="string">&quot;deviceread&quot;</span>, <span class="keyword">function</span>(<span class="params"></span>) &#123; </span><br><span class="line"> <span class="title function_">alert</span>(device.<span class="property">platform</span>); </span><br><span class="line"> &#125;, <span class="literal">false</span>); </span><br><span class="line"> &#125; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="第三部-ㄧㄧ-打包你的-Angular專案"><a href="#第三部-ㄧㄧ-打包你的-Angular專案" class="headerlink" title="第三部 ㄧㄧ 打包你的 Angular專案"></a>第三部 ㄧㄧ 打包你的 Angular專案</h3><p>接下來也就是最重要的一步了。</p>
-<p>我們透過 ng build –prod 打包完專案後</p>
-<p>會在專案中找到dist的資料夾。裡面是我們打包過後的專案</p>
-<p>其中點開index.html 我們需要將<base href="/">標記更新為<base href="./">，這樣才能使angular能夠訪問目錄路徑中的文件。</p>
-<p>最後將整個dist資料夾內的檔案，複製一份到我們剛剛透過cordova建置的專案目錄中 （myapp&#x2F;www 的資料夾內 ）</p>
-<p>最後，輸入</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">cordova build android</span><br></pre></td></tr></table></figure>
-<p>產生APK檔案，即可大功告成！</p>
-<p>而產生出來的檔案會存放在：</p>
-<p>myapp&#x2F;platforms&#x2F;android&#x2F;app&#x2F;build&#x2F;outputs&#x2F;apk&#x2F;debug 底下。</p>
-<p>附上一張完整部署成功的圖：<br><img data-src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/0ed903e0-c200-4c01-a557-22c6756da5c7/1534820679_13908.png"></p>
-<p><img data-src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/0ed903e0-c200-4c01-a557-22c6756da5c7/1534821256_45537.png"></p>
-<div>
-以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
-
-<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
-<p><a href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
-</div>
-]]></content>
-      <categories>
-        <category>Cordova</category>
-      </categories>
-      <tags>
-        <tag>Angular</tag>
       </tags>
   </entry>
   <entry>
@@ -1139,6 +1087,74 @@ version for package `Microsoft.EntityFrameworkCore.Tools.DotNet` could not be re
       </categories>
       <tags>
         <tag>WebApp</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>【Cordova】 將Angular 部署至 android手機</title>
+    <url>/2018/08/21/%E3%80%90Cordova%E3%80%91-%E5%B0%87Angular-%E9%83%A8%E7%BD%B2%E8%87%B3-android%E6%89%8B%E6%A9%9F/</url>
+    <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>在很久以前，筆者曾經寫過一篇利用<a href="%E3%80%90Cordova%E3%80%91-%E5%B0%87%E9%96%8B%E7%99%BC%E5%A5%BD%E7%9A%84WebApp%E9%83%A8%E7%BD%B2%E8%87%B3-ios.md">jQueryMobile 部署至ios</a>的文章</p>
+<p>而在網路上利用將Cordova 將 WebAPP 發行至Android的相關教學文件非常的多，因此難度的門檻其實是相當低的。</p>
+<p>但時隔一年，隨著前端的FrameWork不斷推陳出新，大部分的都以採用前端FrameWork進行開發。(如：Angular、React、Vue)</p>
+<p>今天我們就來看看，如何利用Cordova搭配前端FrameWork來部署到Android手機吧！(同樣的方式依然可以部署到ios手機上，請參閱之前寫的文章)</p>
+<span id="more"></span>
+
+<p>在現在這個前端大亂鬥的時代，很多前端工具都如雨後春筍般冒出。</p>
+<p>其中在寫手機應用時，我們第一直覺會想到使用 ionic 這套FrameWork來完成。</p>
+<p>而ionic本身也是透過Cordova來進行包裝。</p>
+<p>而其中ionic本身與Angular語意相近、寫法雷同，因此也有不少人紛紛投入至此。</p>
+<p>但隨著現在Material的樣式不斷高漲，Angular也推出了 Angular Material作為網頁介面。</p>
+<p>因此本篇文章將告訴你，如何實現任務的最快途徑。</p>
+<h3 id="第一步-一一-環境建置"><a href="#第一步-一一-環境建置" class="headerlink" title="第一步 一一 環境建置"></a>第一步 一一 環境建置</h3><p>首先我們需要安裝Cordova CLI幫我們做環境建置</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">npm install -g cordova</span><br></pre></td></tr></table></figure>
+<p>接著我們會需要以下的工具，因此請各位讀者先行安裝。</p>
+<p>需要的工具有以下三樣：</p>
+<p>1、<a href="https://nodejs.org/en/download/">NodeJS</a></p>
+<p>2、<a href="http://www.oracle.com/technetwork/java/javase/downloads/jdk10-downloads-4416644.html">Java JDK</a></p>
+<p>3、<a href="http://developer.android.com/studio/">Android Studio</a></p>
+<p> 前面兩項作為Android 手機開發因此是必需要安裝的，後面一項則可以選擇自己是否要安裝。</p>
+<p>這裡之所以要安裝 AndroidStudio是因為本身自帶 Gradle，可以將專案自動建置起來。</p>
+<p>當然如果不想安裝肥大的 AndroidStudio，可以透過指令方式，直接安裝Gradle也可以。</p>
+<p>安裝網址在這： <a href="https://gradle.org/install/">https://gradle.org/install/</a></p>
+<p>安裝完成後，可以輸入 <code>gradle -v</code>，查看版本。如果看到此圖就代表安裝成功</p>
+<p><img data-src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/0ed903e0-c200-4c01-a557-22c6756da5c7/1534818636_36865.png"></p>
+<p>接下來我們就可以透過Cordova 來建立我們的專案了。</p>
+<p>此時的指令有點多，我們一步步進行。</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">// 建立一個名叫MyAPP的專案，在myApp這個資料夾底下。</span><br><span class="line">cordova create myAPP mis.kuas.edu.tw MyAPP</span><br><span class="line"></span><br><span class="line">//進入到此專案資料夾</span><br><span class="line"><span class="built_in">cd</span> myAPP</span><br><span class="line"></span><br><span class="line">//在myAPP的資料夾當中，建立想要部署的平台</span><br><span class="line">cordova platform add android --save</span><br><span class="line"></span><br><span class="line">//將專案進行Build</span><br><span class="line">cordova build android</span><br></pre></td></tr></table></figure>
+
+<h3 id="第二步-ㄧㄧ-使用-Cordova-Plugin-套件"><a href="#第二步-ㄧㄧ-使用-Cordova-Plugin-套件" class="headerlink" title="第二步 ㄧㄧ 使用 Cordova Plugin 套件"></a>第二步 ㄧㄧ 使用 Cordova Plugin 套件</h3><p>若是你的APP有需要啟用其他的硬體元件，如：相機、定位、藍芽…等等</p>
+<p>那麼在這個步驟當中，你需要到你Angular的專案，在index.html裡引入</p>
+<figure class="highlight html"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">type</span>=<span class="string">”text/javascript”</span> <span class="attr">src</span>=<span class="string">”cordova.js”</span>&gt;</span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>請注意，當您嘗試在本地端服務器上進行測試時，由於你沒有cordova.js，因此將會拋出&#x2F;顯示錯誤。</p>
+<p>接著使用以下指令添加Cordova Device套件：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">cordova plugin add cordova-plugin-device</span><br></pre></td></tr></table></figure>
+<p>到這裡之後，我們差不多完成了，現在讓我們使用cordova獲取設備。</p>
+<p>接著在Angular專案中，實作OnInit函數，並添加套件的call back 函數</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">Component</span> , <span class="title class_">OnInit</span>&#125; <span class="keyword">from</span> ‘@angular/core’;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">AppComponent</span> implements <span class="title class_">OnInit</span>&#123; </span><br><span class="line"> <span class="keyword">var</span> device; <span class="comment">// 由於Typescript不認識 device.platform 因此要先宣告</span></span><br><span class="line"> <span class="title function_">ngOnInit</span>(<span class="params"></span>) &#123; </span><br><span class="line"> <span class="variable language_">document</span>.<span class="title function_">addEventListener</span>(<span class="string">&quot;deviceread&quot;</span>, <span class="keyword">function</span>(<span class="params"></span>) &#123; </span><br><span class="line"> <span class="title function_">alert</span>(device.<span class="property">platform</span>); </span><br><span class="line"> &#125;, <span class="literal">false</span>); </span><br><span class="line"> &#125; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="第三部-ㄧㄧ-打包你的-Angular專案"><a href="#第三部-ㄧㄧ-打包你的-Angular專案" class="headerlink" title="第三部 ㄧㄧ 打包你的 Angular專案"></a>第三部 ㄧㄧ 打包你的 Angular專案</h3><p>接下來也就是最重要的一步了。</p>
+<p>我們透過 ng build –prod 打包完專案後</p>
+<p>會在專案中找到dist的資料夾。裡面是我們打包過後的專案</p>
+<p>其中點開index.html 我們需要將<base href="/">標記更新為<base href="./">，這樣才能使angular能夠訪問目錄路徑中的文件。</p>
+<p>最後將整個dist資料夾內的檔案，複製一份到我們剛剛透過cordova建置的專案目錄中 （myapp&#x2F;www 的資料夾內 ）</p>
+<p>最後，輸入</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">cordova build android</span><br></pre></td></tr></table></figure>
+<p>產生APK檔案，即可大功告成！</p>
+<p>而產生出來的檔案會存放在：</p>
+<p>myapp&#x2F;platforms&#x2F;android&#x2F;app&#x2F;build&#x2F;outputs&#x2F;apk&#x2F;debug 底下。</p>
+<p>附上一張完整部署成功的圖：<br><img data-src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/0ed903e0-c200-4c01-a557-22c6756da5c7/1534820679_13908.png"></p>
+<p><img data-src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/0ed903e0-c200-4c01-a557-22c6756da5c7/1534821256_45537.png"></p>
+<div>
+以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
+
+<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
+<p><a href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
+</div>
+]]></content>
+      <categories>
+        <category>Cordova</category>
+      </categories>
+      <tags>
+        <tag>Angular</tag>
       </tags>
   </entry>
   <entry>
@@ -1507,6 +1523,35 @@ version for package `Microsoft.EntityFrameworkCore.Tools.DotNet` could not be re
       </tags>
   </entry>
   <entry>
+    <title>快速架設私有的Nuget Server</title>
+    <url>/2023/02/11/%E5%BF%AB%E9%80%9F%E6%9E%B6%E8%A8%AD%E7%A7%81%E6%9C%89%E7%9A%84Nuget-Server/</url>
+    <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>大部分在開發的時候，都是直接在Nuget上搜尋開發者release的套件安裝來用，但通常公司的不同專案上總會有相似的專案會需要使用相同的功能。<br>但這些套件又牽涉公司機密，也不方便直接上傳到Nuget公開平台上，因此本篇主要介紹 <code>BaGet</code> 這個方便又強大的 Private Nuget Server，讓我們可以輕鬆管理這些私密的Library。</p>
+<span id="more"></span>
+
+<h3 id="BaGet安裝"><a href="#BaGet安裝" class="headerlink" title="BaGet安裝"></a>BaGet安裝</h3><p>Baget這個專案，非常方便簡單，但是有一個缺點——採用 .NET Core 3.1建置<br>而在2023年的今天，要去哪邊生 .NET3.1的環境呢？<br>如果沒有的讀者，可以參考<a href="../%E5%A6%82%E4%BD%95%E5%9C%A8Ubuntu%E5%AE%89%E8%A3%9D%E5%A4%9A%E5%80%8B-NET%E7%89%88%E6%9C%AC%E7%92%B0%E5%A2%83/%E5%A6%82%E4%BD%95%E5%9C%A8Ubuntu%E5%AE%89%E8%A3%9D%E5%A4%9A%E5%80%8B-NET%E7%89%88%E6%9C%AC%E7%92%B0%E5%A2%83.md">此篇</a> 教學，來安裝 .NET 3.1 環境。</p>
+<p>當我們擁有 .NET 3.1環境之後，我們只需要下載 Baget Relese 的版本即可：<br><a href="https://github.com/loic-sharma/BaGet/releases">BaGet Release</a></p>
+<p>下載完成後，我們就可以透過以下指令將專案進行建置</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">筆者本身是額外安裝3.1環境，因此在我的環境下指令為 dotnet3.1</span><br><span class="line">dotnet3.1 BaGet.dll </span><br></pre></td></tr></table></figure>
+
+<p>建置完成後，我們就可以看到一個與Nuget官網一模ㄧ樣的網站了：<br><img data-src="/./%E5%BF%AB%E9%80%9F%E6%9E%B6%E8%A8%AD%E7%A7%81%E6%9C%89%E7%9A%84Nuget-Server/nuget.png"></p>
+<p>切換到Upload頁面我們就可以查看上傳語法，以及得到套件的來源網址<br><img data-src="/./%E5%BF%AB%E9%80%9F%E6%9E%B6%E8%A8%AD%E7%A7%81%E6%9C%89%E7%9A%84Nuget-Server/upload.png"></p>
+<p>最後我們只需要將來源網址添加到 Nuget管理員，這樣就可以找到部署在 Baget上的Library囉！</p>
+<p><img data-src="/./%E5%BF%AB%E9%80%9F%E6%9E%B6%E8%A8%AD%E7%A7%81%E6%9C%89%E7%9A%84Nuget-Server/nuget%EF%BC%ADanager.png"></p>
+<div>
+以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
+
+<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
+<p><a href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
+</div>
+]]></content>
+      <categories>
+        <category>.NET</category>
+      </categories>
+      <tags>
+        <tag>.NET</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>.NET Core自動建立Entity</title>
     <url>/2023/01/24/%E8%87%AA%E5%8B%95%E5%BB%BA%E7%AB%8BEntity/</url>
     <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>在 ASP.Net FrameWork 中，我們可以透過 CodeFirst 的方式，自動幫我們建立資料庫中每一個Table，並轉換成Entity，讓我們有Model可以做對應。</p>
@@ -1552,35 +1597,6 @@ version for package `Microsoft.EntityFrameworkCore.Tools.DotNet` could not be re
       </categories>
       <tags>
         <tag>EntityFrameWork</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>快速架設私有的Nuget Server</title>
-    <url>/2023/02/11/%E5%BF%AB%E9%80%9F%E6%9E%B6%E8%A8%AD%E7%A7%81%E6%9C%89%E7%9A%84Nuget-Server/</url>
-    <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>大部分在開發的時候，都是直接在Nuget上搜尋開發者release的套件安裝來用，但通常公司的不同專案上總會有相似的專案會需要使用相同的功能。<br>但這些套件又牽涉公司機密，也不方便直接上傳到Nuget公開平台上，因此本篇主要介紹 <code>BaGet</code> 這個方便又強大的 Private Nuget Server，讓我們可以輕鬆管理這些私密的Library。</p>
-<span id="more"></span>
-
-<h3 id="BaGet安裝"><a href="#BaGet安裝" class="headerlink" title="BaGet安裝"></a>BaGet安裝</h3><p>Baget這個專案，非常方便簡單，但是有一個缺點——採用 .NET Core 3.1建置<br>而在2023年的今天，要去哪邊生 .NET3.1的環境呢？<br>如果沒有的讀者，可以參考<a href="../%E5%A6%82%E4%BD%95%E5%9C%A8Ubuntu%E5%AE%89%E8%A3%9D%E5%A4%9A%E5%80%8B-NET%E7%89%88%E6%9C%AC%E7%92%B0%E5%A2%83/%E5%A6%82%E4%BD%95%E5%9C%A8Ubuntu%E5%AE%89%E8%A3%9D%E5%A4%9A%E5%80%8B-NET%E7%89%88%E6%9C%AC%E7%92%B0%E5%A2%83.md">此篇</a> 教學，來安裝 .NET 3.1 環境。</p>
-<p>當我們擁有 .NET 3.1環境之後，我們只需要下載 Baget Relese 的版本即可：<br><a href="https://github.com/loic-sharma/BaGet/releases">BaGet Release</a></p>
-<p>下載完成後，我們就可以透過以下指令將專案進行建置</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">筆者本身是額外安裝3.1環境，因此在我的環境下指令為 dotnet3.1</span><br><span class="line">dotnet3.1 BaGet.dll </span><br></pre></td></tr></table></figure>
-
-<p>建置完成後，我們就可以看到一個與Nuget官網一模ㄧ樣的網站了：<br><img data-src="/./%E5%BF%AB%E9%80%9F%E6%9E%B6%E8%A8%AD%E7%A7%81%E6%9C%89%E7%9A%84Nuget-Server/nuget.png"></p>
-<p>切換到Upload頁面我們就可以查看上傳語法，以及得到套件的來源網址<br><img data-src="/./%E5%BF%AB%E9%80%9F%E6%9E%B6%E8%A8%AD%E7%A7%81%E6%9C%89%E7%9A%84Nuget-Server/upload.png"></p>
-<p>最後我們只需要將來源網址添加到 Nuget管理員，這樣就可以找到部署在 Baget上的Library囉！</p>
-<p><img data-src="/./%E5%BF%AB%E9%80%9F%E6%9E%B6%E8%A8%AD%E7%A7%81%E6%9C%89%E7%9A%84Nuget-Server/nuget%EF%BC%ADanager.png"></p>
-<div>
-以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
-
-<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
-<p><a href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
-</div>
-]]></content>
-      <categories>
-        <category>.NET</category>
-      </categories>
-      <tags>
-        <tag>.NET</tag>
       </tags>
   </entry>
   <entry>

@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
+    <loc>https://blog.zhenghui.idv.tw/2023/02/14/Test/</loc>
+    <lastmod>2023-02-13</lastmod>
+  </url>
+  <url>
     <loc>https://blog.zhenghui.idv.tw/2017/04/22/JavaScript-ES6-%E7%AE%AD%E9%A0%AD%E5%87%BD%E6%95%B8/</loc>
     <lastmod>2023-02-13</lastmod>
   </url>
