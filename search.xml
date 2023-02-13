@@ -982,7 +982,7 @@ version for package `Microsoft.EntityFrameworkCore.Tools.DotNet` could not be re
       </tags>
   </entry>
   <entry>
-    <title>Cordova-將Angular 部署至 android手機</title>
+    <title>【Cordova】 將Angular 部署至 android手機</title>
     <url>/2018/08/21/%E3%80%90Cordova%E3%80%91-%E5%B0%87Angular-%E9%83%A8%E7%BD%B2%E8%87%B3-android%E6%89%8B%E6%A9%9F/</url>
     <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>在很久以前，筆者曾經寫過一篇利用<a href="%E3%80%90Cordova%E3%80%91-%E5%B0%87%E9%96%8B%E7%99%BC%E5%A5%BD%E7%9A%84WebApp%E9%83%A8%E7%BD%B2%E8%87%B3-ios.md">jQueryMobile 部署至ios</a>的文章</p>
 <p>而在網路上利用將Cordova 將 WebAPP 發行至Android的相關教學文件非常的多，因此難度的門檻其實是相當低的。</p>
@@ -1050,7 +1050,7 @@ version for package `Microsoft.EntityFrameworkCore.Tools.DotNet` could not be re
       </tags>
   </entry>
   <entry>
-    <title>Cordova-將開發好的WebApp部署至 ios</title>
+    <title>【Cordova】 將開發好的WebApp部署至 ios</title>
     <url>/2020/07/27/%E3%80%90Cordova%E3%80%91-%E5%B0%87%E9%96%8B%E7%99%BC%E5%A5%BD%E7%9A%84WebApp%E9%83%A8%E7%BD%B2%E8%87%B3-ios/</url>
     <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>這是筆者在大學期間修的一門手機應用課程。</p>
 <p>而在去年在修這一門課的時候，筆者是使用Cordova 將JqueryMobile App 發行至 Android平台上</p>
@@ -1142,7 +1142,7 @@ version for package `Microsoft.EntityFrameworkCore.Tools.DotNet` could not be re
       </tags>
   </entry>
   <entry>
-    <title>Cordova-建立 Android release 簽名版本（Signature Version）</title>
+    <title>【Cordova】 建立 Android release 簽名版本（Signature Version）</title>
     <url>/2018/09/25/%E3%80%90Cordova%E3%80%91-%E5%BB%BA%E7%AB%8B-Android-release-%E7%B0%BD%E5%90%8D%E7%89%88%E6%9C%AC%EF%BC%88Signature-Version%EF%BC%89/</url>
     <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>當我們使用 Cordova 進行 build的時候，Codova會自動幫我們產生 debug版本的apk</p>
 <p>但當我們要將APP 進行上架時，僅有debug版的apk是不能進行上架的</p>
@@ -1198,7 +1198,7 @@ version for package `Microsoft.EntityFrameworkCore.Tools.DotNet` could not be re
       </tags>
   </entry>
   <entry>
-    <title>Design Pattern-獨體模式(Singleton Pattern)介紹</title>
+    <title>【Design Pattern】獨體模式(Singleton Pattern)介紹</title>
     <url>/2017/06/03/%E3%80%90Design-Pattern%E3%80%91%E7%8D%A8%E9%AB%94%E6%A8%A1%E5%BC%8F-Singleton-Pattern-%E4%BB%8B%E7%B4%B9/</url>
     <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>獨體模式其實大家很常使用到，但或許大家不知道他叫獨體模式。</p>
 <p>獨體模式又稱為單例模式，目的是為了讓<br><strong>該物件只能實體化一次，往後每次調用都是相同的物件</strong><br>而在介紹之前，我們先談談這個獨體模式，他可以使用在哪些情況下。</p>
@@ -1241,7 +1241,7 @@ version for package `Microsoft.EntityFrameworkCore.Tools.DotNet` could not be re
       </tags>
   </entry>
   <entry>
-    <title>CI/CD實作-允許Jenkins有sudo權限(三)</title>
+    <title>【CI&amp;CD實作】允許Jenkins有sudo權限(三)</title>
     <url>/2023/02/10/%E5%85%81%E8%A8%B1Jenkins%E6%9C%89sudo%E6%AC%8A%E9%99%90/</url>
     <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>由於我們要利用Jenkins來實作CI&#x2F;CD，因此部署上的操作上往往免不了會需要sudo的權限讓我們能做一些事情，如：建立資料夾、刪除資料夾、搬遷檔案等各種操作。</p>
 <p>因此本篇主要介紹如何允許Jenkins有sudo權限</p>
@@ -1271,7 +1271,7 @@ version for package `Microsoft.EntityFrameworkCore.Tools.DotNet` could not be re
       </tags>
   </entry>
   <entry>
-    <title>CI/CD實作-在 .NET 透過nuget.config 自訂NuGet 套件來源（番外篇）</title>
+    <title>【CI&amp;CD實作】在 .NET 透過nuget.config 自訂NuGet 套件來源（番外篇）</title>
     <url>/2023/02/11/%E5%9C%A8-NET-%E9%80%8F%E9%81%8Enuget-config-%E8%87%AA%E8%A8%82NuGet-%E5%A5%97%E4%BB%B6%E4%BE%86%E6%BA%90/</url>
     <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>通常我們在開發.NET專案時，若因為專案中有使用到公司內部的Library時，通常都會架設Private Nuget Server來進行套件添加。<br>而一般來說添加套件來源的方式大多都是在 Nuget管理員的介面中選擇添加的目錄夾或是Url來操作。<br>但這樣的方式如果實現CI&#x2F;CD時，則會遇到找不到套件來源的問題，原因是Jenkins是直接將Github上的專案Clone下來進行建置與部署。<br>但我們設定套件來源的時機則是在專案Clone後手動開啟Nuget管理員添加的。<br>因此本篇主要會教學如何透過幾種方式讓Jenkins能夠讀的到自訂的Nuget套件來源。</p>
 <span id="more"></span>
@@ -1368,7 +1368,7 @@ version for package `Microsoft.EntityFrameworkCore.Tools.DotNet` could not be re
       </categories>
   </entry>
   <entry>
-    <title>CI/CD實作-安裝Jenkins(一)</title>
+    <title>【CI&amp;CD實作】安裝Jenkins(一)</title>
     <url>/2023/02/09/%E5%AE%89%E8%A3%9DJenkins(%E4%B8%80)/</url>
     <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>一直以來耳聞Jenkins的大名，知道可以用它來做CI&#x2F;CD以及跑專案排程等等，能做到的事情非常的多。</p>
 <p>但由於筆者先前的公司過去一直都是使用GitLab作為 Repository Server，而GitLab本身的CI Server - <strong>GitLab Runner</strong> 又很有名，因此一直沒機會可以好好探究，直到現在換了新公司，改採用Gitgub後終於有機會好好一探究竟。</p>
@@ -1633,7 +1633,7 @@ version for package `Microsoft.EntityFrameworkCore.Tools.DotNet` could not be re
       </tags>
   </entry>
   <entry>
-    <title>CI/CD實作-變更Jenkins家目錄(二)</title>
+    <title>【CI&amp;CD實作】變更Jenkins家目錄(二)</title>
     <url>/2023/02/10/%E8%AE%8A%E6%9B%B4Jenkins%E5%AE%B6%E7%9B%AE%E9%8C%84(%E4%BA%8C)/</url>
     <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>根據上篇所述，由於我們的Jenkins預設是安裝在 &#x2F;var&#x2F;lib&#x2F;jenkins底下<br>而當時筆者遇到的狀況是，當時沒有注意到AWS的EC2空間快用滿了，而當安裝Jenkins後硬生生將硬碟空間吃到100%，以至於我們沒有多餘的空間可以進行其他操作。</p>
 <p>因此本篇主要來介紹，當硬碟空間擴展後我們要如何搬遷位置，確保Jenkins有多餘的空間可以儲存。</p>
