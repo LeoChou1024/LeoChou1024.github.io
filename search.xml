@@ -1,47 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>Android - 封裝Fragment當中換頁的程式碼</title>
-    <url>/2017/02/15/Android-%E5%B0%81%E8%A3%9DFragment%E7%95%B6%E4%B8%AD%E6%8F%9B%E9%A0%81%E7%9A%84%E7%A8%8B%E5%BC%8F%E7%A2%BC/</url>
-    <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>不知道各位會不會有這種想法：不想將重複的程式碼一直加入到程式當中</p>
-<p>在寫Android當中，我個人認為Fragment是一個很棒的東西，因為它可以將你的App挖出一塊空間出來，來讓你的Fragment Layout來進行切換</p>
-<p>但是，在切換的過程當中，往往切換頁面的程式碼都需要進行重複的撰寫。</p>
-<span id="more"></span>
-<p>因此筆者一直在思考，要如何做到只寫一次，就可以持續的做切換</p>
-<p>因此就想出了可以直接將切換頁面的程式碼進行封裝</p>
-<p>利用靜態方法，讓底下的這串切換程式碼的功能能夠進行覆用</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="type">FragmentTransaction</span> <span class="variable">transaction</span> <span class="operator">=</span> getFragmentManager().beginTransaction();</span><br><span class="line">       transaction.replace(<span class="string">&quot;欲切換的頁面&quot;</span>);</span><br><span class="line">       transaction.commit();</span><br></pre></td></tr></table></figure>
-<p>但當你寫完後，你會發現…. Error!!<br><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/52059204-bcd9-4f90-9abb-0e95893eff98/1487149123_5901.png"></p>
-<p>他會告訴你，你的靜態方法Change當中，包含了非靜態的方法「getFragmentManager()」</p>
-<p>那…該怎麼辦？難道就註定無法將程式碼進行重複使用嗎？</p>
-<p>在跟高手討論過後，既然山不轉，就路轉</p>
-<p>我們一樣宣告成靜態函數，但是這次呢，我們將參數全部由我們的MainActivity來進行傳送</p>
-<p>因此在我們封裝的這個類別 FragmentManagerTool 當中</p>
-<p>我們寫了這樣的程式碼</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">FragmentManagerTool</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* initial Fragment */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">init</span><span class="params">(Bundle savedInstanceState, FragmentManager fragmentManager, <span class="type">int</span> layoutID, Fragment fragment)</span> &#123;</span><br><span class="line">        <span class="type">FragmentTransaction</span> <span class="variable">transaction</span> <span class="operator">=</span> fragmentManager.beginTransaction();</span><br><span class="line">        <span class="keyword">if</span> (savedInstanceState == <span class="literal">null</span>) &#123;</span><br><span class="line">            transaction.add(layoutID, fragment).commit();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* replace Fragment */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">replaceFragment</span><span class="params">(FragmentManager fragmentManager, <span class="type">int</span> layout, Fragment f)</span> &#123;</span><br><span class="line">        <span class="type">FragmentTransaction</span> <span class="variable">ft</span> <span class="operator">=</span> fragmentManager.beginTransaction();</span><br><span class="line">        ft.replace(layout, f);</span><br><span class="line">        ft.commit();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>我們將參數由外面的Activity來進行傳入，如此一來就可以透過static來將我們的切換頁面函數來進行呼叫。</p>
-<p>這時候外面只需要這樣撰寫就可以了：</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">FragmentManagerTool.init(savedInstanceState,getSupportFragmentManager(),R.id.content,ViewList.Instance());</span><br></pre></td></tr></table></figure>
-<p>這樣的做法是不是很方便呢？</p>
-<p>這時候也許你會問：</p>
-<p>為什麼會需要有init 這個方法？</p>
-<p>不是只需要將頁面進行replace就好了嗎？為什麼在 init() 當中，會用到Add()的方法呢？</p>
-<p>原因在於說：</p>
-<p>各位有沒有發現到在MainActivity當中的OnCreate()當中，有著這樣的一段Code:</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">@Override</span><br><span class="line">    protected void onCreate(Bundle savedInstanceState /*What this?*/) &#123;</span><br><span class="line">        super.onCreate(savedInstanceState);</span><br><span class="line">        setContentView(R.layout.activity_main);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        //頁面切換</span><br><span class="line">        FragmentManagerTool.init(savedInstanceState,getSupportFragmentManager(),R.id.content,ViewList.Instance());</span><br><span class="line">        </span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
-<p>各位會發現到，在你的OnCreate當中有一個Bundle類別的參數  savedInstanceState<br>這是什麼呢？我們查閱了官網的解釋，有興趣的可以點選<a href="https://developer.android.com/reference/android/app/Activity.html#onCreate%28android.os.Bundle%29">連結</a>進行查閱： </p>
-<p>文件上說明了：「 savedInstanceState Always都會是null，直到在背景執行記憶體回收時，savedInstanceState 會保存你上一次的Activity」<br> 也就是說，在OnCreate當中的參數，主要是為了將你的App在背景執行時，倘若被回收掉記憶體，仍然能保持先前的樣子，包含Fragment</p>
-<p>因此，在第一次使用Fragment Add的時候 才會需要這樣判斷，當savedInstanceState為null的時候 才進行Add<br>把Fragment加入到Activity中 其餘都採用Replace去做更換。</p>
-<p>如此一來，不僅記憶體回收時可以保持先前的樣子，而我們所想要達到的目的封裝成類別使用也同時成功了。</p>
-<div>
-以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
-
-<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
-<p><a href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
-</div>
-]]></content>
-  </entry>
-  <entry>
     <title>Android-FireBase 介紹</title>
     <url>/2017/01/04/Android-FireBase-%E4%BB%8B%E7%B4%B9/</url>
     <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>利用google 最新的firebase雲端資料庫技術讓App可以變得更加萬用</p>
@@ -85,6 +44,110 @@
       <tags>
         <tag>FireBase</tag>
       </tags>
+  </entry>
+  <entry>
+    <title>Android- Fragment 切換頁面時會造成頁面重疊</title>
+    <url>/2016/09/04/Android-Fragment-%E5%88%87%E6%8F%9B%E9%A0%81%E9%9D%A2%E6%99%82%E6%9C%83%E9%80%A0%E6%88%90%E9%A0%81%E9%9D%A2%E9%87%8D%E7%96%8A/</url>
+    <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>上一回我們有說到在針對頁面切換時，會使用replace來進行切換</p>
+<p>但是如果使用太多卻會造成頁面重疊..</p>
+<p>由於筆者今天在撰寫程式時，發現自己常用的Replace居然沒辦法將前一個頁面成功至換掉</p>
+<p>導致新的頁面內容重疊在原來的顯示內容上</p>
+<span id="more"></span>
+<p>搞了半天發現問題仍然無法解決..</p>
+<p>後來與實驗室的學長討論後才發現，原來Replace並不能隨便亂用</p>
+<p>當頁面的層數大於等於4的時候，就會造成頁面重疊的情況發生。</p>
+<p>後來看了一下官網的文件才發現到：</p>
+<p>官方文件中解釋說：<code>replace()</code>這個方法只是在上一個Fragment不再需要時採用的簡便方法。<br>正確的切換方式是<code>add()</code>，切換時<code>hide()</code>，<code>add()</code>另一個Fragment；再次切換時，只需<code>hide()</code>當前，<code>show()</code>另一個。<br>這樣就能做到多個Fragment切換不重新實體化。</p>
+<p>範例程式碼：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();</span><br><span class="line">            transaction.addToBackStack(null);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">            if (!Detail.newInstance().isAdded()) &#123;	// 先判断是否被add過 如果沒有Add過 代表是第一次呼叫 則需要先add 其餘時候都直接使用show進行顯示</span><br><span class="line">                // hide裡面放的是自己當前所在的Fragment頁面，後面一定要.this才能夠指向現在要隱藏的頁面，否則會直接幫你生成一個新的頁面</span><br><span class="line">                transaction.hide(DataList.this).add(R.id.Content, detail).commitAllowingStateLoss(); // 隱藏當前頁面 並新增明細頁面</span><br><span class="line">            &#125; else &#123;</span><br><span class="line">                transaction.hide(DataList.this).show(detail).commitAllowingStateLoss(); //隱藏當前頁面 呼叫明細頁面</span><br><span class="line">            &#125;</span><br></pre></td></tr></table></figure>
+<p>另外補充一點：</p>
+<p>即使頁面不透過<code>isAdded()</code>來判斷是否為第一次載入，直接使用也可以達到切換的效果，<code>.show()</code>只是App在執行時，生命週期會比Add時還要來得短暫。</p>
+<div>
+以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
+
+<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
+<p><a href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
+</div>
+]]></content>
+      <categories>
+        <category>Android</category>
+      </categories>
+      <tags>
+        <tag>Fragment</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Android- Fragment 基本介紹</title>
+    <url>/2016/09/03/Android-Fragment-%E5%9F%BA%E6%9C%AC%E4%BB%8B%E7%B4%B9/</url>
+    <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>在撰寫Android時，一定都會需要用到換頁的技巧</p>
+<p>但是在使用換頁時，可能初學都會習慣先使用Intent來進行頁面的跳轉 (我第一次寫Android Watch的時候好像也是這樣~)</p>
+<p>但是用久了的時候卻會發現到：假設如果今天自己的App有一個客製化的Title 以及Bottom Bar時，會發現每一次都需要將重複的Style程式碼複製貼上來進行設計</p>
+<p>因此本篇會來介紹該如何解決這個問題</p>
+<span id="more"></span>
+<p>Google 在Android 3.0時，研發了一種名為Fragment的功能，只需要將你程式碼的某一區塊定義為Fragment後，就可以只針對這個區塊進行抽換（有點類似 Ajax）</p>
+<p>而在使用上來說其實滿簡單的</p>
+<p>首先在自己的Activity頁面定義出一塊空的Layout(一定要是空的！否則你的程式碼將會無法被替換掉)</p>
+<p>接著在Layout的資料夾中New一個Fragment作為我們的抽換頁面</p>
+<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/c5d87a90-bdbb-47bd-8e62-859c6c4314a2/1472992022_82103.png"></p>
+<p>接著就可以在自己的程式碼中的OnCreate中加上抽換的程式碼，如此一來就可以在畫面載入時跳轉到自己的其它頁面去了</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="type">FragmentTransaction</span> <span class="variable">transaction</span> <span class="operator">=</span> getSupportFragmentManager().beginTransaction();</span><br><span class="line">        transaction.replace(R.id.Content, <span class="string">&quot;你新建立好的Fragment&quot;</span>;</span><br><span class="line">        transaction.commitAllowingStateLoss(); <span class="comment">//這行一定要加，目的是要讓transaction能夠真正送出</span></span><br></pre></td></tr></table></figure>
+<p>第三行的Commit 如果是從某一個Fragment切換到其他Fragment的話，一定要改為以下程式碼，否則會造成App閃退</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">transaction.commitAllowingStateLoss()</span><br></pre></td></tr></table></figure>
+<p>但若是從Activity切換到Fragment時，可以直接使用<code>commti()</code>就可以了</p>
+<div>
+以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
+
+<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
+<p><a href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
+</div>
+]]></content>
+      <categories>
+        <category>Android</category>
+      </categories>
+      <tags>
+        <tag>Fragement</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Android - 封裝Fragment當中換頁的程式碼</title>
+    <url>/2017/02/15/Android-%E5%B0%81%E8%A3%9DFragment%E7%95%B6%E4%B8%AD%E6%8F%9B%E9%A0%81%E7%9A%84%E7%A8%8B%E5%BC%8F%E7%A2%BC/</url>
+    <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>不知道各位會不會有這種想法：不想將重複的程式碼一直加入到程式當中</p>
+<p>在寫Android當中，我個人認為Fragment是一個很棒的東西，因為它可以將你的App挖出一塊空間出來，來讓你的Fragment Layout來進行切換</p>
+<p>但是，在切換的過程當中，往往切換頁面的程式碼都需要進行重複的撰寫。</p>
+<span id="more"></span>
+<p>因此筆者一直在思考，要如何做到只寫一次，就可以持續的做切換</p>
+<p>因此就想出了可以直接將切換頁面的程式碼進行封裝</p>
+<p>利用靜態方法，讓底下的這串切換程式碼的功能能夠進行覆用</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="type">FragmentTransaction</span> <span class="variable">transaction</span> <span class="operator">=</span> getFragmentManager().beginTransaction();</span><br><span class="line">       transaction.replace(<span class="string">&quot;欲切換的頁面&quot;</span>);</span><br><span class="line">       transaction.commit();</span><br></pre></td></tr></table></figure>
+<p>但當你寫完後，你會發現…. Error!!<br><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/52059204-bcd9-4f90-9abb-0e95893eff98/1487149123_5901.png"></p>
+<p>他會告訴你，你的靜態方法Change當中，包含了非靜態的方法「getFragmentManager()」</p>
+<p>那…該怎麼辦？難道就註定無法將程式碼進行重複使用嗎？</p>
+<p>在跟高手討論過後，既然山不轉，就路轉</p>
+<p>我們一樣宣告成靜態函數，但是這次呢，我們將參數全部由我們的MainActivity來進行傳送</p>
+<p>因此在我們封裝的這個類別 FragmentManagerTool 當中</p>
+<p>我們寫了這樣的程式碼</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">FragmentManagerTool</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* initial Fragment */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">init</span><span class="params">(Bundle savedInstanceState, FragmentManager fragmentManager, <span class="type">int</span> layoutID, Fragment fragment)</span> &#123;</span><br><span class="line">        <span class="type">FragmentTransaction</span> <span class="variable">transaction</span> <span class="operator">=</span> fragmentManager.beginTransaction();</span><br><span class="line">        <span class="keyword">if</span> (savedInstanceState == <span class="literal">null</span>) &#123;</span><br><span class="line">            transaction.add(layoutID, fragment).commit();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* replace Fragment */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">replaceFragment</span><span class="params">(FragmentManager fragmentManager, <span class="type">int</span> layout, Fragment f)</span> &#123;</span><br><span class="line">        <span class="type">FragmentTransaction</span> <span class="variable">ft</span> <span class="operator">=</span> fragmentManager.beginTransaction();</span><br><span class="line">        ft.replace(layout, f);</span><br><span class="line">        ft.commit();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>我們將參數由外面的Activity來進行傳入，如此一來就可以透過static來將我們的切換頁面函數來進行呼叫。</p>
+<p>這時候外面只需要這樣撰寫就可以了：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">FragmentManagerTool.init(savedInstanceState,getSupportFragmentManager(),R.id.content,ViewList.Instance());</span><br></pre></td></tr></table></figure>
+<p>這樣的做法是不是很方便呢？</p>
+<p>這時候也許你會問：</p>
+<p>為什麼會需要有init 這個方法？</p>
+<p>不是只需要將頁面進行replace就好了嗎？為什麼在 init() 當中，會用到Add()的方法呢？</p>
+<p>原因在於說：</p>
+<p>各位有沒有發現到在MainActivity當中的OnCreate()當中，有著這樣的一段Code:</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">@Override</span><br><span class="line">    protected void onCreate(Bundle savedInstanceState /*What this?*/) &#123;</span><br><span class="line">        super.onCreate(savedInstanceState);</span><br><span class="line">        setContentView(R.layout.activity_main);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        //頁面切換</span><br><span class="line">        FragmentManagerTool.init(savedInstanceState,getSupportFragmentManager(),R.id.content,ViewList.Instance());</span><br><span class="line">        </span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p>各位會發現到，在你的OnCreate當中有一個Bundle類別的參數  savedInstanceState<br>這是什麼呢？我們查閱了官網的解釋，有興趣的可以點選<a href="https://developer.android.com/reference/android/app/Activity.html#onCreate%28android.os.Bundle%29">連結</a>進行查閱： </p>
+<p>文件上說明了：「 savedInstanceState Always都會是null，直到在背景執行記憶體回收時，savedInstanceState 會保存你上一次的Activity」<br> 也就是說，在OnCreate當中的參數，主要是為了將你的App在背景執行時，倘若被回收掉記憶體，仍然能保持先前的樣子，包含Fragment</p>
+<p>因此，在第一次使用Fragment Add的時候 才會需要這樣判斷，當savedInstanceState為null的時候 才進行Add<br>把Fragment加入到Activity中 其餘都採用Replace去做更換。</p>
+<p>如此一來，不僅記憶體回收時可以保持先前的樣子，而我們所想要達到的目的封裝成類別使用也同時成功了。</p>
+<div>
+以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
+
+<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
+<p><a href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
+</div>
+]]></content>
   </entry>
   <entry>
     <title>Angular Universal 教學-如何將Server Side Render 專案部屬到IIS上</title>
@@ -265,6 +328,49 @@
       </tags>
   </entry>
   <entry>
+    <title>Angular - 簡單介紹Angular中的HttpClient(HttpClient V.S Http)</title>
+    <url>/2018/03/05/Angular-%E7%B0%A1%E5%96%AE%E4%BB%8B%E7%B4%B9Angular%E4%B8%AD%E7%9A%84HttpClient-HttpClient-V-S-Http/</url>
+    <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>自從Angular 4.3版以後，新的網路傳輸HttpClient在Angular中被引入。</p>
+<p>而官方在Angular第五版開始，將舊的 HttpModule被標示為不建議使用，因此在此為各位介紹為什麼官方要採用HttpClient，而捨棄舊的Http</p>
+<span id="more"></span>
+
+<h2 id="新功能"><a href="#新功能" class="headerlink" title="新功能"></a>新功能</h2><p>我們來看看第五版<code>HttpClient</code>的新功能。</p>
+<h3 id="自動轉換為從JSON到一個對象"><a href="#自動轉換為從JSON到一個對象" class="headerlink" title="自動轉換為從JSON到一個對象"></a>自動轉換為從JSON到一個對象</h3><p>當我們從網路接收數據時，我們在Api當中會使用JSON格式來進行回傳。 為了能夠在我們的程式當中處理這些JSON數據，我們需要根據我們得到的JSON數據創建一個對象。</p>
+<p>讓我們看一個使用舊Angular http基本範例：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="title function_">getData</span>(<span class="params"></span>) &#123; </span><br><span class="line">  <span class="variable language_">this</span>.<span class="property">http</span>.<span class="title function_">get</span>(<span class="string">&#x27;yourAPI&#x27;</span>) </span><br><span class="line">      .<span class="title function_">map</span>(<span class="function"><span class="params">x</span>=&gt;</span> <span class="title class_">JSON</span>.<span class="title function_">parse</span>(x.<span class="property">data</span>)) 將每一個資料轉換成json格式</span><br><span class="line">      .<span class="title function_">subscribe</span>(<span class="function"><span class="params">x</span>=&gt;</span> <span class="variable language_">console</span>.<span class="title function_">log</span>(x);) 輸出json格式資料</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>上述的Code主要做了三件事情，我們把它們整理條列一下：</p>
+<p>獲取JSONData（這是Response類型）。<br>使用JSON.parse()將Data轉換為Json格式進行解析<br>將結果記錄到主控台中。<br>而使用新的HttpClient 我們的Code只需要這樣：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="title function_">getData</span>(<span class="params"></span>) &#123; </span><br><span class="line">  <span class="variable language_">this</span>.<span class="property">http</span>.<span class="title function_">get</span>(<span class="string">&#x27;yourAPI&#x27;</span>) </span><br><span class="line">      .<span class="title function_">subscribe</span>(<span class="function"><span class="params">x</span>=&gt;</span> <span class="variable language_">console</span>.<span class="title function_">log</span>(x);) 輸出json格式資料</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>另外我們也可以使用泛型透過衍生型類別來訂定資料：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="title function_">getData</span>(<span class="params"></span>) &#123; </span><br><span class="line">  <span class="variable language_">this</span>.<span class="property">http</span>.<span class="property">get</span>&lt;<span class="title class_">User</span>&gt;(<span class="string">&#x27;yourAPI&#x27;</span>) </span><br><span class="line">      .<span class="title function_">subscribe</span>(<span class="attr">x</span>:<span class="function"><span class="params">User</span> =&gt;</span> <span class="variable language_">console</span>.<span class="title function_">log</span>(x);) 輸出json格式資料，有了泛型我們就可以使用提示字元來取得欄位資料</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="Header的簡化語法"><a href="#Header的簡化語法" class="headerlink" title="Header的簡化語法"></a>Header的簡化語法</h3><p>通常在做網路傳輸的時候，為了在請求中設置自定義Header（如Auth），我們需要實體化HttpHeaders()對象並將(‘header’, ‘value’)傳遞給函數。</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">const</span> headers = <span class="keyword">new</span> <span class="title class_">HttpHeaders</span>().<span class="title function_">set</span>(<span class="string">&#x27;Content-Type&#x27;</span>, <span class="string">&#x27;text&#x27;</span>);</span><br></pre></td></tr></table></figure>
+<p>在這個例子中，我們將Content-TypeHeader設置為text （ application&#x2F;json是默認值）。</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">const</span> headers = <span class="keyword">new</span> <span class="title class_">HttpHeaders</span>().<span class="title function_">set</span>(<span class="string">&#x27;Content-Type&#x27;</span>, <span class="string">&#x27;text&#x27;</span>).<span class="title function_">append</span>(<span class="string">&#x27;Authorization&#x27;</span>, <span class="string">&#x27;CustomToken&#x27;</span>);</span><br></pre></td></tr></table></figure>
+
+<h3 id="如何從Http更改為新的HttpClient："><a href="#如何從Http更改為新的HttpClient：" class="headerlink" title="如何從Http更改為新的HttpClient："></a>如何從Http更改為新的HttpClient：</h3><p>第一步是確保安裝了適當的Angular版本，即4.3和更高版本。<br>在項目的<code>Module</code>中用<code>HttpClientModule</code>替換<code>HttpModule</code> 。 新的<code>HttpClientModule</code>應該從<code>@angular/common/http</code>導入。</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">// Old import &#123; HttpModule &#125; from &#x27;@angular/http&#x27;; </span></span><br><span class="line"></span><br><span class="line">   @<span class="title class_">NgModule</span>(&#123; ... <span class="attr">imports</span>: [ <span class="title class_">HttpModule</span>, ], ... &#125;)</span><br><span class="line"></span><br><span class="line"><span class="comment">// New import &#123; HttpClientModule &#125; from &#x27;@angular/common/http&#x27;; </span></span><br><span class="line">   @<span class="title class_">NgModule</span>(&#123; ... <span class="attr">imports</span>: [ <span class="title class_">HttpClientModule</span>, ], ... &#125;)</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment">// Old Http</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">Http</span>, <span class="title class_">Headers</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/http&#x27;</span>; </span><br><span class="line"></span><br><span class="line">@<span class="title class_">Injectable</span>() <span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">ExampleService</span> &#123; </span><br><span class="line"></span><br><span class="line">  private _headers = <span class="keyword">new</span> <span class="title class_">Headers</span>(&#123;<span class="string">&#x27;Authentication&#x27;</span>: <span class="string">&#x27;Token&#x27;</span>&#125;); </span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params">private http: Http</span>) &#123;&#125;</span><br><span class="line">  public <span class="title function_">getData</span>(<span class="params"></span>) &#123; </span><br><span class="line">  <span class="keyword">return</span> <span class="variable language_">this</span>.<span class="property">http</span>.<span class="title function_">get</span>(<span class="string">&#x27;youtAPI&#x27;</span>, <span class="variable language_">this</span>.<span class="property">_headers</span>)</span><br><span class="line">                  .<span class="title function_">map</span>(<span class="function">(<span class="params">x</span>) =&gt;</span> &#123; <span class="keyword">return</span> <span class="title class_">JSON</span>.<span class="title function_">parse</span>(x.<span class="property">body</span>); &#125;)</span><br><span class="line">                  .<span class="title function_">subscribe</span>(<span class="function"><span class="params">x</span>=&gt;</span> <span class="variable language_">console</span>.<span class="title function_">log</span>(x));  </span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// New HttpClient</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">HttpClient</span>, <span class="title class_">HttpHeaders</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/common/http&#x27;</span>; </span><br><span class="line"></span><br><span class="line">@<span class="title class_">Injectable</span>() <span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">ExampleService</span> &#123; </span><br><span class="line"> </span><br><span class="line">private _headers = &#123;<span class="attr">headers</span>: <span class="keyword">new</span> <span class="title class_">HttpHeaders</span>().<span class="title function_">set</span>(<span class="string">&#x27;Authentication&#x27;</span>, <span class="string">&#x27;Token&#x27;</span>)&#125;; </span><br><span class="line"></span><br><span class="line"><span class="title function_">constructor</span>(<span class="params">private http: HttpClient</span>) &#123; &#125; </span><br><span class="line"></span><br><span class="line">public <span class="title function_">getData</span>(<span class="params"></span>) &#123; </span><br><span class="line">  </span><br><span class="line">  <span class="keyword">return</span> <span class="variable language_">this</span>.<span class="property">http</span>.<span class="title function_">get</span>(<span class="string">&#x27;youtAPI&#x27;</span>, <span class="variable language_">this</span>.<span class="property">_headers</span>).<span class="title function_">subscribe</span>(<span class="function"><span class="params">x</span>=&gt;</span> <span class="variable language_">console</span>.<span class="title function_">log</span>(x); </span><br><span class="line"></span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="結論"><a href="#結論" class="headerlink" title="結論"></a>結論</h3><p>基本上，語法沒有很大的變化。 HttpClient保留了舊的http： http.get() ， http.post()等相同的方法名稱。</p>
+<p>因此大家可以愉快地升級，享受簡潔的語法吧！</p>
+<div>
+以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
+
+<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
+<p><a href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
+</div>
+]]></content>
+      <categories>
+        <category>Angular</category>
+      </categories>
+      <tags>
+        <tag>HttpClient</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Angular - 解決ViewChild undefined 問題</title>
     <url>/2020/07/27/Angular-%E8%A7%A3%E6%B1%BAViewChild-undefined-%E5%95%8F%E9%A1%8C/</url>
     <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>當我們在Angular中想要操作Template的DOM時，我們通常會在該DOM上加入範本參考變數(Template reference variables)</p>
@@ -312,101 +418,6 @@
       </categories>
       <tags>
         <tag>Angular</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Android- Fragment 切換頁面時會造成頁面重疊</title>
-    <url>/2016/09/04/Android-Fragment-%E5%88%87%E6%8F%9B%E9%A0%81%E9%9D%A2%E6%99%82%E6%9C%83%E9%80%A0%E6%88%90%E9%A0%81%E9%9D%A2%E9%87%8D%E7%96%8A/</url>
-    <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>上一回我們有說到在針對頁面切換時，會使用replace來進行切換</p>
-<p>但是如果使用太多卻會造成頁面重疊..</p>
-<p>由於筆者今天在撰寫程式時，發現自己常用的Replace居然沒辦法將前一個頁面成功至換掉</p>
-<p>導致新的頁面內容重疊在原來的顯示內容上</p>
-<span id="more"></span>
-<p>搞了半天發現問題仍然無法解決..</p>
-<p>後來與實驗室的學長討論後才發現，原來Replace並不能隨便亂用</p>
-<p>當頁面的層數大於等於4的時候，就會造成頁面重疊的情況發生。</p>
-<p>後來看了一下官網的文件才發現到：</p>
-<p>官方文件中解釋說：<code>replace()</code>這個方法只是在上一個Fragment不再需要時採用的簡便方法。<br>正確的切換方式是<code>add()</code>，切換時<code>hide()</code>，<code>add()</code>另一個Fragment；再次切換時，只需<code>hide()</code>當前，<code>show()</code>另一個。<br>這樣就能做到多個Fragment切換不重新實體化。</p>
-<p>範例程式碼：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();</span><br><span class="line">            transaction.addToBackStack(null);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">            if (!Detail.newInstance().isAdded()) &#123;	// 先判断是否被add過 如果沒有Add過 代表是第一次呼叫 則需要先add 其餘時候都直接使用show進行顯示</span><br><span class="line">                // hide裡面放的是自己當前所在的Fragment頁面，後面一定要.this才能夠指向現在要隱藏的頁面，否則會直接幫你生成一個新的頁面</span><br><span class="line">                transaction.hide(DataList.this).add(R.id.Content, detail).commitAllowingStateLoss(); // 隱藏當前頁面 並新增明細頁面</span><br><span class="line">            &#125; else &#123;</span><br><span class="line">                transaction.hide(DataList.this).show(detail).commitAllowingStateLoss(); //隱藏當前頁面 呼叫明細頁面</span><br><span class="line">            &#125;</span><br></pre></td></tr></table></figure>
-<p>另外補充一點：</p>
-<p>即使頁面不透過<code>isAdded()</code>來判斷是否為第一次載入，直接使用也可以達到切換的效果，<code>.show()</code>只是App在執行時，生命週期會比Add時還要來得短暫。</p>
-<div>
-以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
-
-<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
-<p><a href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
-</div>
-]]></content>
-      <categories>
-        <category>Android</category>
-      </categories>
-      <tags>
-        <tag>Fragment</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>C# - LINQ to Entities 查詢中無法建構實體或複雜類型</title>
-    <url>/2023/01/24/C-LINQ-to-Entities-%E6%9F%A5%E8%A9%A2%E4%B8%AD%E7%84%A1%E6%B3%95%E5%BB%BA%E6%A7%8B%E5%AF%A6%E9%AB%94%E6%88%96%E8%A4%87%E9%9B%9C%E9%A1%9E%E5%9E%8B/</url>
-    <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>在ORM盛行的時代，很多人都學會了使用LINQ來進行資料庫的撈取與操作</p>
-<p>但是LINQ在操作時，有些地方需要額外注意的。否則就會產上如標題上所說的：</p>
-<div style="color:red">
-LINQ to Entities 查詢中無法建構實體或複雜類型
-</div>
-
-<p>因此今天來跟大家談談，關於這問題，以及該如何解決。</p>
-<span id="more"></span>
-
-<p>一般來說，我們在撰寫LINQ撈取資料庫的時候，我們會這樣寫：</p>
-<figure class="highlight c#"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> data = db.Store.<span class="keyword">select</span>(x=&gt; &#123;</span><br><span class="line">   x.StoreId,</span><br><span class="line">   x.StoreName</span><br><span class="line">&#125;).ToList();</span><br></pre></td></tr></table></figure>
-<p>但是筆者在撰寫Window Form的時候，由於想要將資料庫撈取出來的值，自動Binding到Combox上</p>
-<p>並且可以針對這個資料集合做後續的操作，好讓我的Combox資料可以即時變動。</p>
-<p>因此腦筋一轉，想著在Select的時候，為什麼總是建立一個匿名類別來儲存，而不是一開始就指定為一個強型別來做操作。</p>
-<p>於是我在select後面，加上了由Entity映射所產生的類別：</p>
-<figure class="highlight c#"><table><tr><td class="code"><pre><span class="line">List&lt;Store&gt; list = <span class="keyword">new</span> List&lt;Store&gt;();</span><br><span class="line"></span><br><span class="line">list = db.Store.<span class="keyword">select</span>(x=&gt; <span class="keyword">new</span> Store&#123;</span><br><span class="line"></span><br><span class="line">   Store.Id = x.StoreId,</span><br><span class="line">   Store.Name = x.Store.Name</span><br><span class="line">&#125;).ToList();</span><br></pre></td></tr></table></figure>
-<p>結果這麼一寫，發現程式居然報錯了，原因為：</p>
-<div style="color:red"> LINQ to Entities 查詢中無法建構實體或複雜類型
-</div>
-
-<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/de0c2f99-0e51-4977-91db-9ad994206191/1500539000_96484.png"></p>
-<p>此時筆者開始好奇，是什麼樣的原因會導致這樣的錯誤發生？</p>
-<p>後來在某一篇的<a href="https://stackoverflow.com/questions/5325797/the-entity-cannot-be-constructed-in-a-linq-to-entities-query">stackoverflow</a> 當中，找到了解答：</p>
-<div class="note success">
-    <p>
-    Well, mapped entities in EF basically represent database tables. If you project onto a mapped entity, what you basically do is partially load an entity, which is not a valid state. EF won't have any clue how to e.g. handle an update of such an entity in the future (the default behaviour would be probably overwriting the non-loaded fields with nulls or whatever you'll have in your object). This would be a dangerous operation, since you would risk losing some of your data in the DB, therefore it is not allowed to partially load entities (or project onto mapped entities) in EF
-    </p>
-</div>
-
-<p>主要原因是說，由Entity映射產生出來的類別，是用來表示定義資料庫的欄位，並不是一個有效的實體</p>
-<p>也就是說，裡面的定義是為了資料庫而生，因此裡面有著許多定義資料庫的欄位、屬性 等等</p>
-<p>而這些東西，並沒辦法轉換為SQL去執行，因此如果後面採用映射出來的類別，可能會造成資料庫的數據遺失等問題存在。</p>
-<p>那…既然如此，我們應該如何解決這個問題？</p>
-<p>這邊筆者提出兩種方式來解決：</p>
-<ul>
-<li>利用匿名類別將資料從資料庫讀取並轉換為LIST，接著再下一次Select，將LIST當中的內容讀出並且轉換為強型別</li>
-<li>利用ViewModel將內容讀取出來</li>
-</ul>
-<p>首先第一種方式筆者個人比較不推薦，因為寫法來說相較並不直觀：</p>
-<figure class="highlight c#"><table><tr><td class="code"><pre><span class="line">List&lt;Store&gt; list = <span class="keyword">new</span> List&lt;Store&gt;();</span><br><span class="line"></span><br><span class="line">list = db.Store.<span class="keyword">select</span>(x=&gt; <span class="keyword">new</span> &#123;</span><br><span class="line"></span><br><span class="line">   x.StoreId,</span><br><span class="line">   x.StoreName</span><br><span class="line">&#125;).ToList().<span class="keyword">select</span>(x =&gt; <span class="keyword">new</span> Store &#123;</span><br><span class="line"></span><br><span class="line">   StoreId = x.StoreId,</span><br><span class="line">   StoreName = x.StoreName,</span><br><span class="line">&#125;).ToList();</span><br></pre></td></tr></table></figure>
-
-<p>利用以上的方式，等於我們相同的程式碼要再寫一次。雖然邏輯上來說完全不一樣，但是對開發者來說，卻要select兩次，相當不直觀。</p>
-<p>因此筆者這邊推薦採用ViewModel的方式來去接值。</p>
-<p>我們先建立一個ViewModel，裡面的欄位就是你想從資料庫當中撈取的欄位。</p>
-<p>接著我們只需要這樣做就可以了：</p>
-<figure class="highlight c#"><table><tr><td class="code"><pre><span class="line">List&lt;StoreViewModel&gt; list = <span class="keyword">new</span> List&lt;StoreViewModel&gt;();</span><br><span class="line"></span><br><span class="line">list = db.Store.<span class="keyword">select</span>(x=&gt; <span class="keyword">new</span> StoreViewModel&#123;</span><br><span class="line"></span><br><span class="line">   StoreId = x.StoreId,</span><br><span class="line">   StoreName = x.StoreName,</span><br><span class="line">&#125;).ToList();</span><br></pre></td></tr></table></figure>
-<p>透過這樣的方式，我們將資料庫撈出來的內容 Binding到我們的ViewModel上，就可以解決這樣的問題了。</p>
-<div>
-以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
-
-<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
-<p><a href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
-</div>
-]]></content>
-      <categories>
-        <category>.NET</category>
-      </categories>
-      <tags>
-        <tag>LINQ</tag>
       </tags>
   </entry>
   <entry>
@@ -472,34 +483,55 @@ LINQ to Entities 查詢中無法建構實體或複雜類型
       </tags>
   </entry>
   <entry>
-    <title>Angular - 簡單介紹Angular中的HttpClient(HttpClient V.S Http)</title>
-    <url>/2018/03/05/Angular-%E7%B0%A1%E5%96%AE%E4%BB%8B%E7%B4%B9Angular%E4%B8%AD%E7%9A%84HttpClient-HttpClient-V-S-Http/</url>
-    <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>自從Angular 4.3版以後，新的網路傳輸HttpClient在Angular中被引入。</p>
-<p>而官方在Angular第五版開始，將舊的 HttpModule被標示為不建議使用，因此在此為各位介紹為什麼官方要採用HttpClient，而捨棄舊的Http</p>
+    <title>C# - LINQ to Entities 查詢中無法建構實體或複雜類型</title>
+    <url>/2023/01/24/C-LINQ-to-Entities-%E6%9F%A5%E8%A9%A2%E4%B8%AD%E7%84%A1%E6%B3%95%E5%BB%BA%E6%A7%8B%E5%AF%A6%E9%AB%94%E6%88%96%E8%A4%87%E9%9B%9C%E9%A1%9E%E5%9E%8B/</url>
+    <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>在ORM盛行的時代，很多人都學會了使用LINQ來進行資料庫的撈取與操作</p>
+<p>但是LINQ在操作時，有些地方需要額外注意的。否則就會產上如標題上所說的：</p>
+<div style="color:red">
+LINQ to Entities 查詢中無法建構實體或複雜類型
+</div>
+
+<p>因此今天來跟大家談談，關於這問題，以及該如何解決。</p>
 <span id="more"></span>
 
-<h2 id="新功能"><a href="#新功能" class="headerlink" title="新功能"></a>新功能</h2><p>我們來看看第五版<code>HttpClient</code>的新功能。</p>
-<h3 id="自動轉換為從JSON到一個對象"><a href="#自動轉換為從JSON到一個對象" class="headerlink" title="自動轉換為從JSON到一個對象"></a>自動轉換為從JSON到一個對象</h3><p>當我們從網路接收數據時，我們在Api當中會使用JSON格式來進行回傳。 為了能夠在我們的程式當中處理這些JSON數據，我們需要根據我們得到的JSON數據創建一個對象。</p>
-<p>讓我們看一個使用舊Angular http基本範例：</p>
-<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="title function_">getData</span>(<span class="params"></span>) &#123; </span><br><span class="line">  <span class="variable language_">this</span>.<span class="property">http</span>.<span class="title function_">get</span>(<span class="string">&#x27;yourAPI&#x27;</span>) </span><br><span class="line">      .<span class="title function_">map</span>(<span class="function"><span class="params">x</span>=&gt;</span> <span class="title class_">JSON</span>.<span class="title function_">parse</span>(x.<span class="property">data</span>)) 將每一個資料轉換成json格式</span><br><span class="line">      .<span class="title function_">subscribe</span>(<span class="function"><span class="params">x</span>=&gt;</span> <span class="variable language_">console</span>.<span class="title function_">log</span>(x);) 輸出json格式資料</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>上述的Code主要做了三件事情，我們把它們整理條列一下：</p>
-<p>獲取JSONData（這是Response類型）。<br>使用JSON.parse()將Data轉換為Json格式進行解析<br>將結果記錄到主控台中。<br>而使用新的HttpClient 我們的Code只需要這樣：</p>
-<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="title function_">getData</span>(<span class="params"></span>) &#123; </span><br><span class="line">  <span class="variable language_">this</span>.<span class="property">http</span>.<span class="title function_">get</span>(<span class="string">&#x27;yourAPI&#x27;</span>) </span><br><span class="line">      .<span class="title function_">subscribe</span>(<span class="function"><span class="params">x</span>=&gt;</span> <span class="variable language_">console</span>.<span class="title function_">log</span>(x);) 輸出json格式資料</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>另外我們也可以使用泛型透過衍生型類別來訂定資料：</p>
-<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="title function_">getData</span>(<span class="params"></span>) &#123; </span><br><span class="line">  <span class="variable language_">this</span>.<span class="property">http</span>.<span class="property">get</span>&lt;<span class="title class_">User</span>&gt;(<span class="string">&#x27;yourAPI&#x27;</span>) </span><br><span class="line">      .<span class="title function_">subscribe</span>(<span class="attr">x</span>:<span class="function"><span class="params">User</span> =&gt;</span> <span class="variable language_">console</span>.<span class="title function_">log</span>(x);) 輸出json格式資料，有了泛型我們就可以使用提示字元來取得欄位資料</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>一般來說，我們在撰寫LINQ撈取資料庫的時候，我們會這樣寫：</p>
+<figure class="highlight c#"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> data = db.Store.<span class="keyword">select</span>(x=&gt; &#123;</span><br><span class="line">   x.StoreId,</span><br><span class="line">   x.StoreName</span><br><span class="line">&#125;).ToList();</span><br></pre></td></tr></table></figure>
+<p>但是筆者在撰寫Window Form的時候，由於想要將資料庫撈取出來的值，自動Binding到Combox上</p>
+<p>並且可以針對這個資料集合做後續的操作，好讓我的Combox資料可以即時變動。</p>
+<p>因此腦筋一轉，想著在Select的時候，為什麼總是建立一個匿名類別來儲存，而不是一開始就指定為一個強型別來做操作。</p>
+<p>於是我在select後面，加上了由Entity映射所產生的類別：</p>
+<figure class="highlight c#"><table><tr><td class="code"><pre><span class="line">List&lt;Store&gt; list = <span class="keyword">new</span> List&lt;Store&gt;();</span><br><span class="line"></span><br><span class="line">list = db.Store.<span class="keyword">select</span>(x=&gt; <span class="keyword">new</span> Store&#123;</span><br><span class="line"></span><br><span class="line">   Store.Id = x.StoreId,</span><br><span class="line">   Store.Name = x.Store.Name</span><br><span class="line">&#125;).ToList();</span><br></pre></td></tr></table></figure>
+<p>結果這麼一寫，發現程式居然報錯了，原因為：</p>
+<div style="color:red"> LINQ to Entities 查詢中無法建構實體或複雜類型
+</div>
 
-<h3 id="Header的簡化語法"><a href="#Header的簡化語法" class="headerlink" title="Header的簡化語法"></a>Header的簡化語法</h3><p>通常在做網路傳輸的時候，為了在請求中設置自定義Header（如Auth），我們需要實體化HttpHeaders()對象並將(‘header’, ‘value’)傳遞給函數。</p>
-<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">const</span> headers = <span class="keyword">new</span> <span class="title class_">HttpHeaders</span>().<span class="title function_">set</span>(<span class="string">&#x27;Content-Type&#x27;</span>, <span class="string">&#x27;text&#x27;</span>);</span><br></pre></td></tr></table></figure>
-<p>在這個例子中，我們將Content-TypeHeader設置為text （ application&#x2F;json是默認值）。</p>
-<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">const</span> headers = <span class="keyword">new</span> <span class="title class_">HttpHeaders</span>().<span class="title function_">set</span>(<span class="string">&#x27;Content-Type&#x27;</span>, <span class="string">&#x27;text&#x27;</span>).<span class="title function_">append</span>(<span class="string">&#x27;Authorization&#x27;</span>, <span class="string">&#x27;CustomToken&#x27;</span>);</span><br></pre></td></tr></table></figure>
+<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/de0c2f99-0e51-4977-91db-9ad994206191/1500539000_96484.png"></p>
+<p>此時筆者開始好奇，是什麼樣的原因會導致這樣的錯誤發生？</p>
+<p>後來在某一篇的<a href="https://stackoverflow.com/questions/5325797/the-entity-cannot-be-constructed-in-a-linq-to-entities-query">stackoverflow</a> 當中，找到了解答：</p>
+<div class="note success">
+    <p>
+    Well, mapped entities in EF basically represent database tables. If you project onto a mapped entity, what you basically do is partially load an entity, which is not a valid state. EF won't have any clue how to e.g. handle an update of such an entity in the future (the default behaviour would be probably overwriting the non-loaded fields with nulls or whatever you'll have in your object). This would be a dangerous operation, since you would risk losing some of your data in the DB, therefore it is not allowed to partially load entities (or project onto mapped entities) in EF
+    </p>
+</div>
 
-<h3 id="如何從Http更改為新的HttpClient："><a href="#如何從Http更改為新的HttpClient：" class="headerlink" title="如何從Http更改為新的HttpClient："></a>如何從Http更改為新的HttpClient：</h3><p>第一步是確保安裝了適當的Angular版本，即4.3和更高版本。<br>在項目的<code>Module</code>中用<code>HttpClientModule</code>替換<code>HttpModule</code> 。 新的<code>HttpClientModule</code>應該從<code>@angular/common/http</code>導入。</p>
-<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">// Old import &#123; HttpModule &#125; from &#x27;@angular/http&#x27;; </span></span><br><span class="line"></span><br><span class="line">   @<span class="title class_">NgModule</span>(&#123; ... <span class="attr">imports</span>: [ <span class="title class_">HttpModule</span>, ], ... &#125;)</span><br><span class="line"></span><br><span class="line"><span class="comment">// New import &#123; HttpClientModule &#125; from &#x27;@angular/common/http&#x27;; </span></span><br><span class="line">   @<span class="title class_">NgModule</span>(&#123; ... <span class="attr">imports</span>: [ <span class="title class_">HttpClientModule</span>, ], ... &#125;)</span><br></pre></td></tr></table></figure>
+<p>主要原因是說，由Entity映射產生出來的類別，是用來表示定義資料庫的欄位，並不是一個有效的實體</p>
+<p>也就是說，裡面的定義是為了資料庫而生，因此裡面有著許多定義資料庫的欄位、屬性 等等</p>
+<p>而這些東西，並沒辦法轉換為SQL去執行，因此如果後面採用映射出來的類別，可能會造成資料庫的數據遺失等問題存在。</p>
+<p>那…既然如此，我們應該如何解決這個問題？</p>
+<p>這邊筆者提出兩種方式來解決：</p>
+<ul>
+<li>利用匿名類別將資料從資料庫讀取並轉換為LIST，接著再下一次Select，將LIST當中的內容讀出並且轉換為強型別</li>
+<li>利用ViewModel將內容讀取出來</li>
+</ul>
+<p>首先第一種方式筆者個人比較不推薦，因為寫法來說相較並不直觀：</p>
+<figure class="highlight c#"><table><tr><td class="code"><pre><span class="line">List&lt;Store&gt; list = <span class="keyword">new</span> List&lt;Store&gt;();</span><br><span class="line"></span><br><span class="line">list = db.Store.<span class="keyword">select</span>(x=&gt; <span class="keyword">new</span> &#123;</span><br><span class="line"></span><br><span class="line">   x.StoreId,</span><br><span class="line">   x.StoreName</span><br><span class="line">&#125;).ToList().<span class="keyword">select</span>(x =&gt; <span class="keyword">new</span> Store &#123;</span><br><span class="line"></span><br><span class="line">   StoreId = x.StoreId,</span><br><span class="line">   StoreName = x.StoreName,</span><br><span class="line">&#125;).ToList();</span><br></pre></td></tr></table></figure>
 
-<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment">// Old Http</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">Http</span>, <span class="title class_">Headers</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/http&#x27;</span>; </span><br><span class="line"></span><br><span class="line">@<span class="title class_">Injectable</span>() <span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">ExampleService</span> &#123; </span><br><span class="line"></span><br><span class="line">  private _headers = <span class="keyword">new</span> <span class="title class_">Headers</span>(&#123;<span class="string">&#x27;Authentication&#x27;</span>: <span class="string">&#x27;Token&#x27;</span>&#125;); </span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params">private http: Http</span>) &#123;&#125;</span><br><span class="line">  public <span class="title function_">getData</span>(<span class="params"></span>) &#123; </span><br><span class="line">  <span class="keyword">return</span> <span class="variable language_">this</span>.<span class="property">http</span>.<span class="title function_">get</span>(<span class="string">&#x27;youtAPI&#x27;</span>, <span class="variable language_">this</span>.<span class="property">_headers</span>)</span><br><span class="line">                  .<span class="title function_">map</span>(<span class="function">(<span class="params">x</span>) =&gt;</span> &#123; <span class="keyword">return</span> <span class="title class_">JSON</span>.<span class="title function_">parse</span>(x.<span class="property">body</span>); &#125;)</span><br><span class="line">                  .<span class="title function_">subscribe</span>(<span class="function"><span class="params">x</span>=&gt;</span> <span class="variable language_">console</span>.<span class="title function_">log</span>(x));  </span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// New HttpClient</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">HttpClient</span>, <span class="title class_">HttpHeaders</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/common/http&#x27;</span>; </span><br><span class="line"></span><br><span class="line">@<span class="title class_">Injectable</span>() <span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">ExampleService</span> &#123; </span><br><span class="line"> </span><br><span class="line">private _headers = &#123;<span class="attr">headers</span>: <span class="keyword">new</span> <span class="title class_">HttpHeaders</span>().<span class="title function_">set</span>(<span class="string">&#x27;Authentication&#x27;</span>, <span class="string">&#x27;Token&#x27;</span>)&#125;; </span><br><span class="line"></span><br><span class="line"><span class="title function_">constructor</span>(<span class="params">private http: HttpClient</span>) &#123; &#125; </span><br><span class="line"></span><br><span class="line">public <span class="title function_">getData</span>(<span class="params"></span>) &#123; </span><br><span class="line">  </span><br><span class="line">  <span class="keyword">return</span> <span class="variable language_">this</span>.<span class="property">http</span>.<span class="title function_">get</span>(<span class="string">&#x27;youtAPI&#x27;</span>, <span class="variable language_">this</span>.<span class="property">_headers</span>).<span class="title function_">subscribe</span>(<span class="function"><span class="params">x</span>=&gt;</span> <span class="variable language_">console</span>.<span class="title function_">log</span>(x); </span><br><span class="line"></span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="結論"><a href="#結論" class="headerlink" title="結論"></a>結論</h3><p>基本上，語法沒有很大的變化。 HttpClient保留了舊的http： http.get() ， http.post()等相同的方法名稱。</p>
-<p>因此大家可以愉快地升級，享受簡潔的語法吧！</p>
+<p>利用以上的方式，等於我們相同的程式碼要再寫一次。雖然邏輯上來說完全不一樣，但是對開發者來說，卻要select兩次，相當不直觀。</p>
+<p>因此筆者這邊推薦採用ViewModel的方式來去接值。</p>
+<p>我們先建立一個ViewModel，裡面的欄位就是你想從資料庫當中撈取的欄位。</p>
+<p>接著我們只需要這樣做就可以了：</p>
+<figure class="highlight c#"><table><tr><td class="code"><pre><span class="line">List&lt;StoreViewModel&gt; list = <span class="keyword">new</span> List&lt;StoreViewModel&gt;();</span><br><span class="line"></span><br><span class="line">list = db.Store.<span class="keyword">select</span>(x=&gt; <span class="keyword">new</span> StoreViewModel&#123;</span><br><span class="line"></span><br><span class="line">   StoreId = x.StoreId,</span><br><span class="line">   StoreName = x.StoreName,</span><br><span class="line">&#125;).ToList();</span><br></pre></td></tr></table></figure>
+<p>透過這樣的方式，我們將資料庫撈出來的內容 Binding到我們的ViewModel上，就可以解決這樣的問題了。</p>
 <div>
 以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
 
@@ -508,42 +540,10 @@ LINQ to Entities 查詢中無法建構實體或複雜類型
 </div>
 ]]></content>
       <categories>
-        <category>Angular</category>
+        <category>.NET</category>
       </categories>
       <tags>
-        <tag>HttpClient</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Android- Fragment 基本介紹</title>
-    <url>/2016/09/03/Android-Fragment-%E5%9F%BA%E6%9C%AC%E4%BB%8B%E7%B4%B9/</url>
-    <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>在撰寫Android時，一定都會需要用到換頁的技巧</p>
-<p>但是在使用換頁時，可能初學都會習慣先使用Intent來進行頁面的跳轉 (我第一次寫Android Watch的時候好像也是這樣~)</p>
-<p>但是用久了的時候卻會發現到：假設如果今天自己的App有一個客製化的Title 以及Bottom Bar時，會發現每一次都需要將重複的Style程式碼複製貼上來進行設計</p>
-<p>因此本篇會來介紹該如何解決這個問題</p>
-<span id="more"></span>
-<p>Google 在Android 3.0時，研發了一種名為Fragment的功能，只需要將你程式碼的某一區塊定義為Fragment後，就可以只針對這個區塊進行抽換（有點類似 Ajax）</p>
-<p>而在使用上來說其實滿簡單的</p>
-<p>首先在自己的Activity頁面定義出一塊空的Layout(一定要是空的！否則你的程式碼將會無法被替換掉)</p>
-<p>接著在Layout的資料夾中New一個Fragment作為我們的抽換頁面</p>
-<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/c5d87a90-bdbb-47bd-8e62-859c6c4314a2/1472992022_82103.png"></p>
-<p>接著就可以在自己的程式碼中的OnCreate中加上抽換的程式碼，如此一來就可以在畫面載入時跳轉到自己的其它頁面去了</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="type">FragmentTransaction</span> <span class="variable">transaction</span> <span class="operator">=</span> getSupportFragmentManager().beginTransaction();</span><br><span class="line">        transaction.replace(R.id.Content, <span class="string">&quot;你新建立好的Fragment&quot;</span>;</span><br><span class="line">        transaction.commitAllowingStateLoss(); <span class="comment">//這行一定要加，目的是要讓transaction能夠真正送出</span></span><br></pre></td></tr></table></figure>
-<p>第三行的Commit 如果是從某一個Fragment切換到其他Fragment的話，一定要改為以下程式碼，否則會造成App閃退</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">transaction.commitAllowingStateLoss()</span><br></pre></td></tr></table></figure>
-<p>但若是從Activity切換到Fragment時，可以直接使用<code>commti()</code>就可以了</p>
-<div>
-以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
-
-<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
-<p><a href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
-</div>
-]]></content>
-      <categories>
-        <category>Android</category>
-      </categories>
-      <tags>
-        <tag>Fragement</tag>
+        <tag>LINQ</tag>
       </tags>
   </entry>
   <entry>
@@ -617,87 +617,6 @@ LINQ to Entities 查詢中無法建構實體或複雜類型
       <tags>
         <tag>Enum</tag>
       </tags>
-  </entry>
-  <entry>
-    <title>Controller的函數無法傳入多個參數</title>
-    <url>/2023/01/24/Controller%E7%9A%84%E5%87%BD%E6%95%B8%E7%84%A1%E6%B3%95%E5%82%B3%E5%85%A5%E5%A4%9A%E5%80%8B%E5%8F%83%E6%95%B8/</url>
-    <content><![CDATA[<span id="more"></span>
-
-<p>前陣子同事在寫 WebAPI的時候，發現 Controller內的函數無法傳入超過一個以上的參數</p>
-<p>只要傳超過一個以上，就會在Runtime當下直接噴錯，錯誤訊息為：</p>
-<figure class="highlight c#"><table><tr><td class="code"><pre><span class="line">has more than one parameter that was specified <span class="keyword">or</span> inferred <span class="keyword">as</span> bound <span class="keyword">from</span> request body. Only one parameter per action may be bound <span class="keyword">from</span> body. </span><br></pre></td></tr></table></figure>
-
-<p>主要的意思是request body 傳入超過一個以上的參數，但在action中只應該有一個參數。</p>
-<p>面對這樣的問題，一開始聽同事描述還覺得挺不可思議的，畢竟寫API那麼久了，從來沒聽過在Controller底下寫Method 參數最多只能給予一個。</p>
-<p>後來請他額外測試，若是傳入基本資料型別(int,float等等) 是可以傳入多個的。</p>
-<p>也就是說，只有傳入衍生資料型別(複雜類型)，是不能過的。</p>
-<p>但縱使是這樣，這類的錯誤訊息我依然沒遇到過。</p>
-<p>上網研究了一下才發現，由於 <font style="color:red"> Controller 內寫的Method 會默認為Action</font></p>
-<p>也就是說不需要特別指定他是 [HttpGet] 或是 [HttpPost] ，他也能自動根據函數名稱來判斷，並幫你呼叫。</p>
-<p>但這樣就會遇到一個問題，它把所有Controller裡面的Method都當成Action來呼叫了，而同時request body又只能接受一個複雜類型的參數。</p>
-<p>因此才會噴這個錯誤。</p>
-<p>那，為甚麼這問題我卻從來沒遇過呢?</p>
-<p>因為筆者習慣將Controller內部的函數，都設定為private(因為都是自用)。</p>
-<p>所以當函數設定為private就不會把它當成Action來呼叫使用，也因此這問題我從來沒發生過。</p>
-<p>而同事遇到的這個問題，正是因為他把Controller內部的函數，統一宣告為public，因此被當作Action來呼叫，才會有這個問題。</p>
-<font style="color:red"> 
-那，如果真的想要使用public來進行呼叫呢? <br>
-就必須要在函數上加上 [NonAction] 的標籤，讓編譯器知道這個函數並不是一個Action。
-</font>
-
-<p>因此只需要加上就可以避免此問題。</p>
-<p>也可以使用停用推斷規則來解決此問題：</p>
-<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/16b3d44b-5058-4f14-ba9b-891d4f68b141/1606448097.png" alt="停用推斷規則"></p>
-<font style="color:red">
-但筆者還是建議，若是複雜的商業邏輯，需要額外抽成函數來撰寫的話，應該要額外建立類別來處理業務邏輯(也就是BAL)
-
-<p>如果只是圖方便想直接讓Controller呼叫使用的話，也建議改成private做使用，除非萬不得已，不然建議不要設定成public，並使用 [NonAction]來宣告。<br></p></font><p></p>
-]]></content>
-      <categories>
-        <category>.NET</category>
-      </categories>
-      <tags>
-        <tag>.NETCore</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>JavaScript - ES6 箭頭函數</title>
-    <url>/2017/04/22/JavaScript-ES6-%E7%AE%AD%E9%A0%AD%E5%87%BD%E6%95%B8/</url>
-    <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>箭頭函數(Fat arrow functions）是一個來自ECMAScript 2015（又稱ES6）的全新特性。</p>
-<p>簡單的來說，是ES6版才有的新功能</p>
-<p>箭頭函數的產生，主要為：更簡潔的語法 讓父類別共享關鍵字this。</p>
-<span id="more"></span>
-<p>這樣講可能有些許模糊，我們帶個下面的例子讓大家看一下就知道了。</p>
-<blockquote>
-<p>傳統JavaScript 的寫法</p>
-</blockquote>
-<p>傳統的JavaScript函數語法並沒有提供任何的靈活性，每一次你需要定義一個函數時，你都必須輸入function () {}。這樣的一個架構</p>
-<p>但是在ES6版之後 為什麼大家的會這麼喜歡用它，有一個不可忽略的原因就是它有更簡潔的函數語法。</p>
-<p>更簡潔的函數語法在有大量呼叫函數的情況下有特別明顯的好處。</p>
-<p>以下例子的目的是使用jQuery來展示一個每秒都會更新的時鐘：</p>
-<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">$(<span class="string">&#x27;.current-time&#x27;</span>).<span class="title function_">each</span>(<span class="keyword">function</span> (<span class="params"></span>) &#123;</span><br><span class="line">  <span class="built_in">setInterval</span>(<span class="keyword">function</span> (<span class="params"></span>) &#123;</span><br><span class="line">    $(<span class="variable language_">this</span>).<span class="title function_">text</span>(<span class="title class_">Date</span>.<span class="title function_">now</span>());</span><br><span class="line">  &#125;, <span class="number">1000</span>);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
-<p>但是當我想要在setInterval中使用this來引用DOM元素時，很不幸，我們得到的只是一個屬於函數自身的this。</p>
-<p>而一個通常的解決辦法是定義一個that或者self變量：（如果不懂為什麼的話可以參考一下我之前撰寫過的一篇關於 JavaScript  this的介紹文）<br><a href="./JavaScript-%E6%B7%BA%E8%AB%87%E7%95%B6%E5%89%8D%E7%9A%84this%E5%B0%8D%E8%B1%A1%E6%AD%B8%E5%B1%AC.md">JavaScript - 淺談當前的this對象歸屬</a><br>但當使用了ES6當中的箭頭函數時，這個問題就不復存在了。因為它不產生屬於它自己函數內的this：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">$(&#x27;.current-time&#x27;).each(function () &#123;</span><br><span class="line">  setInterval(() =&gt; $(this).text(Date.now()), 1000);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
-<p>就如同剛剛上面開頭所說的， 讓父類別共享關鍵字this 因此可以利用箭頭函數來達到我們所想的目的。</p>
-<p>而箭頭函數就相當於匿名函數，並且簡化了函數定義。箭頭函數有兩種格式，一種像上面的，只包含一個表達式，連<code>&#123; ... &#125;</code>和return都省略掉了。還有一種可以包含多條語句，這時候就不能省略<code>&#123; ... &#125;</code>和<code>return</code>：</p>
-<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">score =&gt; &#123;</span><br><span class="line">    <span class="keyword">if</span> (score &gt; <span class="number">100</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">100</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> score;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>有沒有發現和 lambda 表達式類似xD</p>
-<blockquote>
-<p>arguments 屬性</p>
-</blockquote>
-<p>然而在箭頭函數與普通函數還有一個區別就是，它沒有自己的arguments 屬性 </p>
-<p>在傳統的JavaScript 我們可以透過arguments Array 來取得函數的參數</p>
-<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">Test</span>(<span class="params">msg</span>)&#123;</span><br><span class="line">    <span class="keyword">var</span> temp = <span class="variable language_">arguments</span>[<span class="number">0</span>];</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(temp);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>但是在箭頭函數當中，是沒有屬於自己的this 與 arguments Array ，有興趣的人可以試試看以下的程式碼就可以了解了：</p>
-<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">TT</span>(<span class="params">msg</span>)&#123;</span><br><span class="line">    <span class="keyword">var</span> <span class="title function_">temp</span> = (<span class="params"></span>) =&gt; <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="variable language_">arguments</span>[<span class="number">0</span>]);</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(temp);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<div>
-以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
-
-<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
-<p><a href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
-</div>
-]]></content>
   </entry>
   <entry>
     <title>CSS - FlexBox 教學</title>
@@ -794,6 +713,87 @@ LINQ to Entities 查詢中無法建構實體或複雜類型
       </tags>
   </entry>
   <entry>
+    <title>Controller的函數無法傳入多個參數</title>
+    <url>/2023/01/24/Controller%E7%9A%84%E5%87%BD%E6%95%B8%E7%84%A1%E6%B3%95%E5%82%B3%E5%85%A5%E5%A4%9A%E5%80%8B%E5%8F%83%E6%95%B8/</url>
+    <content><![CDATA[<span id="more"></span>
+
+<p>前陣子同事在寫 WebAPI的時候，發現 Controller內的函數無法傳入超過一個以上的參數</p>
+<p>只要傳超過一個以上，就會在Runtime當下直接噴錯，錯誤訊息為：</p>
+<figure class="highlight c#"><table><tr><td class="code"><pre><span class="line">has more than one parameter that was specified <span class="keyword">or</span> inferred <span class="keyword">as</span> bound <span class="keyword">from</span> request body. Only one parameter per action may be bound <span class="keyword">from</span> body. </span><br></pre></td></tr></table></figure>
+
+<p>主要的意思是request body 傳入超過一個以上的參數，但在action中只應該有一個參數。</p>
+<p>面對這樣的問題，一開始聽同事描述還覺得挺不可思議的，畢竟寫API那麼久了，從來沒聽過在Controller底下寫Method 參數最多只能給予一個。</p>
+<p>後來請他額外測試，若是傳入基本資料型別(int,float等等) 是可以傳入多個的。</p>
+<p>也就是說，只有傳入衍生資料型別(複雜類型)，是不能過的。</p>
+<p>但縱使是這樣，這類的錯誤訊息我依然沒遇到過。</p>
+<p>上網研究了一下才發現，由於 <font style="color:red"> Controller 內寫的Method 會默認為Action</font></p>
+<p>也就是說不需要特別指定他是 [HttpGet] 或是 [HttpPost] ，他也能自動根據函數名稱來判斷，並幫你呼叫。</p>
+<p>但這樣就會遇到一個問題，它把所有Controller裡面的Method都當成Action來呼叫了，而同時request body又只能接受一個複雜類型的參數。</p>
+<p>因此才會噴這個錯誤。</p>
+<p>那，為甚麼這問題我卻從來沒遇過呢?</p>
+<p>因為筆者習慣將Controller內部的函數，都設定為private(因為都是自用)。</p>
+<p>所以當函數設定為private就不會把它當成Action來呼叫使用，也因此這問題我從來沒發生過。</p>
+<p>而同事遇到的這個問題，正是因為他把Controller內部的函數，統一宣告為public，因此被當作Action來呼叫，才會有這個問題。</p>
+<font style="color:red"> 
+那，如果真的想要使用public來進行呼叫呢? <br>
+就必須要在函數上加上 [NonAction] 的標籤，讓編譯器知道這個函數並不是一個Action。
+</font>
+
+<p>因此只需要加上就可以避免此問題。</p>
+<p>也可以使用停用推斷規則來解決此問題：</p>
+<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/16b3d44b-5058-4f14-ba9b-891d4f68b141/1606448097.png" alt="停用推斷規則"></p>
+<font style="color:red">
+但筆者還是建議，若是複雜的商業邏輯，需要額外抽成函數來撰寫的話，應該要額外建立類別來處理業務邏輯(也就是BAL)
+
+<p>如果只是圖方便想直接讓Controller呼叫使用的話，也建議改成private做使用，除非萬不得已，不然建議不要設定成public，並使用 [NonAction]來宣告。<br></p></font><p></p>
+]]></content>
+      <categories>
+        <category>.NET</category>
+      </categories>
+      <tags>
+        <tag>.NETCore</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>JavaScript - ES6 箭頭函數</title>
+    <url>/2017/04/22/JavaScript-ES6-%E7%AE%AD%E9%A0%AD%E5%87%BD%E6%95%B8/</url>
+    <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>箭頭函數(Fat arrow functions）是一個來自ECMAScript 2015（又稱ES6）的全新特性。</p>
+<p>簡單的來說，是ES6版才有的新功能</p>
+<p>箭頭函數的產生，主要為：更簡潔的語法 讓父類別共享關鍵字this。</p>
+<span id="more"></span>
+<p>這樣講可能有些許模糊，我們帶個下面的例子讓大家看一下就知道了。</p>
+<blockquote>
+<p>傳統JavaScript 的寫法</p>
+</blockquote>
+<p>傳統的JavaScript函數語法並沒有提供任何的靈活性，每一次你需要定義一個函數時，你都必須輸入function () {}。這樣的一個架構</p>
+<p>但是在ES6版之後 為什麼大家的會這麼喜歡用它，有一個不可忽略的原因就是它有更簡潔的函數語法。</p>
+<p>更簡潔的函數語法在有大量呼叫函數的情況下有特別明顯的好處。</p>
+<p>以下例子的目的是使用jQuery來展示一個每秒都會更新的時鐘：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">$(<span class="string">&#x27;.current-time&#x27;</span>).<span class="title function_">each</span>(<span class="keyword">function</span> (<span class="params"></span>) &#123;</span><br><span class="line">  <span class="built_in">setInterval</span>(<span class="keyword">function</span> (<span class="params"></span>) &#123;</span><br><span class="line">    $(<span class="variable language_">this</span>).<span class="title function_">text</span>(<span class="title class_">Date</span>.<span class="title function_">now</span>());</span><br><span class="line">  &#125;, <span class="number">1000</span>);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>但是當我想要在setInterval中使用this來引用DOM元素時，很不幸，我們得到的只是一個屬於函數自身的this。</p>
+<p>而一個通常的解決辦法是定義一個that或者self變量：（如果不懂為什麼的話可以參考一下我之前撰寫過的一篇關於 JavaScript  this的介紹文）<br><a href="./JavaScript-%E6%B7%BA%E8%AB%87%E7%95%B6%E5%89%8D%E7%9A%84this%E5%B0%8D%E8%B1%A1%E6%AD%B8%E5%B1%AC.md">JavaScript - 淺談當前的this對象歸屬</a><br>但當使用了ES6當中的箭頭函數時，這個問題就不復存在了。因為它不產生屬於它自己函數內的this：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">$(&#x27;.current-time&#x27;).each(function () &#123;</span><br><span class="line">  setInterval(() =&gt; $(this).text(Date.now()), 1000);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>就如同剛剛上面開頭所說的， 讓父類別共享關鍵字this 因此可以利用箭頭函數來達到我們所想的目的。</p>
+<p>而箭頭函數就相當於匿名函數，並且簡化了函數定義。箭頭函數有兩種格式，一種像上面的，只包含一個表達式，連<code>&#123; ... &#125;</code>和return都省略掉了。還有一種可以包含多條語句，這時候就不能省略<code>&#123; ... &#125;</code>和<code>return</code>：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">score =&gt; &#123;</span><br><span class="line">    <span class="keyword">if</span> (score &gt; <span class="number">100</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">100</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> score;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>有沒有發現和 lambda 表達式類似xD</p>
+<blockquote>
+<p>arguments 屬性</p>
+</blockquote>
+<p>然而在箭頭函數與普通函數還有一個區別就是，它沒有自己的arguments 屬性 </p>
+<p>在傳統的JavaScript 我們可以透過arguments Array 來取得函數的參數</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">Test</span>(<span class="params">msg</span>)&#123;</span><br><span class="line">    <span class="keyword">var</span> temp = <span class="variable language_">arguments</span>[<span class="number">0</span>];</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(temp);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>但是在箭頭函數當中，是沒有屬於自己的this 與 arguments Array ，有興趣的人可以試試看以下的程式碼就可以了解了：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">TT</span>(<span class="params">msg</span>)&#123;</span><br><span class="line">    <span class="keyword">var</span> <span class="title function_">temp</span> = (<span class="params"></span>) =&gt; <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="variable language_">arguments</span>[<span class="number">0</span>]);</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(temp);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<div>
+以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
+
+<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
+<p><a href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
+</div>
+]]></content>
+  </entry>
+  <entry>
     <title>JavaScript - Hoisting(提升) 介紹</title>
     <url>/2018/05/02/JavaScript-Hoisting-%E6%8F%90%E5%8D%87-%E4%BB%8B%E7%B4%B9/</url>
     <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>就在剛剛，看完了Will保哥的技術交流直播，在直撥最後結尾的時候</p>
@@ -872,6 +872,41 @@ LINQ to Entities 查詢中無法建構實體或複雜類型
       </tags>
   </entry>
   <entry>
+    <title>JavaScript - 淺談當前的this對象歸屬</title>
+    <url>/2017/01/09/JavaScript-%E6%B7%BA%E8%AB%87%E7%95%B6%E5%89%8D%E7%9A%84this%E5%B0%8D%E8%B1%A1%E6%AD%B8%E5%B1%AC/</url>
+    <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>我們都知道JavaScript跟其他語言在物件導向有很大的不同</p>
+<p>其中以this為最大的差異點，很多人常常對於這個this搞得一個頭兩個大的</p>
+<p>而該怎麼判斷this目前指向的對象是誰呢？ 則是看對於在執行this前是否有物件。</p>
+<p>如果有物件，則this代表著該物件; 倘若沒有物件，則this代表著整個window</p>
+<p>這聽起來很饒舌，做個範例來看就會知道了</p>
+<span id="more"></span>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> x = <span class="number">10</span>;</span><br><span class="line"><span class="keyword">var</span> obj = &#123;</span><br><span class="line">  <span class="attr">x</span>: <span class="number">20</span>,</span><br><span class="line">  <span class="attr">f</span>: <span class="keyword">function</span>(<span class="params"></span>)&#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="variable language_">this</span>.<span class="property">x</span>);</span><br><span class="line">    <span class="keyword">var</span> foo = <span class="keyword">function</span>(<span class="params"></span>)&#123; <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="variable language_">this</span>.<span class="property">x</span>); &#125;</span><br><span class="line">    <span class="title function_">foo</span>(); </span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">var</span> obj = <span class="keyword">new</span> <span class="title function_">obj</span>();</span><br><span class="line">obj.<span class="title function_">f</span>(); </span><br></pre></td></tr></table></figure>
+<p>在上述的範例當中，一開始呼叫 <code>obj.f()</code>  這時候一開始console內的<code>this.x</code>會輸出20</p>
+<p>但是接著在<code>f()</code>的最後一行，呼叫了<code>foo()</code>  此時，console內的<code>this.x</code> 則會輸出10</p>
+<p>而不會是大家所想的20，原因在於<code>foo()</code>  內的this，因為前面並沒有物件，因此指向的是全域變數中的x，所以才會輸出10</p>
+<p>那…該怎麼做才會能能達到我們預期的 20,20呢？</p>
+<p>這時候我們就必須要先將物件內的this儲存起來，像這樣子：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> x = <span class="number">10</span>;</span><br><span class="line"><span class="keyword">var</span> obj = &#123;</span><br><span class="line">  <span class="attr">x</span>: <span class="number">20</span>,</span><br><span class="line">  <span class="attr">f</span>: <span class="keyword">function</span>(<span class="params"></span>)&#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="variable language_">this</span>.<span class="property">x</span>);</span><br><span class="line">    <span class="keyword">var</span> js = <span class="variable language_">this</span>; <span class="comment">//先將當前f()內的this利用js變數儲存起來。 因為當前的this指的是這個obj物件</span></span><br><span class="line">    <span class="keyword">var</span> foo = <span class="keyword">function</span>(<span class="params"></span>)&#123; <span class="variable language_">console</span>.<span class="title function_">log</span>(js.<span class="property">x</span>); &#125; <span class="comment">//使用js取得obj這個物件內的x值</span></span><br><span class="line">    <span class="title function_">foo</span>();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> obj = <span class="keyword">new</span> <span class="title function_">obj</span>();</span><br><span class="line">obj.<span class="title function_">f</span>();</span><br></pre></td></tr></table></figure>
+<p>我們可以透過像上面的code，預先將f()內的this暫存起來，這樣變數js就永遠都會代表obj這個物件</p>
+<p>就不會再指向整個window了</p>
+<p>不過這樣的做法，並不是全然之計，因為每當你重新new這個物件時，裡面的this就會被自動刷新</p>
+<p>而這個問題，我們留在下一章來進行探討。<br>下一章的<a href="./JavaScript-%E8%A7%A3%E6%B1%BA%E5%A4%9A%E6%AC%A1%E5%AF%A6%E9%AB%94%E5%8C%96%E7%89%A9%E4%BB%B6%E6%9C%83%E9%80%A0%E6%88%90%E7%89%A9%E4%BB%B6%E7%84%A1%E6%B3%95%E6%AD%A3%E5%B8%B8%E4%BD%BF%E7%94%A8.md">連結</a>在這唷！ </p>
+<p>有興趣的讀者可以研究看看</p>
+<div>
+以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
+
+<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
+<p><a href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
+</div>
+]]></content>
+      <categories>
+        <category>JavaScript</category>
+      </categories>
+      <tags>
+        <tag>this</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>JavaScript- 解決多次實體化物件會造成物件無法正常使用</title>
     <url>/2017/01/09/JavaScript-%E8%A7%A3%E6%B1%BA%E5%A4%9A%E6%AC%A1%E5%AF%A6%E9%AB%94%E5%8C%96%E7%89%A9%E4%BB%B6%E6%9C%83%E9%80%A0%E6%88%90%E7%89%A9%E4%BB%B6%E7%84%A1%E6%B3%95%E6%AD%A3%E5%B8%B8%E4%BD%BF%E7%94%A8/</url>
     <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>因為JavaScript的物件導向與一般大家所認識的物件導向有所不同</p>
@@ -933,116 +968,6 @@ LINQ to Entities 查詢中無法建構實體或複雜類型
       </tags>
   </entry>
   <entry>
-    <title>.NET 如何動態生成dynamic物件-ExpandoObject</title>
-    <url>/2020/01/05/NET-%E5%A6%82%E4%BD%95%E5%8B%95%E6%85%8B%E7%94%9F%E6%88%90dynamic%E7%89%A9%E4%BB%B6-ExpandoObject/</url>
-    <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>一直以來都知道Dapper在做存取資料庫方面非常的簡單，只需要給予該SQL語法以及回傳的Model型別，就可以將對應的資料回傳並且轉換成List。</p>
-<p>而其中Dapper還有一個最厲害的地方就是：不用預先宣告強型別，查詢資料表後就可以直接傳回 dynamic 的List。</p>
-<p>例如：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">var list = cn.Query(&quot;SELECT Name,Class FROM Student&quot;).ToList();</span><br></pre></td></tr></table></figure>
-<p>該語法將傳回<code>List&lt;dynamic&gt;</code>，因此不需要特別建立Model也可以將該資料回傳並作使用。</p>
-<p>因此開始思考，如何透過dynamic動態生成物件？</p>
-<span id="more"></span>
-
-<p>ExpandoObject是在.Net Framework 4之後出現的一個類別 ，可以幫助我們為物件動態的加入或移除屬性成員。</p>
-<p>其用法為：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">dynamic data = new ExpandoObject();</span><br><span class="line">data.Name = &quot;Leo&quot;;</span><br><span class="line">data.Sex= &quot;Male&quot;;</span><br></pre></td></tr></table></figure>
-
-<p>我們需要搭配dynamic才能夠存取我們指定的Name,Sex欄位。</p>
-<p>但是僅僅這樣寫，雖然可以自動幫我們建立Namx,Sex欄位，並給予值。但若是在欄位名稱未知的情況下想要動態建立Model，可就沒辦法了。</p>
-<p>如上面所說，若需要將撈出來的SQL資料，根據其欄位建立Model並賦予值，那肯定無法做到。</p>
-<p>但值得一提的是，由於ExpandoObject本身就實作了<code>IDictionary&lt;string, object&gt;</code>，因此若是有必要我們也可以直接把它轉型成<code>IDictionary&lt;string, object&gt;</code>來操作，讓該物件擁有Add以及Remove的方法，為物件動態的加入或移除屬性成員。</p>
-<p>因此撰寫上我們會改為這樣的寫法：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">var MyDynamic = new ExpandoObject() as IDictionary&lt;string, Object&gt;;</span><br><span class="line">MyDynamic.Add(&quot;Name&quot;, &quot;leo&quot;);</span><br><span class="line">MyDynamic.Add(&quot;Sex&quot;, &quot;Male&quot;);</span><br></pre></td></tr></table></figure>
-
-<p>透過這樣的方式，將我們的屬性利用字串的方式Add至MyDynamic物件中，這樣我們就能存取Name以及Sex的值了。</p>
-<p>因此若想像Dapper一樣回傳成<code>List&lt;dynamic&gt;</code>的集合資料的話，最終的版本可以寫成這樣：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">// 本範例使用SqlDataReader做資料庫存取</span><br><span class="line"></span><br><span class="line">    List&lt;dynamic&gt; list = new List&lt;dynamic&gt;();</span><br><span class="line">    SqlCommand command = new SqlCommand(sql, connection);</span><br><span class="line">    SqlDataReader reader = command.ExecuteReader();</span><br><span class="line">    while (reader.Read())</span><br><span class="line">    &#123;</span><br><span class="line">      IDictionary&lt;String, Object&gt; MyDynamic = new ExpandoObject() as IDictionary&lt;string, Object&gt;;</span><br><span class="line"></span><br><span class="line">      for (int i = 0; i &lt; reader.FieldCount;i++) // 透過FieldCount 取得該列資料中的所有欄位數目</span><br><span class="line">      &#123;</span><br><span class="line">        MyDynamic.Add(reader.GetName(i), reader[i]); //動態將SQL存取到的欄位以及Value 放入MyDynamic中</span><br><span class="line">      &#125;</span><br><span class="line">       list.Add(MyDynamic);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
-<p>透過這樣的方式，我們就可以像Dapper一樣，不需要建立Model類別，也能輕鬆的將資料存取回來，並轉換為List做後續操作。</p>
-<p>另外，仔細追查Dapper的原始碼，我們也可以發現到，Dapper之所以能做到不需要指定Model型別，也能回傳dynamic的List的原因，也是透過實作了<code>IDictionary&lt;string, object&gt;</code>。</p>
-<p>因此在dapper中，外表看似是dynamic其實骨子裡是DapperRow的型別。</p>
-<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/e1371ca9-eefc-4e94-a6a2-7328c0c5cd85/1578196167_77935.png"></p>
-<div>
-以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
-
-<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
-<p><a href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
-</div>
-]]></content>
-      <categories>
-        <category>.NET</category>
-      </categories>
-      <tags>
-        <tag>.NET</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>JavaScript - 淺談當前的this對象歸屬</title>
-    <url>/2017/01/09/JavaScript-%E6%B7%BA%E8%AB%87%E7%95%B6%E5%89%8D%E7%9A%84this%E5%B0%8D%E8%B1%A1%E6%AD%B8%E5%B1%AC/</url>
-    <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>我們都知道JavaScript跟其他語言在物件導向有很大的不同</p>
-<p>其中以this為最大的差異點，很多人常常對於這個this搞得一個頭兩個大的</p>
-<p>而該怎麼判斷this目前指向的對象是誰呢？ 則是看對於在執行this前是否有物件。</p>
-<p>如果有物件，則this代表著該物件; 倘若沒有物件，則this代表著整個window</p>
-<p>這聽起來很饒舌，做個範例來看就會知道了</p>
-<span id="more"></span>
-<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> x = <span class="number">10</span>;</span><br><span class="line"><span class="keyword">var</span> obj = &#123;</span><br><span class="line">  <span class="attr">x</span>: <span class="number">20</span>,</span><br><span class="line">  <span class="attr">f</span>: <span class="keyword">function</span>(<span class="params"></span>)&#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="variable language_">this</span>.<span class="property">x</span>);</span><br><span class="line">    <span class="keyword">var</span> foo = <span class="keyword">function</span>(<span class="params"></span>)&#123; <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="variable language_">this</span>.<span class="property">x</span>); &#125;</span><br><span class="line">    <span class="title function_">foo</span>(); </span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">var</span> obj = <span class="keyword">new</span> <span class="title function_">obj</span>();</span><br><span class="line">obj.<span class="title function_">f</span>(); </span><br></pre></td></tr></table></figure>
-<p>在上述的範例當中，一開始呼叫 <code>obj.f()</code>  這時候一開始console內的<code>this.x</code>會輸出20</p>
-<p>但是接著在<code>f()</code>的最後一行，呼叫了<code>foo()</code>  此時，console內的<code>this.x</code> 則會輸出10</p>
-<p>而不會是大家所想的20，原因在於<code>foo()</code>  內的this，因為前面並沒有物件，因此指向的是全域變數中的x，所以才會輸出10</p>
-<p>那…該怎麼做才會能能達到我們預期的 20,20呢？</p>
-<p>這時候我們就必須要先將物件內的this儲存起來，像這樣子：</p>
-<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> x = <span class="number">10</span>;</span><br><span class="line"><span class="keyword">var</span> obj = &#123;</span><br><span class="line">  <span class="attr">x</span>: <span class="number">20</span>,</span><br><span class="line">  <span class="attr">f</span>: <span class="keyword">function</span>(<span class="params"></span>)&#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="variable language_">this</span>.<span class="property">x</span>);</span><br><span class="line">    <span class="keyword">var</span> js = <span class="variable language_">this</span>; <span class="comment">//先將當前f()內的this利用js變數儲存起來。 因為當前的this指的是這個obj物件</span></span><br><span class="line">    <span class="keyword">var</span> foo = <span class="keyword">function</span>(<span class="params"></span>)&#123; <span class="variable language_">console</span>.<span class="title function_">log</span>(js.<span class="property">x</span>); &#125; <span class="comment">//使用js取得obj這個物件內的x值</span></span><br><span class="line">    <span class="title function_">foo</span>();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> obj = <span class="keyword">new</span> <span class="title function_">obj</span>();</span><br><span class="line">obj.<span class="title function_">f</span>();</span><br></pre></td></tr></table></figure>
-<p>我們可以透過像上面的code，預先將f()內的this暫存起來，這樣變數js就永遠都會代表obj這個物件</p>
-<p>就不會再指向整個window了</p>
-<p>不過這樣的做法，並不是全然之計，因為每當你重新new這個物件時，裡面的this就會被自動刷新</p>
-<p>而這個問題，我們留在下一章來進行探討。<br>下一章的<a href="./JavaScript-%E8%A7%A3%E6%B1%BA%E5%A4%9A%E6%AC%A1%E5%AF%A6%E9%AB%94%E5%8C%96%E7%89%A9%E4%BB%B6%E6%9C%83%E9%80%A0%E6%88%90%E7%89%A9%E4%BB%B6%E7%84%A1%E6%B3%95%E6%AD%A3%E5%B8%B8%E4%BD%BF%E7%94%A8.md">連結</a>在這唷！ </p>
-<p>有興趣的讀者可以研究看看</p>
-<div>
-以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
-
-<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
-<p><a href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
-</div>
-]]></content>
-      <categories>
-        <category>JavaScript</category>
-      </categories>
-      <tags>
-        <tag>this</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>.NET 如何讓 WebAPI 支援 Session ?</title>
-    <url>/2017/05/09/NET-%E5%A6%82%E4%BD%95%E8%AE%93-WebAPI-%E6%94%AF%E6%8F%B4-Session/</url>
-    <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>如果你有工作上的需求需要在WebAPI當中加入Session的功能</p>
-<p>那麼這一篇也許對你會有幫助。</p>
-<p>最近筆者為了案子而開始撰寫.NET WebApi</p>
-<p>其中有些資訊需要儲存在Session當中。</p>
-<span id="more"></span>
-<p>於是撰寫了以下的Code想要將資訊寫入Session當中：</p>
-<figure class="highlight c#"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> session = System.Web.HttpContext.Current.Session; <span class="comment">//宣告Session</span></span><br><span class="line">session.Add(<span class="string">&quot;Auth&quot;</span>,LoginInfo.Auth); <span class="comment">//將認證資訊放入Session</span></span><br><span class="line"><span class="keyword">var</span> temp = session[<span class="string">&quot;Auth&quot;</span>];</span><br></pre></td></tr></table></figure>
-<p>結果意外發現這段Code居然不能執行。</p>
-<p>原因在於session是一個null，也就是說一開始就找不到Session這個物件了</p>
-<p>自然也就無法使用。</p>
-<p>爬了一些文後發現，WebApi由於是無狀態的，因此無法使用這樣的方式直接儲存</p>
-<p>所以需要在檔案：<code>~/Global.asax</code>，內新增以下程式碼即可支援：</p>
-<figure class="highlight c#"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">Application_PostAuthorizeRequest</span>()</span></span><br><span class="line">&#123;</span><br><span class="line">	System.Web.HttpContext.Current.SetSessionStateBehavior(System.Web.SessionState.SessionStateBehavior.Required);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-<div>
-以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
-
-<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
-<p><a href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
-</div>
-]]></content>
-      <categories>
-        <category>.NET</category>
-      </categories>
-      <tags>
-        <tag>WebAPI</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>.NET - 在VS Code 中用.net core 安裝 Entity Framework</title>
     <url>/2018/06/16/NET-%E5%9C%A8VS-Code-%E4%B8%AD%E7%94%A8-net-core-%E5%AE%89%E8%A3%9D-Entity-Framework/</url>
     <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>.Net Core 出來了很久，作為一個.Net的忠實信徒，卻這麼久沒有去觸碰它，實在慚愧。</p>
@@ -1093,6 +1018,81 @@ version for package `Microsoft.EntityFrameworkCore.Tools.DotNet` could not be re
       </categories>
       <tags>
         <tag>.net core  Entity Framework</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>.NET 如何動態生成dynamic物件-ExpandoObject</title>
+    <url>/2020/01/05/NET-%E5%A6%82%E4%BD%95%E5%8B%95%E6%85%8B%E7%94%9F%E6%88%90dynamic%E7%89%A9%E4%BB%B6-ExpandoObject/</url>
+    <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>一直以來都知道Dapper在做存取資料庫方面非常的簡單，只需要給予該SQL語法以及回傳的Model型別，就可以將對應的資料回傳並且轉換成List。</p>
+<p>而其中Dapper還有一個最厲害的地方就是：不用預先宣告強型別，查詢資料表後就可以直接傳回 dynamic 的List。</p>
+<p>例如：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">var list = cn.Query(&quot;SELECT Name,Class FROM Student&quot;).ToList();</span><br></pre></td></tr></table></figure>
+<p>該語法將傳回<code>List&lt;dynamic&gt;</code>，因此不需要特別建立Model也可以將該資料回傳並作使用。</p>
+<p>因此開始思考，如何透過dynamic動態生成物件？</p>
+<span id="more"></span>
+
+<p>ExpandoObject是在.Net Framework 4之後出現的一個類別 ，可以幫助我們為物件動態的加入或移除屬性成員。</p>
+<p>其用法為：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">dynamic data = new ExpandoObject();</span><br><span class="line">data.Name = &quot;Leo&quot;;</span><br><span class="line">data.Sex= &quot;Male&quot;;</span><br></pre></td></tr></table></figure>
+
+<p>我們需要搭配dynamic才能夠存取我們指定的Name,Sex欄位。</p>
+<p>但是僅僅這樣寫，雖然可以自動幫我們建立Namx,Sex欄位，並給予值。但若是在欄位名稱未知的情況下想要動態建立Model，可就沒辦法了。</p>
+<p>如上面所說，若需要將撈出來的SQL資料，根據其欄位建立Model並賦予值，那肯定無法做到。</p>
+<p>但值得一提的是，由於ExpandoObject本身就實作了<code>IDictionary&lt;string, object&gt;</code>，因此若是有必要我們也可以直接把它轉型成<code>IDictionary&lt;string, object&gt;</code>來操作，讓該物件擁有Add以及Remove的方法，為物件動態的加入或移除屬性成員。</p>
+<p>因此撰寫上我們會改為這樣的寫法：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">var MyDynamic = new ExpandoObject() as IDictionary&lt;string, Object&gt;;</span><br><span class="line">MyDynamic.Add(&quot;Name&quot;, &quot;leo&quot;);</span><br><span class="line">MyDynamic.Add(&quot;Sex&quot;, &quot;Male&quot;);</span><br></pre></td></tr></table></figure>
+
+<p>透過這樣的方式，將我們的屬性利用字串的方式Add至MyDynamic物件中，這樣我們就能存取Name以及Sex的值了。</p>
+<p>因此若想像Dapper一樣回傳成<code>List&lt;dynamic&gt;</code>的集合資料的話，最終的版本可以寫成這樣：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">// 本範例使用SqlDataReader做資料庫存取</span><br><span class="line"></span><br><span class="line">    List&lt;dynamic&gt; list = new List&lt;dynamic&gt;();</span><br><span class="line">    SqlCommand command = new SqlCommand(sql, connection);</span><br><span class="line">    SqlDataReader reader = command.ExecuteReader();</span><br><span class="line">    while (reader.Read())</span><br><span class="line">    &#123;</span><br><span class="line">      IDictionary&lt;String, Object&gt; MyDynamic = new ExpandoObject() as IDictionary&lt;string, Object&gt;;</span><br><span class="line"></span><br><span class="line">      for (int i = 0; i &lt; reader.FieldCount;i++) // 透過FieldCount 取得該列資料中的所有欄位數目</span><br><span class="line">      &#123;</span><br><span class="line">        MyDynamic.Add(reader.GetName(i), reader[i]); //動態將SQL存取到的欄位以及Value 放入MyDynamic中</span><br><span class="line">      &#125;</span><br><span class="line">       list.Add(MyDynamic);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p>透過這樣的方式，我們就可以像Dapper一樣，不需要建立Model類別，也能輕鬆的將資料存取回來，並轉換為List做後續操作。</p>
+<p>另外，仔細追查Dapper的原始碼，我們也可以發現到，Dapper之所以能做到不需要指定Model型別，也能回傳dynamic的List的原因，也是透過實作了<code>IDictionary&lt;string, object&gt;</code>。</p>
+<p>因此在dapper中，外表看似是dynamic其實骨子裡是DapperRow的型別。</p>
+<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/e1371ca9-eefc-4e94-a6a2-7328c0c5cd85/1578196167_77935.png"></p>
+<div>
+以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
+
+<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
+<p><a href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
+</div>
+]]></content>
+      <categories>
+        <category>.NET</category>
+      </categories>
+      <tags>
+        <tag>.NET</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>.NET 如何讓 WebAPI 支援 Session ?</title>
+    <url>/2017/05/09/NET-%E5%A6%82%E4%BD%95%E8%AE%93-WebAPI-%E6%94%AF%E6%8F%B4-Session/</url>
+    <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>如果你有工作上的需求需要在WebAPI當中加入Session的功能</p>
+<p>那麼這一篇也許對你會有幫助。</p>
+<p>最近筆者為了案子而開始撰寫.NET WebApi</p>
+<p>其中有些資訊需要儲存在Session當中。</p>
+<span id="more"></span>
+<p>於是撰寫了以下的Code想要將資訊寫入Session當中：</p>
+<figure class="highlight c#"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> session = System.Web.HttpContext.Current.Session; <span class="comment">//宣告Session</span></span><br><span class="line">session.Add(<span class="string">&quot;Auth&quot;</span>,LoginInfo.Auth); <span class="comment">//將認證資訊放入Session</span></span><br><span class="line"><span class="keyword">var</span> temp = session[<span class="string">&quot;Auth&quot;</span>];</span><br></pre></td></tr></table></figure>
+<p>結果意外發現這段Code居然不能執行。</p>
+<p>原因在於session是一個null，也就是說一開始就找不到Session這個物件了</p>
+<p>自然也就無法使用。</p>
+<p>爬了一些文後發現，WebApi由於是無狀態的，因此無法使用這樣的方式直接儲存</p>
+<p>所以需要在檔案：<code>~/Global.asax</code>，內新增以下程式碼即可支援：</p>
+<figure class="highlight c#"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">Application_PostAuthorizeRequest</span>()</span></span><br><span class="line">&#123;</span><br><span class="line">	System.Web.HttpContext.Current.SetSessionStateBehavior(System.Web.SessionState.SessionStateBehavior.Required);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<div>
+以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
+
+<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
+<p><a href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
+</div>
+]]></content>
+      <categories>
+        <category>.NET</category>
+      </categories>
+      <tags>
+        <tag>WebAPI</tag>
       </tags>
   </entry>
   <entry>
@@ -1165,66 +1165,6 @@ version for package `Microsoft.EntityFrameworkCore.Tools.DotNet` could not be re
       </categories>
   </entry>
   <entry>
-    <title>【CI CD實作】如何自訂Teams Message 介面</title>
-    <url>/2023/02/17/%E3%80%90CI-CD%E5%AF%A6%E4%BD%9C%E3%80%91%E5%A6%82%E4%BD%95%E8%87%AA%E8%A8%82Teams-Message-%E4%BB%8B%E9%9D%A2/</url>
-    <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>相信很多人在操作CI&#x2F;CD的時候，都會搭配一些 interaction tool 來將結果推送至自己常用的辦公軟體。<br>其中筆者在辦公中，最常使用的通訊軟體就非 Teams 莫屬。<br>今天就來介紹如果想將自訂的訊息內容透過 notify 推送到 Teams bot的時候，我們可以怎麼美化訊息介面。</p>
-<span id="more"></span>
-
-<h2 id="訊息設定"><a href="#訊息設定" class="headerlink" title="訊息設定"></a>訊息設定</h2><p>在過去，我們使用Webhook將內容推送至Teams bot的時候，我們會 POST 以下參數：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    &quot;text&quot;:&quot;postman is start!&quot;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>透過這樣的方式，我們可以得到以下內容：<br><img src="/2023/02/17/%E3%80%90CI-CD%E5%AF%A6%E4%BD%9C%E3%80%91%E5%A6%82%E4%BD%95%E8%87%AA%E8%A8%82Teams-Message-%E4%BB%8B%E9%9D%A2/postman.png"></p>
-<p>但這樣的方式，僅僅只能將一般的文字，推送至Teams。<br>當然，Teams也支援使用 Markdown 的方式，進行內容美化。</p>
-<p>類似以下語法：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">**[開發環境]** &#123;開發環境&#125;</span><br><span class="line"></span><br><span class="line">**[模組]** &#123;模組名稱&#125;</span><br><span class="line"></span><br><span class="line">**[錯誤訊息]** </span><br><span class="line">&#123;錯誤訊息&#125;</span><br><span class="line"></span><br><span class="line">**[Stack Trace]**</span><br><span class="line">&#123;Stack Trace&#125;</span><br></pre></td></tr></table></figure>
-<p>不過如果想做出像 Jenkins類似的面板的話，則是要透過其他的參數來達到這件事：<br><img src="/2023/02/17/%E3%80%90CI-CD%E5%AF%A6%E4%BD%9C%E3%80%91%E5%A6%82%E4%BD%95%E8%87%AA%E8%A8%82Teams-Message-%E4%BB%8B%E9%9D%A2/../%E3%80%90CI-CD%E5%AF%A6%E4%BD%9C%E3%80%91%E5%A6%82%E4%BD%95%E8%87%AA%E8%A8%82Teams-Message-%E4%BB%8B%E9%9D%A2/jenkins.png"></p>
-<h2 id="Microsoft-Teams-卡片樣式"><a href="#Microsoft-Teams-卡片樣式" class="headerlink" title="Microsoft Teams 卡片樣式"></a>Microsoft Teams 卡片樣式</h2><p>為了能夠達到像Jenkins發送的面板訊息一樣，我們可以使用 Teams所支援的卡片模式</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    &quot;@type&quot;: &quot;MessageCard&quot;,</span><br><span class="line">    &quot;@context&quot;: &quot;http://schema.org/extensions&quot;,</span><br><span class="line">    &quot;themeColor&quot;: &quot;0076D7&quot;,</span><br><span class="line">    &quot;summary&quot;: &quot;錯誤訊息&quot;,</span><br><span class="line">    &quot;sections&quot;: [</span><br><span class="line">        &#123;</span><br><span class="line">            &quot;activityTitle&quot;: &quot;錯誤訊息&quot;,</span><br><span class="line">            &quot;facts&quot;: [</span><br><span class="line">                &#123;</span><br><span class="line">                    &quot;name&quot;: &quot;開發環境&quot;,</span><br><span class="line">                    &quot;value&quot;: &quot;&#123;開發環境&#125;&quot;</span><br><span class="line">                &#125;,</span><br><span class="line">                &#123;</span><br><span class="line">                    &quot;name&quot;: &quot;模組&quot;,</span><br><span class="line">                    &quot;value&quot;: &quot;&#123;模組名稱&#125;&quot;</span><br><span class="line">                &#125;</span><br><span class="line">            ]</span><br><span class="line">        &#125;,</span><br><span class="line">        &#123;</span><br><span class="line">            &quot;activityTitle&quot;: &quot;錯誤內容&quot;,</span><br><span class="line">            &quot;text&quot;: &quot;&#123;錯誤訊息&#125;&quot;</span><br><span class="line">        &#125;,</span><br><span class="line">        &#123;</span><br><span class="line">            &quot;activityTitle&quot;: &quot;Stack Trace&quot;,</span><br><span class="line">            &quot;text&quot;: &quot;&#123;Stack Trace&#125;&quot;</span><br><span class="line">        &#125;</span><br><span class="line">    ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>這個排版使用了 Microsoft Teams 支援的卡片格式，讓錯誤訊息更加清晰易讀。<br>其中，”themeColor”: “0076D7” 指定了卡片的主題顏色，當然也可以根據自己的喜好更改這個值。</p>
-<p>最後，附上筆者將 API 在處理Error Handling時，所推送的訊息內容。<br><img src="/2023/02/17/%E3%80%90CI-CD%E5%AF%A6%E4%BD%9C%E3%80%91%E5%A6%82%E4%BD%95%E8%87%AA%E8%A8%82Teams-Message-%E4%BB%8B%E9%9D%A2/../%E3%80%90CI-CD%E5%AF%A6%E4%BD%9C%E3%80%91%E5%A6%82%E4%BD%95%E8%87%AA%E8%A8%82Teams-Message-%E4%BB%8B%E9%9D%A2/api.png"></p>
-<div>
-以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
-
-<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
-<p><a href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
-</div>
-]]></content>
-      <categories>
-        <category>Teams</category>
-      </categories>
-      <tags>
-        <tag>CI/CD</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>WinForm - 解決無法對這個檔案顯示設計工具，因為檔案中沒有可以設計的類別</title>
-    <url>/2017/12/15/WinForm-%E8%A7%A3%E6%B1%BA%E7%84%A1%E6%B3%95%E5%B0%8D%E9%80%99%E5%80%8B%E6%AA%94%E6%A1%88%E9%A1%AF%E7%A4%BA%E8%A8%AD%E8%A8%88%E5%B7%A5%E5%85%B7%EF%BC%8C%E5%9B%A0%E7%82%BA%E6%AA%94%E6%A1%88%E4%B8%AD%E6%B2%92%E6%9C%89%E5%8F%AF%E4%BB%A5%E8%A8%AD%E8%A8%88%E7%9A%84%E9%A1%9E%E5%88%A5/</url>
-    <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>當我們在針對WindowsForm設計的時候，如果我們想要針對原本的Form表單增加一些功能等等，我們會需要透過繼承Form表單來實作。</p>
-<p>此時當我們繼承原本的Form頁面時，我們會發現當前繼承的頁面會出現以下錯誤訊息：</p>
-<span id="more"></span>
-<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/747b607f-21d2-4185-b73d-9f525f5daf2e/1513316793_69472.png"></p>
-<p>這問題是因為 Visual Studio <font>找不到基底類別的設計工具或是基底類別是找不到或無法載入的類別。</font> </p>
-<p>因此，只需要將專案進行建置：</p>
-<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/747b607f-21d2-4185-b73d-9f525f5daf2e/1513316869_29036.png"></p>
-<p>此時會發現輸出訊息欄會有建置成功的訊息：</p>
-<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/747b607f-21d2-4185-b73d-9f525f5daf2e/1513316900_48037.png"></p>
-<p>當建置成功後，再次開啟頁面，就會發現錯誤訊息已經消失了。</p>
-<div>
-以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
-
-<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
-<p><a href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
-</div>
-]]></content>
-      <categories>
-        <category>.NET</category>
-      </categories>
-      <tags>
-        <tag>WinForm</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>WebAPI- 自定義RequestModel 驗證</title>
     <url>/2017/07/03/WebAPI-%E8%87%AA%E5%AE%9A%E7%BE%A9RequestModel-%E9%A9%97%E8%AD%89/</url>
     <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>通常我們在後端接前端Request參數的時候，我們為了省事，會建立一個Model來將前後端Binding</p>
@@ -1271,6 +1211,182 @@ version for package `Microsoft.EntityFrameworkCore.Tools.DotNet` could not be re
       </categories>
       <tags>
         <tag>WebAPI</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>WinForm - 解決無法對這個檔案顯示設計工具，因為檔案中沒有可以設計的類別</title>
+    <url>/2017/12/15/WinForm-%E8%A7%A3%E6%B1%BA%E7%84%A1%E6%B3%95%E5%B0%8D%E9%80%99%E5%80%8B%E6%AA%94%E6%A1%88%E9%A1%AF%E7%A4%BA%E8%A8%AD%E8%A8%88%E5%B7%A5%E5%85%B7%EF%BC%8C%E5%9B%A0%E7%82%BA%E6%AA%94%E6%A1%88%E4%B8%AD%E6%B2%92%E6%9C%89%E5%8F%AF%E4%BB%A5%E8%A8%AD%E8%A8%88%E7%9A%84%E9%A1%9E%E5%88%A5/</url>
+    <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>當我們在針對WindowsForm設計的時候，如果我們想要針對原本的Form表單增加一些功能等等，我們會需要透過繼承Form表單來實作。</p>
+<p>此時當我們繼承原本的Form頁面時，我們會發現當前繼承的頁面會出現以下錯誤訊息：</p>
+<span id="more"></span>
+<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/747b607f-21d2-4185-b73d-9f525f5daf2e/1513316793_69472.png"></p>
+<p>這問題是因為 Visual Studio <font>找不到基底類別的設計工具或是基底類別是找不到或無法載入的類別。</font> </p>
+<p>因此，只需要將專案進行建置：</p>
+<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/747b607f-21d2-4185-b73d-9f525f5daf2e/1513316869_29036.png"></p>
+<p>此時會發現輸出訊息欄會有建置成功的訊息：</p>
+<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/747b607f-21d2-4185-b73d-9f525f5daf2e/1513316900_48037.png"></p>
+<p>當建置成功後，再次開啟頁面，就會發現錯誤訊息已經消失了。</p>
+<div>
+以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
+
+<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
+<p><a href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
+</div>
+]]></content>
+      <categories>
+        <category>.NET</category>
+      </categories>
+      <tags>
+        <tag>WinForm</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>【CI CD實作】透過Github Webhook觸發Jenkins實現CI&amp;CD(四)</title>
+    <url>/2023/02/10/Webhook%E8%A7%B8%E7%99%BCJenkins%E5%AF%A6%E7%8F%BECI-CD/</url>
+    <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>在前面的文章中，我們已經成功設置好了Jenkins並讓Jenkins擁有sudo權限能更讓我們做更多事情了。<br>接下來就準備進到重頭戲，開始設定GitHub Webhook並觸發Jenkins來將專案Clone下來後，實現CI&#x2F;CD吧！</p>
+<span id="more"></span>
+
+<h3 id="設定Github-Webhook"><a href="#設定Github-Webhook" class="headerlink" title="設定Github Webhook"></a>設定Github Webhook</h3><p>首先登入到 GitHub，點選你希望更新時能透過 GitHub Webhook 觸發 Jenkins 的 Repository，點選 Settings 選取 Webhooks，再點選「add webhook」後輸入 &lt;你的Jenkins Server&gt;&#x2F;github-webhook&#x2F;</p>
+<div style="color:red;font-weight:900;margin-bottom:10px;">
+註：網址最後面一定要加上/github-webhook/
+</div>
+
+<p><img src="https://miro.medium.com/v2/resize:fit:1400/format:webp/1*z_W3UfV_fa9aCbsshvstGw.png"></p>
+<p>這時候設定完後，返回後會發現會有一個錯誤的圖案，這是因為Github還沒有跟我們的Jenkins進行連接，等到第一次Clone後就會是綠燈了，請放心。</p>
+<p>接著我們回到Jenkins</p>
+<h2 id="Jenkins-設定"><a href="#Jenkins-設定" class="headerlink" title="Jenkins 設定"></a>Jenkins 設定</h2><p>首先在 Jenkins 首頁點選「New Item」：</p>
+<p><img src="https://miro.medium.com/v2/resize:fit:1400/format:webp/1*62IikWEmw6AxRnlK94j-hA.png"></p>
+<p>點選 Pipeline 後輸入你的Pipeline名稱：</p>
+<p><img src="https://miro.medium.com/v2/resize:fit:1400/format:webp/1*lxXyir5SnVKq1xQ67HSwzw.png"></p>
+<p>接著進入<strong>Configure</strong>後，我們先找到 <strong>General</strong><br>勾選「GitHub project」然後貼上你的 GitHub Repository URL<br><img src="https://miro.medium.com/v2/resize:fit:1400/format:webp/1*CWS0wqzOqfED3qTwcjm2Jg.png"></p>
+<p><strong>Configure — Build Triggers:</strong><br>選取「GitHub hook trigger for GITScm polling」<br><img src="https://miro.medium.com/v2/resize:fit:1400/format:webp/1*ZSHr-XSmKWSo6HePHNRSUw.png"></p>
+<p><strong>Configure — Pipeline:</strong><br>接下來就可以開始設定當觸發Jenkins將專案拉下來之後，我們要做哪些事情。<br>Pipeline一般來說我們可以分為三個階段：Buid、Test、Deploy<br>當然你也可以自定義各種階段，基本上每一個階段就只是將內容分離出來，讓你比較好知道現在執行到哪裡，以及每一階段執行所需時間如何。</p>
+<div style="color:red;font-weight:900;margin-bottom:10px;">
+這裡與GitLab Runner最大不同在於每一階段產生的檔案都會保留，非常方便，不用再寫多餘的Code
+</div>
+
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">pipeline &#123;</span><br><span class="line">    agent any</span><br><span class="line"></span><br><span class="line">    stages &#123;</span><br><span class="line">        stage(&#x27;Build&#x27;) &#123;</span><br><span class="line">            steps &#123;</span><br><span class="line">                echo &#x27;打包專案&#x27;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        stage(&#x27;Test&#x27;) &#123;</span><br><span class="line">            steps &#123;</span><br><span class="line">                echo &#x27;可以執行一些自動化測試項目&#x27;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        stage(&#x27;Deploy&#x27;) &#123;</span><br><span class="line">            steps &#123;</span><br><span class="line">                echo &#x27;最後執行遠端部署指令&#x27;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>而由於筆者本身使用.NET6進行API開發，因此這邊同時也放上.NET版本給各位參考一下。但由於礙於公司機密，所以拿掉不少東西，再請各位多多包涵</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">pipeline &#123;</span><br><span class="line">    agent any</span><br><span class="line">    stages &#123;</span><br><span class="line">        stage(&#x27;Build&#x27;) &#123;</span><br><span class="line">            steps &#123;</span><br><span class="line">                sh &#x27;cd API&#x27;</span><br><span class="line">                sh &#x27;dotnet build&#x27;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        stage(&#x27;Deploy&#x27;) &#123;</span><br><span class="line">            steps &#123;</span><br><span class="line">                sh &#x27;sudo systemctl stop API.service&#x27;</span><br><span class="line">                sh &#x27;sudo rm -rf /專案存放位置&#x27;</span><br><span class="line">                sh &#x27;sudo mkdir /專案存放位置&#x27;</span><br><span class="line">                sh &#x27;sudo cp -r /專案存放位置. /Server 目錄位置&#x27;</span><br><span class="line">                sh &#x27;sudo systemctl start API.service&#x27;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>到這裡基本上就完成的差不多了，最後我們實際上將Code推倒Github試試看：<br>我們可以注意到整體速度滿快的，從Build、Deploy 平均只花了10秒就完成。</p>
+<p><img src="https://t45009037.p.clickup-attachments.com/t45009037/8e542c8d-3201-4607-b807-760a835e64f9/Screen%20Shot%202023-02-09%20at%202.47.17%20AM.png"></p>
+<div>
+以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
+
+<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
+<p><a href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
+</div>
+]]></content>
+      <categories>
+        <category>Jenkins</category>
+      </categories>
+      <tags>
+        <tag>CI/CD</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>【CI CD實作】如何自訂Teams Message 介面</title>
+    <url>/2023/02/17/%E3%80%90CI-CD%E5%AF%A6%E4%BD%9C%E3%80%91%E5%A6%82%E4%BD%95%E8%87%AA%E8%A8%82Teams-Message-%E4%BB%8B%E9%9D%A2/</url>
+    <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>相信很多人在操作CI&#x2F;CD的時候，都會搭配一些 interaction tool 來將結果推送至自己常用的辦公軟體。<br>其中筆者在辦公中，最常使用的通訊軟體就非 Teams 莫屬。<br>今天就來介紹如果想將自訂的訊息內容透過 notify 推送到 Teams bot的時候，我們可以怎麼美化訊息介面。</p>
+<span id="more"></span>
+
+<h2 id="訊息設定"><a href="#訊息設定" class="headerlink" title="訊息設定"></a>訊息設定</h2><p>在過去，我們使用Webhook將內容推送至Teams bot的時候，我們會 POST 以下參數：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    &quot;text&quot;:&quot;postman is start!&quot;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>透過這樣的方式，我們可以得到以下內容：<br><img src="/2023/02/17/%E3%80%90CI-CD%E5%AF%A6%E4%BD%9C%E3%80%91%E5%A6%82%E4%BD%95%E8%87%AA%E8%A8%82Teams-Message-%E4%BB%8B%E9%9D%A2/postman.png"></p>
+<p>但這樣的方式，僅僅只能將一般的文字，推送至Teams。<br>當然，Teams也支援使用 Markdown 的方式，進行內容美化。</p>
+<p>類似以下語法：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">**[開發環境]** &#123;開發環境&#125;</span><br><span class="line"></span><br><span class="line">**[模組]** &#123;模組名稱&#125;</span><br><span class="line"></span><br><span class="line">**[錯誤訊息]** </span><br><span class="line">&#123;錯誤訊息&#125;</span><br><span class="line"></span><br><span class="line">**[Stack Trace]**</span><br><span class="line">&#123;Stack Trace&#125;</span><br></pre></td></tr></table></figure>
+<p>不過如果想做出像 Jenkins類似的面板的話，則是要透過其他的參數來達到這件事：<br><img src="/2023/02/17/%E3%80%90CI-CD%E5%AF%A6%E4%BD%9C%E3%80%91%E5%A6%82%E4%BD%95%E8%87%AA%E8%A8%82Teams-Message-%E4%BB%8B%E9%9D%A2/../%E3%80%90CI-CD%E5%AF%A6%E4%BD%9C%E3%80%91%E5%A6%82%E4%BD%95%E8%87%AA%E8%A8%82Teams-Message-%E4%BB%8B%E9%9D%A2/jenkins.png"></p>
+<h2 id="Microsoft-Teams-卡片樣式"><a href="#Microsoft-Teams-卡片樣式" class="headerlink" title="Microsoft Teams 卡片樣式"></a>Microsoft Teams 卡片樣式</h2><p>為了能夠達到像Jenkins發送的面板訊息一樣，我們可以使用 Teams所支援的卡片模式</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    &quot;@type&quot;: &quot;MessageCard&quot;,</span><br><span class="line">    &quot;@context&quot;: &quot;http://schema.org/extensions&quot;,</span><br><span class="line">    &quot;themeColor&quot;: &quot;0076D7&quot;,</span><br><span class="line">    &quot;summary&quot;: &quot;錯誤訊息&quot;,</span><br><span class="line">    &quot;sections&quot;: [</span><br><span class="line">        &#123;</span><br><span class="line">            &quot;activityTitle&quot;: &quot;錯誤訊息&quot;,</span><br><span class="line">            &quot;facts&quot;: [</span><br><span class="line">                &#123;</span><br><span class="line">                    &quot;name&quot;: &quot;開發環境&quot;,</span><br><span class="line">                    &quot;value&quot;: &quot;&#123;開發環境&#125;&quot;</span><br><span class="line">                &#125;,</span><br><span class="line">                &#123;</span><br><span class="line">                    &quot;name&quot;: &quot;模組&quot;,</span><br><span class="line">                    &quot;value&quot;: &quot;&#123;模組名稱&#125;&quot;</span><br><span class="line">                &#125;</span><br><span class="line">            ]</span><br><span class="line">        &#125;,</span><br><span class="line">        &#123;</span><br><span class="line">            &quot;activityTitle&quot;: &quot;錯誤內容&quot;,</span><br><span class="line">            &quot;text&quot;: &quot;&#123;錯誤訊息&#125;&quot;</span><br><span class="line">        &#125;,</span><br><span class="line">        &#123;</span><br><span class="line">            &quot;activityTitle&quot;: &quot;Stack Trace&quot;,</span><br><span class="line">            &quot;text&quot;: &quot;&#123;Stack Trace&#125;&quot;</span><br><span class="line">        &#125;</span><br><span class="line">    ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>這個排版使用了 Microsoft Teams 支援的卡片格式，讓錯誤訊息更加清晰易讀。<br>其中，”themeColor”: “0076D7” 指定了卡片的主題顏色，當然也可以根據自己的喜好更改這個值。</p>
+<p>最後，附上筆者將 API 在處理Error Handling時，所推送的訊息內容。<br><img src="/2023/02/17/%E3%80%90CI-CD%E5%AF%A6%E4%BD%9C%E3%80%91%E5%A6%82%E4%BD%95%E8%87%AA%E8%A8%82Teams-Message-%E4%BB%8B%E9%9D%A2/../%E3%80%90CI-CD%E5%AF%A6%E4%BD%9C%E3%80%91%E5%A6%82%E4%BD%95%E8%87%AA%E8%A8%82Teams-Message-%E4%BB%8B%E9%9D%A2/api.png"></p>
+<div>
+以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
+
+<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
+<p><a href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
+</div>
+]]></content>
+      <categories>
+        <category>Teams</category>
+      </categories>
+      <tags>
+        <tag>CI/CD</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>【Cordova】 將Angular 部署至 android手機</title>
+    <url>/2018/08/21/%E3%80%90Cordova%E3%80%91-%E5%B0%87Angular-%E9%83%A8%E7%BD%B2%E8%87%B3-android%E6%89%8B%E6%A9%9F/</url>
+    <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>在很久以前，筆者曾經寫過一篇利用<a href="%E3%80%90Cordova%E3%80%91-%E5%B0%87%E9%96%8B%E7%99%BC%E5%A5%BD%E7%9A%84WebApp%E9%83%A8%E7%BD%B2%E8%87%B3-ios.md">jQueryMobile 部署至ios</a>的文章</p>
+<p>而在網路上利用將Cordova 將 WebAPP 發行至Android的相關教學文件非常的多，因此難度的門檻其實是相當低的。</p>
+<p>但時隔一年，隨著前端的FrameWork不斷推陳出新，大部分的都以採用前端FrameWork進行開發。(如：Angular、React、Vue)</p>
+<p>今天我們就來看看，如何利用Cordova搭配前端FrameWork來部署到Android手機吧！(同樣的方式依然可以部署到ios手機上，請參閱之前寫的文章)</p>
+<span id="more"></span>
+
+<p>在現在這個前端大亂鬥的時代，很多前端工具都如雨後春筍般冒出。</p>
+<p>其中在寫手機應用時，我們第一直覺會想到使用 ionic 這套FrameWork來完成。</p>
+<p>而ionic本身也是透過Cordova來進行包裝。</p>
+<p>而其中ionic本身與Angular語意相近、寫法雷同，因此也有不少人紛紛投入至此。</p>
+<p>但隨著現在Material的樣式不斷高漲，Angular也推出了 Angular Material作為網頁介面。</p>
+<p>因此本篇文章將告訴你，如何實現任務的最快途徑。</p>
+<h3 id="第一步-一一-環境建置"><a href="#第一步-一一-環境建置" class="headerlink" title="第一步 一一 環境建置"></a>第一步 一一 環境建置</h3><p>首先我們需要安裝Cordova CLI幫我們做環境建置</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">npm install -g cordova</span><br></pre></td></tr></table></figure>
+<p>接著我們會需要以下的工具，因此請各位讀者先行安裝。</p>
+<p>需要的工具有以下三樣：</p>
+<p>1、<a href="https://nodejs.org/en/download/">NodeJS</a></p>
+<p>2、<a href="http://www.oracle.com/technetwork/java/javase/downloads/jdk10-downloads-4416644.html">Java JDK</a></p>
+<p>3、<a href="http://developer.android.com/studio/">Android Studio</a></p>
+<p> 前面兩項作為Android 手機開發因此是必需要安裝的，後面一項則可以選擇自己是否要安裝。</p>
+<p>這裡之所以要安裝 AndroidStudio是因為本身自帶 Gradle，可以將專案自動建置起來。</p>
+<p>當然如果不想安裝肥大的 AndroidStudio，可以透過指令方式，直接安裝Gradle也可以。</p>
+<p>安裝網址在這： <a href="https://gradle.org/install/">https://gradle.org/install/</a></p>
+<p>安裝完成後，可以輸入 <code>gradle -v</code>，查看版本。如果看到此圖就代表安裝成功</p>
+<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/0ed903e0-c200-4c01-a557-22c6756da5c7/1534818636_36865.png"></p>
+<p>接下來我們就可以透過Cordova 來建立我們的專案了。</p>
+<p>此時的指令有點多，我們一步步進行。</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">// 建立一個名叫MyAPP的專案，在myApp這個資料夾底下。</span><br><span class="line">cordova create myAPP mis.kuas.edu.tw MyAPP</span><br><span class="line"></span><br><span class="line">//進入到此專案資料夾</span><br><span class="line"><span class="built_in">cd</span> myAPP</span><br><span class="line"></span><br><span class="line">//在myAPP的資料夾當中，建立想要部署的平台</span><br><span class="line">cordova platform add android --save</span><br><span class="line"></span><br><span class="line">//將專案進行Build</span><br><span class="line">cordova build android</span><br></pre></td></tr></table></figure>
+
+<h3 id="第二步-ㄧㄧ-使用-Cordova-Plugin-套件"><a href="#第二步-ㄧㄧ-使用-Cordova-Plugin-套件" class="headerlink" title="第二步 ㄧㄧ 使用 Cordova Plugin 套件"></a>第二步 ㄧㄧ 使用 Cordova Plugin 套件</h3><p>若是你的APP有需要啟用其他的硬體元件，如：相機、定位、藍芽…等等</p>
+<p>那麼在這個步驟當中，你需要到你Angular的專案，在index.html裡引入</p>
+<figure class="highlight html"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">type</span>=<span class="string">”text/javascript”</span> <span class="attr">src</span>=<span class="string">”cordova.js”</span>&gt;</span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>請注意，當您嘗試在本地端服務器上進行測試時，由於你沒有cordova.js，因此將會拋出&#x2F;顯示錯誤。</p>
+<p>接著使用以下指令添加Cordova Device套件：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">cordova plugin add cordova-plugin-device</span><br></pre></td></tr></table></figure>
+<p>到這裡之後，我們差不多完成了，現在讓我們使用cordova獲取設備。</p>
+<p>接著在Angular專案中，實作OnInit函數，並添加套件的call back 函數</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">Component</span> , <span class="title class_">OnInit</span>&#125; <span class="keyword">from</span> ‘@angular/core’;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">AppComponent</span> implements <span class="title class_">OnInit</span>&#123; </span><br><span class="line"> <span class="keyword">var</span> device; <span class="comment">// 由於Typescript不認識 device.platform 因此要先宣告</span></span><br><span class="line"> <span class="title function_">ngOnInit</span>(<span class="params"></span>) &#123; </span><br><span class="line"> <span class="variable language_">document</span>.<span class="title function_">addEventListener</span>(<span class="string">&quot;deviceread&quot;</span>, <span class="keyword">function</span>(<span class="params"></span>) &#123; </span><br><span class="line"> <span class="title function_">alert</span>(device.<span class="property">platform</span>); </span><br><span class="line"> &#125;, <span class="literal">false</span>); </span><br><span class="line"> &#125; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="第三部-ㄧㄧ-打包你的-Angular專案"><a href="#第三部-ㄧㄧ-打包你的-Angular專案" class="headerlink" title="第三部 ㄧㄧ 打包你的 Angular專案"></a>第三部 ㄧㄧ 打包你的 Angular專案</h3><p>接下來也就是最重要的一步了。</p>
+<p>我們透過 ng build –prod 打包完專案後</p>
+<p>會在專案中找到dist的資料夾。裡面是我們打包過後的專案</p>
+<p>其中點開index.html 我們需要將<base href="/">標記更新為<base href="./">，這樣才能使angular能夠訪問目錄路徑中的文件。</p>
+<p>最後將整個dist資料夾內的檔案，複製一份到我們剛剛透過cordova建置的專案目錄中 （myapp&#x2F;www 的資料夾內 ）</p>
+<p>最後，輸入</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">cordova build android</span><br></pre></td></tr></table></figure>
+<p>產生APK檔案，即可大功告成！</p>
+<p>而產生出來的檔案會存放在：</p>
+<p>myapp&#x2F;platforms&#x2F;android&#x2F;app&#x2F;build&#x2F;outputs&#x2F;apk&#x2F;debug 底下。</p>
+<p>附上一張完整部署成功的圖：<br><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/0ed903e0-c200-4c01-a557-22c6756da5c7/1534820679_13908.png"></p>
+<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/0ed903e0-c200-4c01-a557-22c6756da5c7/1534821256_45537.png"></p>
+<div>
+以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
+
+<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
+<p><a href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
+</div>
+]]></content>
+      <categories>
+        <category>Cordova</category>
+      </categories>
+      <tags>
+        <tag>Angular</tag>
       </tags>
   </entry>
   <entry>
@@ -1366,6 +1482,62 @@ version for package `Microsoft.EntityFrameworkCore.Tools.DotNet` could not be re
       </tags>
   </entry>
   <entry>
+    <title>【Cordova】 建立 Android release 簽名版本（Signature Version）</title>
+    <url>/2018/09/25/%E3%80%90Cordova%E3%80%91-%E5%BB%BA%E7%AB%8B-Android-release-%E7%B0%BD%E5%90%8D%E7%89%88%E6%9C%AC%EF%BC%88Signature-Version%EF%BC%89/</url>
+    <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>當我們使用 Cordova 進行 build的時候，Codova會自動幫我們產生 debug版本的apk</p>
+<p>但當我們要將APP 進行上架時，僅有debug版的apk是不能進行上架的</p>
+<p>因此我們需要將APP轉為可上架版本。</p>
+<p>本篇文章將會全面帶你操作，學習如何將APP打包成 Signature Version 的 發布版本(Release)</p>
+<span id="more"></span>
+
+<p>當我們直接下匯出指令</p>
+<p>cordova build android</p>
+<p>預設會自動在app&#x2F;build&#x2F;output 底下 建立 debug資料夾，並將測試版本的apk檔案放入此中</p>
+<p>雖然這個版本可以直接在 Android系統上使用，但是若要考慮到上架，會發現Google Play 不允許使用非發布版本的apk進行上架。</p>
+<p>因此我們還需要在該指令後面，增加  –release 參數</p>
+<p>cordova build android  –release</p>
+<p>這時候預設一樣會自動在app&#x2F;build&#x2F;output 底下 建立 release 資料夾，並將發布版本的apk檔案放入此中</p>
+<p>當你很開心以為這樣就產生出來，可以進行上架的話，你就錯了</p>
+<p>我們將剛剛產生出來的 Release版本放入到模擬器中運行，會發現以下錯誤：<br><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/78e21927-ebe4-4353-b38c-e0e5ee8f8639/1537842546_34736.png"></p>
+<p>而這個錯誤訊息會發生的原因，主要是因為我們的發布版本 Release 並沒有經過金鑰簽名，所以這個 release apk 不可用</p>
+<p>因此我們在下該行指令之前，需要先產生一份金鑰檔，再利用這份金鑰檔進行簽名</p>
+<p>最後才可以產生出可使用的 release apk 版本。</p>
+<p>因此我們需要下該行指令，產生金鑰</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">keytool -genkey -v -keystore MyApp.keystore  -alias myapp</span><br></pre></td></tr></table></figure>
+
+<p>其中 </p>
+<p>MyApp.keystore  是你匯出金鑰的檔案名稱</p>
+<p>myapp 是簡稱</p>
+<p>接下來會要你填寫一些金鑰資訊及密碼</p>
+<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/78e21927-ebe4-4353-b38c-e0e5ee8f8639/1537844680_51531.png"></p>
+<p>完成後會再該目錄底下產生一個 MyApp.keystore  的金鑰檔案</p>
+<p>建議該檔案複製一份留存，然後記錄一下帳號密碼。  PS: 可以放在 Document底下做保管</p>
+<p>未來若有其他專案需要產生 release apk 就可以重複使用。</p>
+<p>接下來為了之後簽名方便，我們在 platform&#x2F;android 資料夾中，新增一個 properties 的檔案</p>
+<p>檔案的內容如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">storeFile=/Users/leo/Documents/myapp.keystore     // storeFile 檔案路徑，建議可以放在文件資料夾底下做保管</span><br><span class="line">storeType=jks                                     // 金鑰使用的演算法格式</span><br><span class="line">keyAlias=androidkeystore                          // 金鑰別名</span><br><span class="line">keyPassword=                                      // 金鑰密碼</span><br><span class="line">storePassword=                                    // store 密碼</span><br></pre></td></tr></table></figure>
+
+<p>這樣當我們進行 Cordova build的時候，Cordova 就會自動去讀取該檔案，幫我們將 release apk 進行簽名</p>
+<p>完成之後，我們就可以再次輸入該指令：</p>
+<p>cordova build android –release</p>
+<p>這樣產生出來的APP 就是擁有 Signature Version 的 release apk了。</p>
+<p>最後請記得一件事！<br><font color="red"><br>若該手機內已經有 debug版本的 apk，請記得先卸載後再安裝 新的 release apk</font></p>
+<p>因為不管是 debug版本的apk 還是 release版本的 apk 他們都會共用同一組 APP ID<br><br>所以這時候直接安裝新的，會導致錯誤 （筆者曾經為了這個問題折騰了好久…最後刪掉原本手機內的app 就成功了）</p>
+<div>
+以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
+
+<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
+<p><a href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
+</div>
+]]></content>
+      <categories>
+        <category>Cordova</category>
+      </categories>
+      <tags>
+        <tag>Android</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>【Design Pattern】獨體模式(Singleton Pattern)介紹</title>
     <url>/2017/06/03/%E3%80%90Design-Pattern%E3%80%91%E7%8D%A8%E9%AB%94%E6%A8%A1%E5%BC%8F-Singleton-Pattern-%E4%BB%8B%E7%B4%B9/</url>
     <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>獨體模式其實大家很常使用到，但或許大家不知道他叫獨體模式。</p>
@@ -1406,104 +1578,6 @@ version for package `Microsoft.EntityFrameworkCore.Tools.DotNet` could not be re
       </categories>
       <tags>
         <tag>Design Pattern</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>【Cordova】 將Angular 部署至 android手機</title>
-    <url>/2018/08/21/%E3%80%90Cordova%E3%80%91-%E5%B0%87Angular-%E9%83%A8%E7%BD%B2%E8%87%B3-android%E6%89%8B%E6%A9%9F/</url>
-    <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>在很久以前，筆者曾經寫過一篇利用<a href="%E3%80%90Cordova%E3%80%91-%E5%B0%87%E9%96%8B%E7%99%BC%E5%A5%BD%E7%9A%84WebApp%E9%83%A8%E7%BD%B2%E8%87%B3-ios.md">jQueryMobile 部署至ios</a>的文章</p>
-<p>而在網路上利用將Cordova 將 WebAPP 發行至Android的相關教學文件非常的多，因此難度的門檻其實是相當低的。</p>
-<p>但時隔一年，隨著前端的FrameWork不斷推陳出新，大部分的都以採用前端FrameWork進行開發。(如：Angular、React、Vue)</p>
-<p>今天我們就來看看，如何利用Cordova搭配前端FrameWork來部署到Android手機吧！(同樣的方式依然可以部署到ios手機上，請參閱之前寫的文章)</p>
-<span id="more"></span>
-
-<p>在現在這個前端大亂鬥的時代，很多前端工具都如雨後春筍般冒出。</p>
-<p>其中在寫手機應用時，我們第一直覺會想到使用 ionic 這套FrameWork來完成。</p>
-<p>而ionic本身也是透過Cordova來進行包裝。</p>
-<p>而其中ionic本身與Angular語意相近、寫法雷同，因此也有不少人紛紛投入至此。</p>
-<p>但隨著現在Material的樣式不斷高漲，Angular也推出了 Angular Material作為網頁介面。</p>
-<p>因此本篇文章將告訴你，如何實現任務的最快途徑。</p>
-<h3 id="第一步-一一-環境建置"><a href="#第一步-一一-環境建置" class="headerlink" title="第一步 一一 環境建置"></a>第一步 一一 環境建置</h3><p>首先我們需要安裝Cordova CLI幫我們做環境建置</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">npm install -g cordova</span><br></pre></td></tr></table></figure>
-<p>接著我們會需要以下的工具，因此請各位讀者先行安裝。</p>
-<p>需要的工具有以下三樣：</p>
-<p>1、<a href="https://nodejs.org/en/download/">NodeJS</a></p>
-<p>2、<a href="http://www.oracle.com/technetwork/java/javase/downloads/jdk10-downloads-4416644.html">Java JDK</a></p>
-<p>3、<a href="http://developer.android.com/studio/">Android Studio</a></p>
-<p> 前面兩項作為Android 手機開發因此是必需要安裝的，後面一項則可以選擇自己是否要安裝。</p>
-<p>這裡之所以要安裝 AndroidStudio是因為本身自帶 Gradle，可以將專案自動建置起來。</p>
-<p>當然如果不想安裝肥大的 AndroidStudio，可以透過指令方式，直接安裝Gradle也可以。</p>
-<p>安裝網址在這： <a href="https://gradle.org/install/">https://gradle.org/install/</a></p>
-<p>安裝完成後，可以輸入 <code>gradle -v</code>，查看版本。如果看到此圖就代表安裝成功</p>
-<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/0ed903e0-c200-4c01-a557-22c6756da5c7/1534818636_36865.png"></p>
-<p>接下來我們就可以透過Cordova 來建立我們的專案了。</p>
-<p>此時的指令有點多，我們一步步進行。</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">// 建立一個名叫MyAPP的專案，在myApp這個資料夾底下。</span><br><span class="line">cordova create myAPP mis.kuas.edu.tw MyAPP</span><br><span class="line"></span><br><span class="line">//進入到此專案資料夾</span><br><span class="line"><span class="built_in">cd</span> myAPP</span><br><span class="line"></span><br><span class="line">//在myAPP的資料夾當中，建立想要部署的平台</span><br><span class="line">cordova platform add android --save</span><br><span class="line"></span><br><span class="line">//將專案進行Build</span><br><span class="line">cordova build android</span><br></pre></td></tr></table></figure>
-
-<h3 id="第二步-ㄧㄧ-使用-Cordova-Plugin-套件"><a href="#第二步-ㄧㄧ-使用-Cordova-Plugin-套件" class="headerlink" title="第二步 ㄧㄧ 使用 Cordova Plugin 套件"></a>第二步 ㄧㄧ 使用 Cordova Plugin 套件</h3><p>若是你的APP有需要啟用其他的硬體元件，如：相機、定位、藍芽…等等</p>
-<p>那麼在這個步驟當中，你需要到你Angular的專案，在index.html裡引入</p>
-<figure class="highlight html"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">type</span>=<span class="string">”text/javascript”</span> <span class="attr">src</span>=<span class="string">”cordova.js”</span>&gt;</span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<p>請注意，當您嘗試在本地端服務器上進行測試時，由於你沒有cordova.js，因此將會拋出&#x2F;顯示錯誤。</p>
-<p>接著使用以下指令添加Cordova Device套件：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">cordova plugin add cordova-plugin-device</span><br></pre></td></tr></table></figure>
-<p>到這裡之後，我們差不多完成了，現在讓我們使用cordova獲取設備。</p>
-<p>接著在Angular專案中，實作OnInit函數，並添加套件的call back 函數</p>
-<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">Component</span> , <span class="title class_">OnInit</span>&#125; <span class="keyword">from</span> ‘@angular/core’;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">AppComponent</span> implements <span class="title class_">OnInit</span>&#123; </span><br><span class="line"> <span class="keyword">var</span> device; <span class="comment">// 由於Typescript不認識 device.platform 因此要先宣告</span></span><br><span class="line"> <span class="title function_">ngOnInit</span>(<span class="params"></span>) &#123; </span><br><span class="line"> <span class="variable language_">document</span>.<span class="title function_">addEventListener</span>(<span class="string">&quot;deviceread&quot;</span>, <span class="keyword">function</span>(<span class="params"></span>) &#123; </span><br><span class="line"> <span class="title function_">alert</span>(device.<span class="property">platform</span>); </span><br><span class="line"> &#125;, <span class="literal">false</span>); </span><br><span class="line"> &#125; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="第三部-ㄧㄧ-打包你的-Angular專案"><a href="#第三部-ㄧㄧ-打包你的-Angular專案" class="headerlink" title="第三部 ㄧㄧ 打包你的 Angular專案"></a>第三部 ㄧㄧ 打包你的 Angular專案</h3><p>接下來也就是最重要的一步了。</p>
-<p>我們透過 ng build –prod 打包完專案後</p>
-<p>會在專案中找到dist的資料夾。裡面是我們打包過後的專案</p>
-<p>其中點開index.html 我們需要將<base href="/">標記更新為<base href="./">，這樣才能使angular能夠訪問目錄路徑中的文件。</p>
-<p>最後將整個dist資料夾內的檔案，複製一份到我們剛剛透過cordova建置的專案目錄中 （myapp&#x2F;www 的資料夾內 ）</p>
-<p>最後，輸入</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">cordova build android</span><br></pre></td></tr></table></figure>
-<p>產生APK檔案，即可大功告成！</p>
-<p>而產生出來的檔案會存放在：</p>
-<p>myapp&#x2F;platforms&#x2F;android&#x2F;app&#x2F;build&#x2F;outputs&#x2F;apk&#x2F;debug 底下。</p>
-<p>附上一張完整部署成功的圖：<br><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/0ed903e0-c200-4c01-a557-22c6756da5c7/1534820679_13908.png"></p>
-<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/0ed903e0-c200-4c01-a557-22c6756da5c7/1534821256_45537.png"></p>
-<div>
-以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
-
-<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
-<p><a href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
-</div>
-]]></content>
-      <categories>
-        <category>Cordova</category>
-      </categories>
-      <tags>
-        <tag>Angular</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>【CI CD實作】允許Jenkins有sudo權限(三)</title>
-    <url>/2023/02/10/%E5%85%81%E8%A8%B1Jenkins%E6%9C%89sudo%E6%AC%8A%E9%99%90/</url>
-    <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>由於我們要利用Jenkins來實作CI&#x2F;CD，因此部署上的操作上往往免不了會需要sudo的權限讓我們能做一些事情，如：建立資料夾、刪除資料夾、搬遷檔案等各種操作。</p>
-<p>因此本篇主要介紹如何允許Jenkins有sudo權限</p>
-<p>下面來描述在CentOS7上配置的具體步驟。</p>
-<span id="more"></span>
-
-<h3 id="配置步驟"><a href="#配置步驟" class="headerlink" title="配置步驟"></a>配置步驟</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">讓root 有權限可以編輯sudoers權限</span><br><span class="line">chmod 600 /etc/sudoers </span><br><span class="line">運行 vim /etc/sudoers 來修改該文件，允許root組下的用戶不需要密碼運行任何命令：</span><br><span class="line">## Same thing without a password</span><br><span class="line">%root        ALL=(ALL)       NOPASSWD: ALL</span><br><span class="line">在Defaults requiretty 後面添加一行Defaults:jenkins !requiretty</span><br></pre></td></tr></table></figure>
-
-<p>接著將jenkins帳號加入到root的Group中：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">usermod -a -G root jenkins</span><br></pre></td></tr></table></figure>
-
-<p>重啟Jenkins</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">systemctl restart jenkins</span><br></pre></td></tr></table></figure>
-
-<div>
-以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
-
-<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
-<p><a href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
-</div>
-]]></content>
-      <categories>
-        <category>Jenkins</category>
-      </categories>
-      <tags>
-        <tag>CI/CD</tag>
       </tags>
   </entry>
   <entry>
@@ -1593,6 +1667,36 @@ version for package `Microsoft.EntityFrameworkCore.Tools.DotNet` could not be re
       </categories>
       <tags>
         <tag>Modbus</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>【CI CD實作】允許Jenkins有sudo權限(三)</title>
+    <url>/2023/02/10/%E5%85%81%E8%A8%B1Jenkins%E6%9C%89sudo%E6%AC%8A%E9%99%90/</url>
+    <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>由於我們要利用Jenkins來實作CI&#x2F;CD，因此部署上的操作上往往免不了會需要sudo的權限讓我們能做一些事情，如：建立資料夾、刪除資料夾、搬遷檔案等各種操作。</p>
+<p>因此本篇主要介紹如何允許Jenkins有sudo權限</p>
+<p>下面來描述在CentOS7上配置的具體步驟。</p>
+<span id="more"></span>
+
+<h3 id="配置步驟"><a href="#配置步驟" class="headerlink" title="配置步驟"></a>配置步驟</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">讓root 有權限可以編輯sudoers權限</span><br><span class="line">chmod 600 /etc/sudoers </span><br><span class="line">運行 vim /etc/sudoers 來修改該文件，允許root組下的用戶不需要密碼運行任何命令：</span><br><span class="line">## Same thing without a password</span><br><span class="line">%root        ALL=(ALL)       NOPASSWD: ALL</span><br><span class="line">在Defaults requiretty 後面添加一行Defaults:jenkins !requiretty</span><br></pre></td></tr></table></figure>
+
+<p>接著將jenkins帳號加入到root的Group中：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">usermod -a -G root jenkins</span><br></pre></td></tr></table></figure>
+
+<p>重啟Jenkins</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">systemctl restart jenkins</span><br></pre></td></tr></table></figure>
+
+<div>
+以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
+
+<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
+<p><a href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
+</div>
+]]></content>
+      <categories>
+        <category>Jenkins</category>
+      </categories>
+      <tags>
+        <tag>CI/CD</tag>
       </tags>
   </entry>
   <entry>
@@ -1693,47 +1797,39 @@ version for package `Microsoft.EntityFrameworkCore.Tools.DotNet` could not be re
       </categories>
   </entry>
   <entry>
-    <title>【Cordova】 建立 Android release 簽名版本（Signature Version）</title>
-    <url>/2018/09/25/%E3%80%90Cordova%E3%80%91-%E5%BB%BA%E7%AB%8B-Android-release-%E7%B0%BD%E5%90%8D%E7%89%88%E6%9C%AC%EF%BC%88Signature-Version%EF%BC%89/</url>
-    <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>當我們使用 Cordova 進行 build的時候，Codova會自動幫我們產生 debug版本的apk</p>
-<p>但當我們要將APP 進行上架時，僅有debug版的apk是不能進行上架的</p>
-<p>因此我們需要將APP轉為可上架版本。</p>
-<p>本篇文章將會全面帶你操作，學習如何將APP打包成 Signature Version 的 發布版本(Release)</p>
+    <title>【CI CD實作】安裝Jenkins(一)</title>
+    <url>/2023/02/09/%E5%AE%89%E8%A3%9DJenkins(%E4%B8%80)/</url>
+    <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>一直以來耳聞Jenkins的大名，知道可以用它來做CI&#x2F;CD以及跑專案排程等等，能做到的事情非常的多。</p>
+<p>但由於筆者先前的公司過去一直都是使用GitLab作為 Repository Server，而GitLab本身的CI Server - <strong>GitLab Runner</strong> 又很有名，因此一直沒機會可以好好探究，直到現在換了新公司，改採用Gitgub後終於有機會好好一探究竟。</p>
+<p>本篇環境主要是在Ubuntu環境上建置的，因此以下操作指令都是以Ubuntu為主。</p>
 <span id="more"></span>
 
-<p>當我們直接下匯出指令</p>
-<p>cordova build android</p>
-<p>預設會自動在app&#x2F;build&#x2F;output 底下 建立 debug資料夾，並將測試版本的apk檔案放入此中</p>
-<p>雖然這個版本可以直接在 Android系統上使用，但是若要考慮到上架，會發現Google Play 不允許使用非發布版本的apk進行上架。</p>
-<p>因此我們還需要在該指令後面，增加  –release 參數</p>
-<p>cordova build android  –release</p>
-<p>這時候預設一樣會自動在app&#x2F;build&#x2F;output 底下 建立 release 資料夾，並將發布版本的apk檔案放入此中</p>
-<p>當你很開心以為這樣就產生出來，可以進行上架的話，你就錯了</p>
-<p>我們將剛剛產生出來的 Release版本放入到模擬器中運行，會發現以下錯誤：<br><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/78e21927-ebe4-4353-b38c-e0e5ee8f8639/1537842546_34736.png"></p>
-<p>而這個錯誤訊息會發生的原因，主要是因為我們的發布版本 Release 並沒有經過金鑰簽名，所以這個 release apk 不可用</p>
-<p>因此我們在下該行指令之前，需要先產生一份金鑰檔，再利用這份金鑰檔進行簽名</p>
-<p>最後才可以產生出可使用的 release apk 版本。</p>
-<p>因此我們需要下該行指令，產生金鑰</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">keytool -genkey -v -keystore MyApp.keystore  -alias myapp</span><br></pre></td></tr></table></figure>
+<h3 id="JAVA-安裝"><a href="#JAVA-安裝" class="headerlink" title="JAVA 安裝"></a>JAVA 安裝</h3><p>首先一如往常需要先更新套件。<br>由於jenkins是用java編寫的, 所以必須先安裝java執行環境，確認完成後，再下載Jenkins進行安裝。</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo apt-get update</span><br><span class="line">sudo apt-get install default-jre</span><br><span class="line">sudo apt-get install default-jdk</span><br></pre></td></tr></table></figure>
 
-<p>其中 </p>
-<p>MyApp.keystore  是你匯出金鑰的檔案名稱</p>
-<p>myapp 是簡稱</p>
-<p>接下來會要你填寫一些金鑰資訊及密碼</p>
-<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/78e21927-ebe4-4353-b38c-e0e5ee8f8639/1537844680_51531.png"></p>
-<p>完成後會再該目錄底下產生一個 MyApp.keystore  的金鑰檔案</p>
-<p>建議該檔案複製一份留存，然後記錄一下帳號密碼。  PS: 可以放在 Document底下做保管</p>
-<p>未來若有其他專案需要產生 release apk 就可以重複使用。</p>
-<p>接下來為了之後簽名方便，我們在 platform&#x2F;android 資料夾中，新增一個 properties 的檔案</p>
-<p>檔案的內容如下：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">storeFile=/Users/leo/Documents/myapp.keystore     // storeFile 檔案路徑，建議可以放在文件資料夾底下做保管</span><br><span class="line">storeType=jks                                     // 金鑰使用的演算法格式</span><br><span class="line">keyAlias=androidkeystore                          // 金鑰別名</span><br><span class="line">keyPassword=                                      // 金鑰密碼</span><br><span class="line">storePassword=                                    // store 密碼</span><br></pre></td></tr></table></figure>
+<h3 id="Jenkins下載與安裝"><a href="#Jenkins下載與安裝" class="headerlink" title="Jenkins下載與安裝"></a>Jenkins下載與安裝</h3><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">下載Jenkins並將Jenkins加入到套件清單中</span><br><span class="line"></span><br><span class="line">wget -q -O - https://pkg.jenkins.io/debian/jenkins-ci.org.key | sudo apt-key add -</span><br><span class="line">sudo sh -c &#x27;echo deb http://pkg.jenkins.io/debian-stable binary/ &gt; /etc/apt/sources.list.d/jenkins.list&#x27;</span><br><span class="line">sudo apt-get update</span><br><span class="line"></span><br><span class="line">安裝jenkins</span><br><span class="line">sudo apt-get install jenkins</span><br></pre></td></tr></table></figure>
 
-<p>這樣當我們進行 Cordova build的時候，Cordova 就會自動去讀取該檔案，幫我們將 release apk 進行簽名</p>
-<p>完成之後，我們就可以再次輸入該指令：</p>
-<p>cordova build android –release</p>
-<p>這樣產生出來的APP 就是擁有 Signature Version 的 release apk了。</p>
-<p>最後請記得一件事！<br><font color="red"><br>若該手機內已經有 debug版本的 apk，請記得先卸載後再安裝 新的 release apk</font></p>
-<p>因為不管是 debug版本的apk 還是 release版本的 apk 他們都會共用同一組 APP ID<br><br>所以這時候直接安裝新的，會導致錯誤 （筆者曾經為了這個問題折騰了好久…最後刪掉原本手機內的app 就成功了）</p>
+<p>當安裝一切就緒後，Jenkins會自動監聽8080port，因此可以透過該網址前往設定。</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">http://localhost:8080</span><br></pre></td></tr></table></figure>
+<div style="color:red;font-weight:900;margin-bottom:10px;">
+註：Jenkins預設為開機自動啟動，已經有寫好服務腳本了，可以透過 systemctl status jenkins查看
+</div>
+
+<p>當連線後，我們需要先解鎖Jenkins，到圖中指定的目錄下找到密碼後，貼上來：<br><img src="https://miro.medium.com/v2/resize:fit:1400/format:webp/1*9Y_JwWoGh2ZXzJ94zLpPLw.png"></p>
+<div style="color:red;font-weight:900;margin-bottom:10px;">
+註：Jenkins預設安裝路徑為 /var/lib/jenkins
+下一篇會教如何更改預設路徑
+</div>
+
+<p>解鎖後，會詢問我們選擇套件安裝，直接選擇左邊按鈕，讓他按照推薦套件安裝即可。</p>
+<p><img src="https://miro.medium.com/v2/resize:fit:1400/format:webp/1*jcluDo-52PTdpydzApvUzQ.png"></p>
+<p>其中套件有包含 Git Plugin，因此我們不再需要手動安裝相關套件就可以開始實現CI&#x2F;CD</p>
+<p><img src="https://miro.medium.com/v2/resize:fit:1400/format:webp/1*dBGZe7LSGZAVhgol-kQRVA.png"></p>
+<p>安裝完成後，接下來會要求要輸入帳號&#x2F;密碼，這組帳號密碼未來將為作為我們切換jenkins身份，下指令要操作其他行為的時候將會用到，並且登入平台的時候預設也是採用該身份進行登入。</p>
+<p><img src="https://miro.medium.com/v2/resize:fit:1400/format:webp/1*X32QycUdoUS74x6E5pKytg.png"></p>
+<p>全部完成後，我們就可以看到登入的畫面了。</p>
+<p><img src="https://miro.medium.com/v2/resize:fit:1400/format:webp/1*SqqCK5W-cS-pcWrW0EkqSw.png"></p>
+<p>下一篇將會先介紹該如何變更Jenkins的位置，避免當硬碟空間不足的時候，Jenkins會有故障的情況發生。</p>
 <div>
 以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
 
@@ -1742,39 +1838,10 @@ version for package `Microsoft.EntityFrameworkCore.Tools.DotNet` could not be re
 </div>
 ]]></content>
       <categories>
-        <category>Cordova</category>
+        <category>Jenkins</category>
       </categories>
       <tags>
-        <tag>Android</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>快速架設私有的Nuget Server</title>
-    <url>/2023/02/11/%E5%BF%AB%E9%80%9F%E6%9E%B6%E8%A8%AD%E7%A7%81%E6%9C%89%E7%9A%84Nuget-Server/</url>
-    <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>大部分在開發的時候，都是直接在Nuget上搜尋開發者release的套件安裝來用，但通常公司的不同專案上總會有相似的專案會需要使用相同的功能。<br>但這些套件又牽涉公司機密，也不方便直接上傳到Nuget公開平台上，因此本篇主要介紹 <code>BaGet</code> 這個方便又強大的 Private Nuget Server，讓我們可以輕鬆管理這些私密的Library。</p>
-<span id="more"></span>
-
-<h3 id="BaGet安裝"><a href="#BaGet安裝" class="headerlink" title="BaGet安裝"></a>BaGet安裝</h3><p>Baget這個專案，非常方便簡單，但是有一個缺點——採用 .NET Core 3.1建置<br>而在2023年的今天，要去哪邊生 .NET3.1的環境呢？<br>如果沒有的讀者，可以參考<a href="../%E5%A6%82%E4%BD%95%E5%9C%A8Ubuntu%E5%AE%89%E8%A3%9D%E5%A4%9A%E5%80%8B-NET%E7%89%88%E6%9C%AC%E7%92%B0%E5%A2%83/%E5%A6%82%E4%BD%95%E5%9C%A8Ubuntu%E5%AE%89%E8%A3%9D%E5%A4%9A%E5%80%8B-NET%E7%89%88%E6%9C%AC%E7%92%B0%E5%A2%83.md">此篇</a> 教學，來安裝 .NET 3.1 環境。</p>
-<p>當我們擁有 .NET 3.1環境之後，我們只需要下載 Baget Relese 的版本即可：<br><a href="https://github.com/loic-sharma/BaGet/releases">BaGet Release</a></p>
-<p>下載完成後，我們就可以透過以下指令將專案進行建置</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">筆者本身是額外安裝3.1環境，因此在我的環境下指令為 dotnet3.1</span><br><span class="line">dotnet3.1 BaGet.dll </span><br></pre></td></tr></table></figure>
-
-<p>建置完成後，我們就可以看到一個與Nuget官網一模ㄧ樣的網站了：<br><img src="/2023/02/11/%E5%BF%AB%E9%80%9F%E6%9E%B6%E8%A8%AD%E7%A7%81%E6%9C%89%E7%9A%84Nuget-Server/nuget.png"></p>
-<p>切換到Upload頁面我們就可以查看上傳語法，以及得到套件的來源網址<br><img src="/2023/02/11/%E5%BF%AB%E9%80%9F%E6%9E%B6%E8%A8%AD%E7%A7%81%E6%9C%89%E7%9A%84Nuget-Server/upload.png"></p>
-<p>最後我們只需要將來源網址添加到 Nuget管理員，這樣就可以找到部署在 Baget上的Library囉！</p>
-<p><img src="/2023/02/11/%E5%BF%AB%E9%80%9F%E6%9E%B6%E8%A8%AD%E7%A7%81%E6%9C%89%E7%9A%84Nuget-Server/nuget%EF%BC%ADanager.png"></p>
-<div>
-以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
-
-<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
-<p><a href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
-</div>
-]]></content>
-      <categories>
-        <category>.NET</category>
-      </categories>
-      <tags>
-        <tag>.NET</tag>
+        <tag>CI/CD</tag>
       </tags>
   </entry>
   <entry>
@@ -1866,6 +1933,35 @@ version for package `Microsoft.EntityFrameworkCore.Tools.DotNet` could not be re
       </categories>
       <tags>
         <tag>CSS SASS</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>快速架設私有的Nuget Server</title>
+    <url>/2023/02/11/%E5%BF%AB%E9%80%9F%E6%9E%B6%E8%A8%AD%E7%A7%81%E6%9C%89%E7%9A%84Nuget-Server/</url>
+    <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>大部分在開發的時候，都是直接在Nuget上搜尋開發者release的套件安裝來用，但通常公司的不同專案上總會有相似的專案會需要使用相同的功能。<br>但這些套件又牽涉公司機密，也不方便直接上傳到Nuget公開平台上，因此本篇主要介紹 <code>BaGet</code> 這個方便又強大的 Private Nuget Server，讓我們可以輕鬆管理這些私密的Library。</p>
+<span id="more"></span>
+
+<h3 id="BaGet安裝"><a href="#BaGet安裝" class="headerlink" title="BaGet安裝"></a>BaGet安裝</h3><p>Baget這個專案，非常方便簡單，但是有一個缺點——採用 .NET Core 3.1建置<br>而在2023年的今天，要去哪邊生 .NET3.1的環境呢？<br>如果沒有的讀者，可以參考<a href="../%E5%A6%82%E4%BD%95%E5%9C%A8Ubuntu%E5%AE%89%E8%A3%9D%E5%A4%9A%E5%80%8B-NET%E7%89%88%E6%9C%AC%E7%92%B0%E5%A2%83/%E5%A6%82%E4%BD%95%E5%9C%A8Ubuntu%E5%AE%89%E8%A3%9D%E5%A4%9A%E5%80%8B-NET%E7%89%88%E6%9C%AC%E7%92%B0%E5%A2%83.md">此篇</a> 教學，來安裝 .NET 3.1 環境。</p>
+<p>當我們擁有 .NET 3.1環境之後，我們只需要下載 Baget Relese 的版本即可：<br><a href="https://github.com/loic-sharma/BaGet/releases">BaGet Release</a></p>
+<p>下載完成後，我們就可以透過以下指令將專案進行建置</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">筆者本身是額外安裝3.1環境，因此在我的環境下指令為 dotnet3.1</span><br><span class="line">dotnet3.1 BaGet.dll </span><br></pre></td></tr></table></figure>
+
+<p>建置完成後，我們就可以看到一個與Nuget官網一模ㄧ樣的網站了：<br><img src="/2023/02/11/%E5%BF%AB%E9%80%9F%E6%9E%B6%E8%A8%AD%E7%A7%81%E6%9C%89%E7%9A%84Nuget-Server/nuget.png"></p>
+<p>切換到Upload頁面我們就可以查看上傳語法，以及得到套件的來源網址<br><img src="/2023/02/11/%E5%BF%AB%E9%80%9F%E6%9E%B6%E8%A8%AD%E7%A7%81%E6%9C%89%E7%9A%84Nuget-Server/upload.png"></p>
+<p>最後我們只需要將來源網址添加到 Nuget管理員，這樣就可以找到部署在 Baget上的Library囉！</p>
+<p><img src="/2023/02/11/%E5%BF%AB%E9%80%9F%E6%9E%B6%E8%A8%AD%E7%A7%81%E6%9C%89%E7%9A%84Nuget-Server/nuget%EF%BC%ADanager.png"></p>
+<div>
+以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
+
+<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
+<p><a href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
+</div>
+]]></content>
+      <categories>
+        <category>.NET</category>
+      </categories>
+      <tags>
+        <tag>.NET</tag>
       </tags>
   </entry>
   <entry>
@@ -2093,6 +2189,54 @@ version for package `Microsoft.EntityFrameworkCore.Tools.DotNet` could not be re
       </tags>
   </entry>
   <entry>
+    <title>.NET Core自動建立Entity</title>
+    <url>/2023/01/24/%E8%87%AA%E5%8B%95%E5%BB%BA%E7%AB%8BEntity/</url>
+    <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>在 ASP.Net FrameWork 中，我們可以透過 CodeFirst 的方式，自動幫我們建立資料庫中每一個Table，並轉換成Entity，讓我們有Model可以做對應。</p>
+<p>但是在 .Net Core 中，可就沒有辦法那麼方便點一點就可以完成了。我們得需要額外安裝其他套件，並透過下指令的方式才能自動幫我們產生。</p>
+<span id="more"></span>
+
+
+<p>在過去 .Net FrameWork中，我們可以透過 加入&gt;新增項目&gt;資料 中，找到 ADO.NET 實體資料模型</p>
+<p>透過裡面的CodeFirst可以幫助我們快速將Table內的欄位轉換成Entity的Model作為使用，非常方便。</p>
+<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/fd6263e3-7315-43ba-b592-a3076b15027a/1597291465.png" alt="實體資料模型精靈"></p>
+<p>但在 .Net Core 中，並沒有提供介面可以讓我們進行點選。</p>
+<p>因此我們必須要透過安裝套件，並輸入指令才能將資料庫中的Table產生對應的Enriry作為Model讓我們使用。</p>
+<p>而在輸入指令之前，我們需要先至Nuget中，安裝以下兩個套件。</p>
+<p>分別是：</p>
+<p><strong>「Microsoft.EntityFrameworkCore.SqlServer」、「Microsoft.EntityFrameworkCore.Tools」</strong></p>
+<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/fd6263e3-7315-43ba-b592-a3076b15027a/1597291842.png"></p>
+<p>注意：安裝套件時，請記得兩者套件版本要一致，否則可能會發生問題。</p>
+<p>接著打開　工具＞Nuget套件管理員&gt;套件管理器主控台</p>
+<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/fd6263e3-7315-43ba-b592-a3076b15027a/1597292040.png"></p>
+<p>在主控台Consoel中就可以下指令：<br><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/fd6263e3-7315-43ba-b592-a3076b15027a/1597292120.png"></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">Scaffold-DbContext &quot;資料庫連線字串&quot; Microsoft.EntityFrameworkCore.SqlServer -OutputDir Models -Force -TableName -Tables 資料表</span><br></pre></td></tr></table></figure>
+
+<p>Scaffold-DbContext 為剛剛安裝Tools套件的指令，雙引號後面就是放入該資料庫連線字串</p>
+<p>-OutputDir 指定要輸出到專案的哪個資料夾，本文為Models資料夾</p>
+<p>-Force 強制複寫，若Table欄位異動，會自動修改該Entity內的欄位</p>
+<p>-Tables ，決定要將那些資料表轉成Entity。若有多張表要匯入，則需要以逗號區隔。</p>
+<div style="color:red">
+註:沒給-Tables參數的話，預設抓DB全部的Table
+</div>
+匯入成功後，會自動產生 CeptContxt物件。裡面會有Entity的欄位
+
+<p>而在entity資料夾中，則會存放剛剛從Table轉出來Entity。</p>
+<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/fd6263e3-7315-43ba-b592-a3076b15027a/1597292632.png"></p>
+<div>
+以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
+
+<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
+<p><a href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
+</div>
+]]></content>
+      <categories>
+        <category>.NET</category>
+      </categories>
+      <tags>
+        <tag>EntityFrameWork</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>解決瀏覽器Same-origin policy 的問題</title>
     <url>/2017/05/14/%E8%A7%A3%E6%B1%BA%E7%80%8F%E8%A6%BD%E5%99%A8Same-origin-policy-%E7%9A%84%E5%95%8F%E9%A1%8C/</url>
     <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>相信這個問題一直以來都困擾著開發者，因為很多時候我們不一定剛好可以都在Server上測試</p>
@@ -2142,39 +2286,25 @@ version for package `Microsoft.EntityFrameworkCore.Tools.DotNet` could not be re
       </tags>
   </entry>
   <entry>
-    <title>【CI CD實作】透過Github Webhook觸發Jenkins實現CI&amp;CD(四)</title>
-    <url>/2023/02/10/Webhook%E8%A7%B8%E7%99%BCJenkins%E5%AF%A6%E7%8F%BECI-CD/</url>
-    <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>在前面的文章中，我們已經成功設置好了Jenkins並讓Jenkins擁有sudo權限能更讓我們做更多事情了。<br>接下來就準備進到重頭戲，開始設定GitHub Webhook並觸發Jenkins來將專案Clone下來後，實現CI&#x2F;CD吧！</p>
+    <title>【CI CD實作】變更Jenkins家目錄(二)</title>
+    <url>/2023/02/10/%E8%AE%8A%E6%9B%B4Jenkins%E5%AE%B6%E7%9B%AE%E9%8C%84(%E4%BA%8C)/</url>
+    <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>根據上篇所述，由於我們的Jenkins預設是安裝在 &#x2F;var&#x2F;lib&#x2F;jenkins底下<br>而當時筆者遇到的狀況是，當時沒有注意到AWS的EC2空間快用滿了，而當安裝Jenkins後硬生生將硬碟空間吃到100%，以至於我們沒有多餘的空間可以進行其他操作。</p>
+<p>因此本篇主要來介紹，當硬碟空間擴展後我們要如何搬遷位置，確保Jenkins有多餘的空間可以儲存。</p>
 <span id="more"></span>
 
-<h3 id="設定Github-Webhook"><a href="#設定Github-Webhook" class="headerlink" title="設定Github Webhook"></a>設定Github Webhook</h3><p>首先登入到 GitHub，點選你希望更新時能透過 GitHub Webhook 觸發 Jenkins 的 Repository，點選 Settings 選取 Webhooks，再點選「add webhook」後輸入 &lt;你的Jenkins Server&gt;&#x2F;github-webhook&#x2F;</p>
-<div style="color:red;font-weight:900;margin-bottom:10px;">
-註：網址最後面一定要加上/github-webhook/
-</div>
 
-<p><img src="https://miro.medium.com/v2/resize:fit:1400/format:webp/1*z_W3UfV_fa9aCbsshvstGw.png"></p>
-<p>這時候設定完後，返回後會發現會有一個錯誤的圖案，這是因為Github還沒有跟我們的Jenkins進行連接，等到第一次Clone後就會是綠燈了，請放心。</p>
-<p>接著我們回到Jenkins</p>
-<h2 id="Jenkins-設定"><a href="#Jenkins-設定" class="headerlink" title="Jenkins 設定"></a>Jenkins 設定</h2><p>首先在 Jenkins 首頁點選「New Item」：</p>
-<p><img src="https://miro.medium.com/v2/resize:fit:1400/format:webp/1*62IikWEmw6AxRnlK94j-hA.png"></p>
-<p>點選 Pipeline 後輸入你的Pipeline名稱：</p>
-<p><img src="https://miro.medium.com/v2/resize:fit:1400/format:webp/1*lxXyir5SnVKq1xQ67HSwzw.png"></p>
-<p>接著進入<strong>Configure</strong>後，我們先找到 <strong>General</strong><br>勾選「GitHub project」然後貼上你的 GitHub Repository URL<br><img src="https://miro.medium.com/v2/resize:fit:1400/format:webp/1*CWS0wqzOqfED3qTwcjm2Jg.png"></p>
-<p><strong>Configure — Build Triggers:</strong><br>選取「GitHub hook trigger for GITScm polling」<br><img src="https://miro.medium.com/v2/resize:fit:1400/format:webp/1*ZSHr-XSmKWSo6HePHNRSUw.png"></p>
-<p><strong>Configure — Pipeline:</strong><br>接下來就可以開始設定當觸發Jenkins將專案拉下來之後，我們要做哪些事情。<br>Pipeline一般來說我們可以分為三個階段：Buid、Test、Deploy<br>當然你也可以自定義各種階段，基本上每一個階段就只是將內容分離出來，讓你比較好知道現在執行到哪裡，以及每一階段執行所需時間如何。</p>
-<div style="color:red;font-weight:900;margin-bottom:10px;">
-這裡與GitLab Runner最大不同在於每一階段產生的檔案都會保留，非常方便，不用再寫多餘的Code
-</div>
+<p>首先我們需要前往Jenkins配置檔的位置：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">vim /etc/default/jenkins</span><br><span class="line"></span><br><span class="line">修改配置檔的JENKINS_HOME为自己想要的路徑，這邊我們安裝在/home底下</span><br><span class="line">JENKINS_HOME=/home/$NAME</span><br></pre></td></tr></table></figure>
 
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">pipeline &#123;</span><br><span class="line">    agent any</span><br><span class="line"></span><br><span class="line">    stages &#123;</span><br><span class="line">        stage(&#x27;Build&#x27;) &#123;</span><br><span class="line">            steps &#123;</span><br><span class="line">                echo &#x27;打包專案&#x27;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        stage(&#x27;Test&#x27;) &#123;</span><br><span class="line">            steps &#123;</span><br><span class="line">                echo &#x27;可以執行一些自動化測試項目&#x27;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        stage(&#x27;Deploy&#x27;) &#123;</span><br><span class="line">            steps &#123;</span><br><span class="line">                echo &#x27;最後執行遠端部署指令&#x27;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>由於我們改變了jenkins的執行位置，因此需要將原本在 &#x2F;var&#x2F;lib&#x2F;jenkins 搬遷到 &#x2F;home&#x2F;jenkins</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line">sudo mkdir /home/jenkins</span><br><span class="line"></span><br><span class="line">sudo chown jenkins:jenkins /home/jenkins/</span><br><span class="line"> </span><br><span class="line">sudo cp /var/lib/jenkins/* /home/jenkins/ -rf</span><br></pre></td></tr></table></figure>
 
+<p>由於執行路徑雖然在 &#x2F;home底下，但jenkins的預設家目錄仍然被記錄在 &#x2F;var&#x2F;lib底下，因此我們需要再輸入以下兩行</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo usermod --home /home/jenkins jenkins </span><br><span class="line">sudo chown -R jenkins:jenkins /home/jenkins/</span><br></pre></td></tr></table></figure>
 
+<p>最後重啟Jenkins就搞定了！</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">systemctl restart jenkins</span><br></pre></td></tr></table></figure>
 
-<p>而由於筆者本身使用.NET6進行API開發，因此這邊同時也放上.NET版本給各位參考一下。但由於礙於公司機密，所以拿掉不少東西，再請各位多多包涵</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">pipeline &#123;</span><br><span class="line">    agent any</span><br><span class="line">    stages &#123;</span><br><span class="line">        stage(&#x27;Build&#x27;) &#123;</span><br><span class="line">            steps &#123;</span><br><span class="line">                sh &#x27;cd API&#x27;</span><br><span class="line">                sh &#x27;dotnet build&#x27;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        stage(&#x27;Deploy&#x27;) &#123;</span><br><span class="line">            steps &#123;</span><br><span class="line">                sh &#x27;sudo systemctl stop API.service&#x27;</span><br><span class="line">                sh &#x27;sudo rm -rf /專案存放位置&#x27;</span><br><span class="line">                sh &#x27;sudo mkdir /專案存放位置&#x27;</span><br><span class="line">                sh &#x27;sudo cp -r /專案存放位置. /Server 目錄位置&#x27;</span><br><span class="line">                sh &#x27;sudo systemctl start API.service&#x27;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>到這裡基本上就完成的差不多了，最後我們實際上將Code推倒Github試試看：<br>我們可以注意到整體速度滿快的，從Build、Deploy 平均只花了10秒就完成。</p>
-<p><img src="https://t45009037.p.clickup-attachments.com/t45009037/8e542c8d-3201-4607-b807-760a835e64f9/Screen%20Shot%202023-02-09%20at%202.47.17%20AM.png"></p>
 <div>
 以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
 
@@ -2423,136 +2553,6 @@ version for package `Microsoft.EntityFrameworkCore.Tools.DotNet` could not be re
       </categories>
       <tags>
         <tag>電子發票開立</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>.NET Core自動建立Entity</title>
-    <url>/2023/01/24/%E8%87%AA%E5%8B%95%E5%BB%BA%E7%AB%8BEntity/</url>
-    <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>在 ASP.Net FrameWork 中，我們可以透過 CodeFirst 的方式，自動幫我們建立資料庫中每一個Table，並轉換成Entity，讓我們有Model可以做對應。</p>
-<p>但是在 .Net Core 中，可就沒有辦法那麼方便點一點就可以完成了。我們得需要額外安裝其他套件，並透過下指令的方式才能自動幫我們產生。</p>
-<span id="more"></span>
-
-
-<p>在過去 .Net FrameWork中，我們可以透過 加入&gt;新增項目&gt;資料 中，找到 ADO.NET 實體資料模型</p>
-<p>透過裡面的CodeFirst可以幫助我們快速將Table內的欄位轉換成Entity的Model作為使用，非常方便。</p>
-<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/fd6263e3-7315-43ba-b592-a3076b15027a/1597291465.png" alt="實體資料模型精靈"></p>
-<p>但在 .Net Core 中，並沒有提供介面可以讓我們進行點選。</p>
-<p>因此我們必須要透過安裝套件，並輸入指令才能將資料庫中的Table產生對應的Enriry作為Model讓我們使用。</p>
-<p>而在輸入指令之前，我們需要先至Nuget中，安裝以下兩個套件。</p>
-<p>分別是：</p>
-<p><strong>「Microsoft.EntityFrameworkCore.SqlServer」、「Microsoft.EntityFrameworkCore.Tools」</strong></p>
-<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/fd6263e3-7315-43ba-b592-a3076b15027a/1597291842.png"></p>
-<p>注意：安裝套件時，請記得兩者套件版本要一致，否則可能會發生問題。</p>
-<p>接著打開　工具＞Nuget套件管理員&gt;套件管理器主控台</p>
-<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/fd6263e3-7315-43ba-b592-a3076b15027a/1597292040.png"></p>
-<p>在主控台Consoel中就可以下指令：<br><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/fd6263e3-7315-43ba-b592-a3076b15027a/1597292120.png"></p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">Scaffold-DbContext &quot;資料庫連線字串&quot; Microsoft.EntityFrameworkCore.SqlServer -OutputDir Models -Force -TableName -Tables 資料表</span><br></pre></td></tr></table></figure>
-
-<p>Scaffold-DbContext 為剛剛安裝Tools套件的指令，雙引號後面就是放入該資料庫連線字串</p>
-<p>-OutputDir 指定要輸出到專案的哪個資料夾，本文為Models資料夾</p>
-<p>-Force 強制複寫，若Table欄位異動，會自動修改該Entity內的欄位</p>
-<p>-Tables ，決定要將那些資料表轉成Entity。若有多張表要匯入，則需要以逗號區隔。</p>
-<div style="color:red">
-註:沒給-Tables參數的話，預設抓DB全部的Table
-</div>
-匯入成功後，會自動產生 CeptContxt物件。裡面會有Entity的欄位
-
-<p>而在entity資料夾中，則會存放剛剛從Table轉出來Entity。</p>
-<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/fd6263e3-7315-43ba-b592-a3076b15027a/1597292632.png"></p>
-<div>
-以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
-
-<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
-<p><a href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
-</div>
-]]></content>
-      <categories>
-        <category>.NET</category>
-      </categories>
-      <tags>
-        <tag>EntityFrameWork</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>【CI CD實作】安裝Jenkins(一)</title>
-    <url>/2023/02/09/%E5%AE%89%E8%A3%9DJenkins(%E4%B8%80)/</url>
-    <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>一直以來耳聞Jenkins的大名，知道可以用它來做CI&#x2F;CD以及跑專案排程等等，能做到的事情非常的多。</p>
-<p>但由於筆者先前的公司過去一直都是使用GitLab作為 Repository Server，而GitLab本身的CI Server - <strong>GitLab Runner</strong> 又很有名，因此一直沒機會可以好好探究，直到現在換了新公司，改採用Gitgub後終於有機會好好一探究竟。</p>
-<p>本篇環境主要是在Ubuntu環境上建置的，因此以下操作指令都是以Ubuntu為主。</p>
-<span id="more"></span>
-
-<h3 id="JAVA-安裝"><a href="#JAVA-安裝" class="headerlink" title="JAVA 安裝"></a>JAVA 安裝</h3><p>首先一如往常需要先更新套件。<br>由於jenkins是用java編寫的, 所以必須先安裝java執行環境，確認完成後，再下載Jenkins進行安裝。</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo apt-get update</span><br><span class="line">sudo apt-get install default-jre</span><br><span class="line">sudo apt-get install default-jdk</span><br></pre></td></tr></table></figure>
-
-<h3 id="Jenkins下載與安裝"><a href="#Jenkins下載與安裝" class="headerlink" title="Jenkins下載與安裝"></a>Jenkins下載與安裝</h3><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">下載Jenkins並將Jenkins加入到套件清單中</span><br><span class="line"></span><br><span class="line">wget -q -O - https://pkg.jenkins.io/debian/jenkins-ci.org.key | sudo apt-key add -</span><br><span class="line">sudo sh -c &#x27;echo deb http://pkg.jenkins.io/debian-stable binary/ &gt; /etc/apt/sources.list.d/jenkins.list&#x27;</span><br><span class="line">sudo apt-get update</span><br><span class="line"></span><br><span class="line">安裝jenkins</span><br><span class="line">sudo apt-get install jenkins</span><br></pre></td></tr></table></figure>
-
-<p>當安裝一切就緒後，Jenkins會自動監聽8080port，因此可以透過該網址前往設定。</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">http://localhost:8080</span><br></pre></td></tr></table></figure>
-<div style="color:red;font-weight:900;margin-bottom:10px;">
-註：Jenkins預設為開機自動啟動，已經有寫好服務腳本了，可以透過 systemctl status jenkins查看
-</div>
-
-<p>當連線後，我們需要先解鎖Jenkins，到圖中指定的目錄下找到密碼後，貼上來：<br><img src="https://miro.medium.com/v2/resize:fit:1400/format:webp/1*9Y_JwWoGh2ZXzJ94zLpPLw.png"></p>
-<div style="color:red;font-weight:900;margin-bottom:10px;">
-註：Jenkins預設安裝路徑為 /var/lib/jenkins
-下一篇會教如何更改預設路徑
-</div>
-
-<p>解鎖後，會詢問我們選擇套件安裝，直接選擇左邊按鈕，讓他按照推薦套件安裝即可。</p>
-<p><img src="https://miro.medium.com/v2/resize:fit:1400/format:webp/1*jcluDo-52PTdpydzApvUzQ.png"></p>
-<p>其中套件有包含 Git Plugin，因此我們不再需要手動安裝相關套件就可以開始實現CI&#x2F;CD</p>
-<p><img src="https://miro.medium.com/v2/resize:fit:1400/format:webp/1*dBGZe7LSGZAVhgol-kQRVA.png"></p>
-<p>安裝完成後，接下來會要求要輸入帳號&#x2F;密碼，這組帳號密碼未來將為作為我們切換jenkins身份，下指令要操作其他行為的時候將會用到，並且登入平台的時候預設也是採用該身份進行登入。</p>
-<p><img src="https://miro.medium.com/v2/resize:fit:1400/format:webp/1*X32QycUdoUS74x6E5pKytg.png"></p>
-<p>全部完成後，我們就可以看到登入的畫面了。</p>
-<p><img src="https://miro.medium.com/v2/resize:fit:1400/format:webp/1*SqqCK5W-cS-pcWrW0EkqSw.png"></p>
-<p>下一篇將會先介紹該如何變更Jenkins的位置，避免當硬碟空間不足的時候，Jenkins會有故障的情況發生。</p>
-<div>
-以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
-
-<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
-<p><a href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
-</div>
-]]></content>
-      <categories>
-        <category>Jenkins</category>
-      </categories>
-      <tags>
-        <tag>CI/CD</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>【CI CD實作】變更Jenkins家目錄(二)</title>
-    <url>/2023/02/10/%E8%AE%8A%E6%9B%B4Jenkins%E5%AE%B6%E7%9B%AE%E9%8C%84(%E4%BA%8C)/</url>
-    <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>根據上篇所述，由於我們的Jenkins預設是安裝在 &#x2F;var&#x2F;lib&#x2F;jenkins底下<br>而當時筆者遇到的狀況是，當時沒有注意到AWS的EC2空間快用滿了，而當安裝Jenkins後硬生生將硬碟空間吃到100%，以至於我們沒有多餘的空間可以進行其他操作。</p>
-<p>因此本篇主要來介紹，當硬碟空間擴展後我們要如何搬遷位置，確保Jenkins有多餘的空間可以儲存。</p>
-<span id="more"></span>
-
-
-<p>首先我們需要前往Jenkins配置檔的位置：</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">vim /etc/default/jenkins</span><br><span class="line"></span><br><span class="line">修改配置檔的JENKINS_HOME为自己想要的路徑，這邊我們安裝在/home底下</span><br><span class="line">JENKINS_HOME=/home/$NAME</span><br></pre></td></tr></table></figure>
-
-<p>由於我們改變了jenkins的執行位置，因此需要將原本在 &#x2F;var&#x2F;lib&#x2F;jenkins 搬遷到 &#x2F;home&#x2F;jenkins</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line">sudo mkdir /home/jenkins</span><br><span class="line"></span><br><span class="line">sudo chown jenkins:jenkins /home/jenkins/</span><br><span class="line"> </span><br><span class="line">sudo cp /var/lib/jenkins/* /home/jenkins/ -rf</span><br></pre></td></tr></table></figure>
-
-<p>由於執行路徑雖然在 &#x2F;home底下，但jenkins的預設家目錄仍然被記錄在 &#x2F;var&#x2F;lib底下，因此我們需要再輸入以下兩行</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo usermod --home /home/jenkins jenkins </span><br><span class="line">sudo chown -R jenkins:jenkins /home/jenkins/</span><br></pre></td></tr></table></figure>
-
-<p>最後重啟Jenkins就搞定了！</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">systemctl restart jenkins</span><br></pre></td></tr></table></figure>
-
-<div>
-以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
-
-<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
-<p><a href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
-</div>
-]]></content>
-      <categories>
-        <category>Jenkins</category>
-      </categories>
-      <tags>
-        <tag>CI/CD</tag>
       </tags>
   </entry>
 </search>

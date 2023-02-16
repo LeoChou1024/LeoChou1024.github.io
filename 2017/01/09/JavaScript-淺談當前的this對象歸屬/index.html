@@ -25,6 +25,15 @@
     var CONFIG = {"hostname":"blog.zhenghui.idv.tw","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"slideDownIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-Y5GB5Q2LC5"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-Y5GB5Q2LC5');
+</script>
   <meta name="description" content="前言我們都知道JavaScript跟其他語言在物件導向有很大的不同 其中以this為最大的差異點，很多人常常對於這個this搞得一個頭兩個大的 而該怎麼判斷this目前指向的對象是誰呢？ 則是看對於在執行this前是否有物件。 如果有物件，則this代表著該物件; 倘若沒有物件，則this代表著整個window 這聽起來很饒舌，做個範例來看就會知道了">
 <meta property="og:type" content="article">
 <meta property="og:title" content="JavaScript - 淺談當前的this對象歸屬">
