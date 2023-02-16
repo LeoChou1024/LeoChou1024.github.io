@@ -41,15 +41,16 @@
 <meta property="og:site_name" content="Leo程式筆記">
 <meta property="og:description" content="前言相信很多人在操作CI&#x2F;CD的時候，都會搭配一些 interaction tool 來將結果推送至自己常用的辦公軟體。其中筆者在辦公中，最常使用的通訊軟體就非 Teams 莫屬。今天就來介紹如果想將自訂的訊息內容透過 notify 推送到 Teams bot的時候，我們可以怎麼美化訊息介面。">
 <meta property="og:locale" content="zh_TW">
+<meta property="og:image" content="https://blog.zhenghui.idv.tw/2023/02/17/%E3%80%90CI-CD%E5%AF%A6%E4%BD%9C%E3%80%91%E5%A6%82%E4%BD%95%E8%87%AA%E8%A8%82Teams-Message-%E4%BB%8B%E9%9D%A2/api.png">
 <meta property="og:image" content="https://blog.zhenghui.idv.tw/2023/02/17/%E3%80%90CI-CD%E5%AF%A6%E4%BD%9C%E3%80%91%E5%A6%82%E4%BD%95%E8%87%AA%E8%A8%82Teams-Message-%E4%BB%8B%E9%9D%A2/postman.png">
 <meta property="og:image" content="https://blog.zhenghui.idv.tw/2023/02/17/%E3%80%90CI-CD%E5%AF%A6%E4%BD%9C%E3%80%91%E5%A6%82%E4%BD%95%E8%87%AA%E8%A8%82Teams-Message-%E4%BB%8B%E9%9D%A2/jenkins.png">
 <meta property="og:image" content="https://blog.zhenghui.idv.tw/2023/02/17/%E3%80%90CI-CD%E5%AF%A6%E4%BD%9C%E3%80%91%E5%A6%82%E4%BD%95%E8%87%AA%E8%A8%82Teams-Message-%E4%BB%8B%E9%9D%A2/api.png">
 <meta property="article:published_time" content="2023-02-16T20:33:16.000Z">
-<meta property="article:modified_time" content="2023-02-16T22:20:10.537Z">
+<meta property="article:modified_time" content="2023-02-16T22:32:29.897Z">
 <meta property="article:author" content="Leo Zhou">
 <meta property="article:tag" content="CI&#x2F;CD">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://blog.zhenghui.idv.tw/2023/02/17/%E3%80%90CI-CD%E5%AF%A6%E4%BD%9C%E3%80%91%E5%A6%82%E4%BD%95%E8%87%AA%E8%A8%82Teams-Message-%E4%BB%8B%E9%9D%A2/postman.png">
+<meta name="twitter:image" content="https://blog.zhenghui.idv.tw/2023/02/17/%E3%80%90CI-CD%E5%AF%A6%E4%BD%9C%E3%80%91%E5%A6%82%E4%BD%95%E8%87%AA%E8%A8%82Teams-Message-%E4%BB%8B%E9%9D%A2/api.png">
 
 <link rel="canonical" href="https://blog.zhenghui.idv.tw/2023/02/17/%E3%80%90CI-CD%E5%AF%A6%E4%BD%9C%E3%80%91%E5%A6%82%E4%BD%95%E8%87%AA%E8%A8%82Teams-Message-%E4%BB%8B%E9%9D%A2/">
 
@@ -239,7 +240,7 @@
               <span class="post-meta-item-text">發表於</span>
               
 
-              <time title="創建時間：2023-02-17 04:33:16 / 修改時間：06:20:10" itemprop="dateCreated datePublished" datetime="2023-02-17T04:33:16+08:00">2023-02-17</time>
+              <time title="創建時間：2023-02-17 04:33:16 / 修改時間：06:32:29" itemprop="dateCreated datePublished" datetime="2023-02-17T04:33:16+08:00">2023-02-17</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -293,6 +294,7 @@
         <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>相信很多人在操作CI&#x2F;CD的時候，都會搭配一些 interaction tool 來將結果推送至自己常用的辦公軟體。<br>其中筆者在辦公中，最常使用的通訊軟體就非 Teams 莫屬。<br>今天就來介紹如果想將自訂的訊息內容透過 notify 推送到 Teams bot的時候，我們可以怎麼美化訊息介面。</p>
 <span id="more"></span>
 
+<p>首先，我們可以先看完成圖的效果。<br><img src="/2023/02/17/%E3%80%90CI-CD%E5%AF%A6%E4%BD%9C%E3%80%91%E5%A6%82%E4%BD%95%E8%87%AA%E8%A8%82Teams-Message-%E4%BB%8B%E9%9D%A2/../%E3%80%90CI-CD%E5%AF%A6%E4%BD%9C%E3%80%91%E5%A6%82%E4%BD%95%E8%87%AA%E8%A8%82Teams-Message-%E4%BB%8B%E9%9D%A2/api.png"></p>
 <h2 id="訊息設定"><a href="#訊息設定" class="headerlink" title="訊息設定"></a>訊息設定</h2><p>在過去，我們使用Webhook將內容推送至Teams bot的時候，我們會 POST 以下參數：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    &quot;text&quot;:&quot;postman is start!&quot;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
