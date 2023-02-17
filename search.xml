@@ -1,38 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>Android - 封裝Fragment當中換頁的程式碼</title>
-    <url>/2017/02/15/Android-%E5%B0%81%E8%A3%9DFragment%E7%95%B6%E4%B8%AD%E6%8F%9B%E9%A0%81%E7%9A%84%E7%A8%8B%E5%BC%8F%E7%A2%BC/</url>
-    <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>不知道各位會不會有這種想法：不想將重複的程式碼一直加入到程式當中</p>
-<p>在寫Android當中，我個人認為Fragment是一個很棒的東西，因為它可以將你的App挖出一塊空間出來，來讓你的Fragment Layout來進行切換</p>
-<p>但是，在切換的過程當中，往往切換頁面的程式碼都需要進行重複的撰寫。</p>
+    <title>Android-FireBase 介紹</title>
+    <url>/2017/01/04/Android-FireBase-%E4%BB%8B%E7%B4%B9/</url>
+    <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>利用google 最新的firebase雲端資料庫技術讓App可以變得更加萬用</p>
+<p>Firebase在2014年的時候被google正式收購，接著由google轉手開發後不斷地精進</p>
+<p>而在Android Studio2.2版當中，google也首次加入的Firebase的功能</p>
 <span id="more"></span>
-<p>因此筆者一直在思考，要如何做到只寫一次，就可以持續的做切換</p>
-<p>因此就想出了可以直接將切換頁面的程式碼進行封裝</p>
-<p>利用靜態方法，讓底下的這串切換程式碼的功能能夠進行覆用</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="type">FragmentTransaction</span> <span class="variable">transaction</span> <span class="operator">=</span> getFragmentManager().beginTransaction();</span><br><span class="line">       transaction.replace(<span class="string">&quot;欲切換的頁面&quot;</span>);</span><br><span class="line">       transaction.commit();</span><br></pre></td></tr></table></figure>
-<p>但當你寫完後，你會發現…. Error!!<br><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/52059204-bcd9-4f90-9abb-0e95893eff98/1487149123_5901.png"></p>
-<p>他會告訴你，你的靜態方法Change當中，包含了非靜態的方法「getFragmentManager()」</p>
-<p>那…該怎麼辦？難道就註定無法將程式碼進行重複使用嗎？</p>
-<p>在跟高手討論過後，既然山不轉，就路轉</p>
-<p>我們一樣宣告成靜態函數，但是這次呢，我們將參數全部由我們的MainActivity來進行傳送</p>
-<p>因此在我們封裝的這個類別 FragmentManagerTool 當中</p>
-<p>我們寫了這樣的程式碼</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">FragmentManagerTool</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* initial Fragment */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">init</span><span class="params">(Bundle savedInstanceState, FragmentManager fragmentManager, <span class="type">int</span> layoutID, Fragment fragment)</span> &#123;</span><br><span class="line">        <span class="type">FragmentTransaction</span> <span class="variable">transaction</span> <span class="operator">=</span> fragmentManager.beginTransaction();</span><br><span class="line">        <span class="keyword">if</span> (savedInstanceState == <span class="literal">null</span>) &#123;</span><br><span class="line">            transaction.add(layoutID, fragment).commit();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* replace Fragment */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">replaceFragment</span><span class="params">(FragmentManager fragmentManager, <span class="type">int</span> layout, Fragment f)</span> &#123;</span><br><span class="line">        <span class="type">FragmentTransaction</span> <span class="variable">ft</span> <span class="operator">=</span> fragmentManager.beginTransaction();</span><br><span class="line">        ft.replace(layout, f);</span><br><span class="line">        ft.commit();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>我們將參數由外面的Activity來進行傳入，如此一來就可以透過static來將我們的切換頁面函數來進行呼叫。</p>
-<p>這時候外面只需要這樣撰寫就可以了：</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">FragmentManagerTool.init(savedInstanceState,getSupportFragmentManager(),R.id.content,ViewList.Instance());</span><br></pre></td></tr></table></figure>
-<p>這樣的做法是不是很方便呢？</p>
-<p>這時候也許你會問：</p>
-<p>為什麼會需要有init 這個方法？</p>
-<p>不是只需要將頁面進行replace就好了嗎？為什麼在 init() 當中，會用到Add()的方法呢？</p>
-<p>原因在於說：</p>
-<p>各位有沒有發現到在MainActivity當中的OnCreate()當中，有著這樣的一段Code:</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">@Override</span><br><span class="line">    protected void onCreate(Bundle savedInstanceState /*What this?*/) &#123;</span><br><span class="line">        super.onCreate(savedInstanceState);</span><br><span class="line">        setContentView(R.layout.activity_main);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        //頁面切換</span><br><span class="line">        FragmentManagerTool.init(savedInstanceState,getSupportFragmentManager(),R.id.content,ViewList.Instance());</span><br><span class="line">        </span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
-<p>各位會發現到，在你的OnCreate當中有一個Bundle類別的參數  savedInstanceState<br>這是什麼呢？我們查閱了官網的解釋，有興趣的可以點選<a href="https://developer.android.com/reference/android/app/Activity.html#onCreate%28android.os.Bundle%29">連結</a>進行查閱： </p>
-<p>文件上說明了：「 savedInstanceState Always都會是null，直到在背景執行記憶體回收時，savedInstanceState 會保存你上一次的Activity」<br> 也就是說，在OnCreate當中的參數，主要是為了將你的App在背景執行時，倘若被回收掉記憶體，仍然能保持先前的樣子，包含Fragment</p>
-<p>因此，在第一次使用Fragment Add的時候 才會需要這樣判斷，當savedInstanceState為null的時候 才進行Add<br>把Fragment加入到Activity中 其餘都採用Replace去做更換。</p>
-<p>如此一來，不僅記憶體回收時可以保持先前的樣子，而我們所想要達到的目的封裝成類別使用也同時成功了。</p>
+<p>Firebase本身採用NoSql的概念，並且資料的產出顯示由json格式來進行顯示</p>
+<p>簡單的說，使用了Firebase後，自己就不需要再額外寫後端程式與資料庫溝通來撈取資料，這部分Google已經幫你處理好了</p>
+<p>而他本身SDK可以幫你處理離線問題（斷線，重連，保留訊息重新發送…） 使用起來簡單，但在設計noSql資料需要比較多功夫</p>
+<p>畢竟資料上的key相較傳統的資料庫有所不同</p>
+<p>當你想要新增一筆資料時，會是像這個樣子：<br><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/c26ac24a-9b34-4dfe-aefd-53873f2d8acf/1483541322_69598.png"><br>藉由名稱來顯示層級，假設要輸入第五筆的資料，在名稱欄中則需寫上：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">5/name</span><br></pre></td></tr></table></figure>
+
+<p>而我們今天要介紹的主要是針對於Android當中，如果想要使用Firebase那該如何去進行調用</p>
+<p>前置Firebse資料庫的設計在這邊筆者就不多攢述了，畢竟官方的教學文寫得相當淺顯易懂</p>
+<p>因此我們直接跳到Android Studio教你如何將在Firebase當中所設計的資料顯示在Android上</p>
+<p>＝＝＝＝＝＝＝＝＝＝＝＝＝＝本文開始＝＝＝＝＝＝＝＝＝＝＝＝＝＝</p>
+<p>Firebase是一個第三方套件，因此在專案開始之前我們需要先進行import</p>
+<p>因此首先請先在Grade當中載入以下套件</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">compile <span class="string">&#x27;com.firebase:firebase-client-android:2.3.1+&#x27;</span></span><br><span class="line"></span><br><span class="line">android &#123;</span><br><span class="line">    ...</span><br><span class="line">    packagingOptions &#123;</span><br><span class="line">        exclude <span class="string">&#x27;META-INF/LICENSE&#x27;</span></span><br><span class="line">        exclude <span class="string">&#x27;META-INF/LICENSE-FIREBASE.txt&#x27;</span></span><br><span class="line">        exclude <span class="string">&#x27;META-INF/NOTICE&#x27;</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>當一切就緒後，我們到一開始的Xml檔案，也就是畫面設計</p>
+<p>先拉一個listview出來</p>
+<p>如下：</p>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=<span class="string">&quot;1.0&quot;</span> encoding=<span class="string">&quot;utf-8&quot;</span>?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">RelativeLayout</span> <span class="attr">xmlns:android</span>=<span class="string">&quot;http://schemas.android.com/apk/res/android&quot;</span></span></span><br><span class="line"><span class="tag">    <span class="attr">xmlns:tools</span>=<span class="string">&quot;http://schemas.android.com/tools&quot;</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:id</span>=<span class="string">&quot;@+id/activity_main&quot;</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:layout_width</span>=<span class="string">&quot;match_parent&quot;</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:layout_height</span>=<span class="string">&quot;match_parent&quot;</span></span></span><br><span class="line"><span class="tag">    <span class="attr">tools:context</span>=<span class="string">&quot;com.example.leo.firebase2.MainActivity&quot;</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">ListView</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:layout_width</span>=<span class="string">&quot;match_parent&quot;</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:layout_height</span>=<span class="string">&quot;match_parent&quot;</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:layout_alignParentTop</span>=<span class="string">&quot;true&quot;</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:id</span>=<span class="string">&quot;@+id/list&quot;</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">RelativeLayout</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>接著切換到java檔案</p>
+<p>把剛剛的listview進行初始化後，開始針對Firebase進行資料的撈取</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line">listView = (ListView) findViewById(R.id.list);</span><br><span class="line">adapter = <span class="keyword">new</span> <span class="title class_">ArrayAdapter</span>&lt;String&gt;(<span class="built_in">this</span>,android.R.layout.simple_list_item_1);</span><br><span class="line">listView.setAdapter(adapter);</span><br><span class="line"></span><br><span class="line">Firebase.setAndroidContext(<span class="built_in">this</span>);</span><br><span class="line"><span class="comment">//將Firebase實體化後，把在Firebase官網上的資料庫網址貼上</span></span><br><span class="line"><span class="type">Firebase</span> <span class="variable">firebase</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Firebase</span>(<span class="string">&quot;https://test-25861.firebaseio.com/contacts&quot;</span>);</span><br><span class="line"><span class="comment">//建立監聽事件，當資料庫當中的欄位被增加/刪除/移動等等就會進行觸發</span></span><br><span class="line"><span class="comment">//當資料庫有欄位異動，就會同步刷新listview</span></span><br><span class="line">firebase.addChildEventListener(<span class="keyword">new</span> <span class="title class_">ChildEventListener</span>() &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">onChildAdded</span><span class="params">(DataSnapshot dataSnapshot, String s)</span> &#123;</span><br><span class="line">        adapter.add((String) dataSnapshot.child(<span class="string">&quot;name&quot;</span>).getValue());</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">onChildChanged</span><span class="params">(DataSnapshot dataSnapshot, String s)</span> &#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">onChildRemoved</span><span class="params">(DataSnapshot dataSnapshot)</span> &#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">onChildMoved</span><span class="params">(DataSnapshot dataSnapshot, String s)</span> &#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">onCancelled</span><span class="params">(FirebaseError firebaseError)</span> &#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>當程式完成後記得要在Manifest 加上連線權限，否則無法正常上網。</p>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">uses-permission</span> <span class="attr">android:name</span>=<span class="string">&quot;android.permission.INTERNET&quot;</span> /&gt;</span></span><br></pre></td></tr></table></figure>
+<p>完成之後就會發現listview上面就會有來自Firebase當中的資料了</p>
 <div>
 以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
 
@@ -40,6 +38,12 @@
 <p><a href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
 </div>
 ]]></content>
+      <categories>
+        <category>Android</category>
+      </categories>
+      <tags>
+        <tag>FireBase</tag>
+      </tags>
   </entry>
   <entry>
     <title>Android- Fragment 切換頁面時會造成頁面重疊</title>
@@ -105,36 +109,38 @@
       </tags>
   </entry>
   <entry>
-    <title>Android-FireBase 介紹</title>
-    <url>/2017/01/04/Android-FireBase-%E4%BB%8B%E7%B4%B9/</url>
-    <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>利用google 最新的firebase雲端資料庫技術讓App可以變得更加萬用</p>
-<p>Firebase在2014年的時候被google正式收購，接著由google轉手開發後不斷地精進</p>
-<p>而在Android Studio2.2版當中，google也首次加入的Firebase的功能</p>
+    <title>Android - 封裝Fragment當中換頁的程式碼</title>
+    <url>/2017/02/15/Android-%E5%B0%81%E8%A3%9DFragment%E7%95%B6%E4%B8%AD%E6%8F%9B%E9%A0%81%E7%9A%84%E7%A8%8B%E5%BC%8F%E7%A2%BC/</url>
+    <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>不知道各位會不會有這種想法：不想將重複的程式碼一直加入到程式當中</p>
+<p>在寫Android當中，我個人認為Fragment是一個很棒的東西，因為它可以將你的App挖出一塊空間出來，來讓你的Fragment Layout來進行切換</p>
+<p>但是，在切換的過程當中，往往切換頁面的程式碼都需要進行重複的撰寫。</p>
 <span id="more"></span>
-<p>Firebase本身採用NoSql的概念，並且資料的產出顯示由json格式來進行顯示</p>
-<p>簡單的說，使用了Firebase後，自己就不需要再額外寫後端程式與資料庫溝通來撈取資料，這部分Google已經幫你處理好了</p>
-<p>而他本身SDK可以幫你處理離線問題（斷線，重連，保留訊息重新發送…） 使用起來簡單，但在設計noSql資料需要比較多功夫</p>
-<p>畢竟資料上的key相較傳統的資料庫有所不同</p>
-<p>當你想要新增一筆資料時，會是像這個樣子：<br><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/c26ac24a-9b34-4dfe-aefd-53873f2d8acf/1483541322_69598.png"><br>藉由名稱來顯示層級，假設要輸入第五筆的資料，在名稱欄中則需寫上：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">5/name</span><br></pre></td></tr></table></figure>
-
-<p>而我們今天要介紹的主要是針對於Android當中，如果想要使用Firebase那該如何去進行調用</p>
-<p>前置Firebse資料庫的設計在這邊筆者就不多攢述了，畢竟官方的教學文寫得相當淺顯易懂</p>
-<p>因此我們直接跳到Android Studio教你如何將在Firebase當中所設計的資料顯示在Android上</p>
-<p>＝＝＝＝＝＝＝＝＝＝＝＝＝＝本文開始＝＝＝＝＝＝＝＝＝＝＝＝＝＝</p>
-<p>Firebase是一個第三方套件，因此在專案開始之前我們需要先進行import</p>
-<p>因此首先請先在Grade當中載入以下套件</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">compile <span class="string">&#x27;com.firebase:firebase-client-android:2.3.1+&#x27;</span></span><br><span class="line"></span><br><span class="line">android &#123;</span><br><span class="line">    ...</span><br><span class="line">    packagingOptions &#123;</span><br><span class="line">        exclude <span class="string">&#x27;META-INF/LICENSE&#x27;</span></span><br><span class="line">        exclude <span class="string">&#x27;META-INF/LICENSE-FIREBASE.txt&#x27;</span></span><br><span class="line">        exclude <span class="string">&#x27;META-INF/NOTICE&#x27;</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>當一切就緒後，我們到一開始的Xml檔案，也就是畫面設計</p>
-<p>先拉一個listview出來</p>
-<p>如下：</p>
-<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=<span class="string">&quot;1.0&quot;</span> encoding=<span class="string">&quot;utf-8&quot;</span>?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">RelativeLayout</span> <span class="attr">xmlns:android</span>=<span class="string">&quot;http://schemas.android.com/apk/res/android&quot;</span></span></span><br><span class="line"><span class="tag">    <span class="attr">xmlns:tools</span>=<span class="string">&quot;http://schemas.android.com/tools&quot;</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:id</span>=<span class="string">&quot;@+id/activity_main&quot;</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:layout_width</span>=<span class="string">&quot;match_parent&quot;</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:layout_height</span>=<span class="string">&quot;match_parent&quot;</span></span></span><br><span class="line"><span class="tag">    <span class="attr">tools:context</span>=<span class="string">&quot;com.example.leo.firebase2.MainActivity&quot;</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">ListView</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:layout_width</span>=<span class="string">&quot;match_parent&quot;</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:layout_height</span>=<span class="string">&quot;match_parent&quot;</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:layout_alignParentTop</span>=<span class="string">&quot;true&quot;</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:id</span>=<span class="string">&quot;@+id/list&quot;</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">RelativeLayout</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<p>接著切換到java檔案</p>
-<p>把剛剛的listview進行初始化後，開始針對Firebase進行資料的撈取</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line">listView = (ListView) findViewById(R.id.list);</span><br><span class="line">adapter = <span class="keyword">new</span> <span class="title class_">ArrayAdapter</span>&lt;String&gt;(<span class="built_in">this</span>,android.R.layout.simple_list_item_1);</span><br><span class="line">listView.setAdapter(adapter);</span><br><span class="line"></span><br><span class="line">Firebase.setAndroidContext(<span class="built_in">this</span>);</span><br><span class="line"><span class="comment">//將Firebase實體化後，把在Firebase官網上的資料庫網址貼上</span></span><br><span class="line"><span class="type">Firebase</span> <span class="variable">firebase</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Firebase</span>(<span class="string">&quot;https://test-25861.firebaseio.com/contacts&quot;</span>);</span><br><span class="line"><span class="comment">//建立監聽事件，當資料庫當中的欄位被增加/刪除/移動等等就會進行觸發</span></span><br><span class="line"><span class="comment">//當資料庫有欄位異動，就會同步刷新listview</span></span><br><span class="line">firebase.addChildEventListener(<span class="keyword">new</span> <span class="title class_">ChildEventListener</span>() &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">onChildAdded</span><span class="params">(DataSnapshot dataSnapshot, String s)</span> &#123;</span><br><span class="line">        adapter.add((String) dataSnapshot.child(<span class="string">&quot;name&quot;</span>).getValue());</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">onChildChanged</span><span class="params">(DataSnapshot dataSnapshot, String s)</span> &#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">onChildRemoved</span><span class="params">(DataSnapshot dataSnapshot)</span> &#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">onChildMoved</span><span class="params">(DataSnapshot dataSnapshot, String s)</span> &#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">onCancelled</span><span class="params">(FirebaseError firebaseError)</span> &#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
-<p>當程式完成後記得要在Manifest 加上連線權限，否則無法正常上網。</p>
-<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">uses-permission</span> <span class="attr">android:name</span>=<span class="string">&quot;android.permission.INTERNET&quot;</span> /&gt;</span></span><br></pre></td></tr></table></figure>
-<p>完成之後就會發現listview上面就會有來自Firebase當中的資料了</p>
+<p>因此筆者一直在思考，要如何做到只寫一次，就可以持續的做切換</p>
+<p>因此就想出了可以直接將切換頁面的程式碼進行封裝</p>
+<p>利用靜態方法，讓底下的這串切換程式碼的功能能夠進行覆用</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="type">FragmentTransaction</span> <span class="variable">transaction</span> <span class="operator">=</span> getFragmentManager().beginTransaction();</span><br><span class="line">       transaction.replace(<span class="string">&quot;欲切換的頁面&quot;</span>);</span><br><span class="line">       transaction.commit();</span><br></pre></td></tr></table></figure>
+<p>但當你寫完後，你會發現…. Error!!<br><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/52059204-bcd9-4f90-9abb-0e95893eff98/1487149123_5901.png"></p>
+<p>他會告訴你，你的靜態方法Change當中，包含了非靜態的方法「getFragmentManager()」</p>
+<p>那…該怎麼辦？難道就註定無法將程式碼進行重複使用嗎？</p>
+<p>在跟高手討論過後，既然山不轉，就路轉</p>
+<p>我們一樣宣告成靜態函數，但是這次呢，我們將參數全部由我們的MainActivity來進行傳送</p>
+<p>因此在我們封裝的這個類別 FragmentManagerTool 當中</p>
+<p>我們寫了這樣的程式碼</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">FragmentManagerTool</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* initial Fragment */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">init</span><span class="params">(Bundle savedInstanceState, FragmentManager fragmentManager, <span class="type">int</span> layoutID, Fragment fragment)</span> &#123;</span><br><span class="line">        <span class="type">FragmentTransaction</span> <span class="variable">transaction</span> <span class="operator">=</span> fragmentManager.beginTransaction();</span><br><span class="line">        <span class="keyword">if</span> (savedInstanceState == <span class="literal">null</span>) &#123;</span><br><span class="line">            transaction.add(layoutID, fragment).commit();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* replace Fragment */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">replaceFragment</span><span class="params">(FragmentManager fragmentManager, <span class="type">int</span> layout, Fragment f)</span> &#123;</span><br><span class="line">        <span class="type">FragmentTransaction</span> <span class="variable">ft</span> <span class="operator">=</span> fragmentManager.beginTransaction();</span><br><span class="line">        ft.replace(layout, f);</span><br><span class="line">        ft.commit();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>我們將參數由外面的Activity來進行傳入，如此一來就可以透過static來將我們的切換頁面函數來進行呼叫。</p>
+<p>這時候外面只需要這樣撰寫就可以了：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">FragmentManagerTool.init(savedInstanceState,getSupportFragmentManager(),R.id.content,ViewList.Instance());</span><br></pre></td></tr></table></figure>
+<p>這樣的做法是不是很方便呢？</p>
+<p>這時候也許你會問：</p>
+<p>為什麼會需要有init 這個方法？</p>
+<p>不是只需要將頁面進行replace就好了嗎？為什麼在 init() 當中，會用到Add()的方法呢？</p>
+<p>原因在於說：</p>
+<p>各位有沒有發現到在MainActivity當中的OnCreate()當中，有著這樣的一段Code:</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">@Override</span><br><span class="line">    protected void onCreate(Bundle savedInstanceState /*What this?*/) &#123;</span><br><span class="line">        super.onCreate(savedInstanceState);</span><br><span class="line">        setContentView(R.layout.activity_main);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        //頁面切換</span><br><span class="line">        FragmentManagerTool.init(savedInstanceState,getSupportFragmentManager(),R.id.content,ViewList.Instance());</span><br><span class="line">        </span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p>各位會發現到，在你的OnCreate當中有一個Bundle類別的參數  savedInstanceState<br>這是什麼呢？我們查閱了官網的解釋，有興趣的可以點選<a href="https://developer.android.com/reference/android/app/Activity.html#onCreate%28android.os.Bundle%29">連結</a>進行查閱： </p>
+<p>文件上說明了：「 savedInstanceState Always都會是null，直到在背景執行記憶體回收時，savedInstanceState 會保存你上一次的Activity」<br> 也就是說，在OnCreate當中的參數，主要是為了將你的App在背景執行時，倘若被回收掉記憶體，仍然能保持先前的樣子，包含Fragment</p>
+<p>因此，在第一次使用Fragment Add的時候 才會需要這樣判斷，當savedInstanceState為null的時候 才進行Add<br>把Fragment加入到Activity中 其餘都採用Replace去做更換。</p>
+<p>如此一來，不僅記憶體回收時可以保持先前的樣子，而我們所想要達到的目的封裝成類別使用也同時成功了。</p>
 <div>
 以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
 
@@ -142,12 +148,6 @@
 <p><a href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
 </div>
 ]]></content>
-      <categories>
-        <category>Android</category>
-      </categories>
-      <tags>
-        <tag>FireBase</tag>
-      </tags>
   </entry>
   <entry>
     <title>Angular Universal 教學-如何將Server Side Render 專案部屬到IIS上</title>
@@ -1064,6 +1064,38 @@ version for package `Microsoft.EntityFrameworkCore.Tools.DotNet` could not be re
       </tags>
   </entry>
   <entry>
+    <title>.NET 如何讓 WebAPI 支援 Session ?</title>
+    <url>/2017/05/09/NET-%E5%A6%82%E4%BD%95%E8%AE%93-WebAPI-%E6%94%AF%E6%8F%B4-Session/</url>
+    <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>如果你有工作上的需求需要在WebAPI當中加入Session的功能</p>
+<p>那麼這一篇也許對你會有幫助。</p>
+<p>最近筆者為了案子而開始撰寫.NET WebApi</p>
+<p>其中有些資訊需要儲存在Session當中。</p>
+<span id="more"></span>
+<p>於是撰寫了以下的Code想要將資訊寫入Session當中：</p>
+<figure class="highlight c#"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> session = System.Web.HttpContext.Current.Session; <span class="comment">//宣告Session</span></span><br><span class="line">session.Add(<span class="string">&quot;Auth&quot;</span>,LoginInfo.Auth); <span class="comment">//將認證資訊放入Session</span></span><br><span class="line"><span class="keyword">var</span> temp = session[<span class="string">&quot;Auth&quot;</span>];</span><br></pre></td></tr></table></figure>
+<p>結果意外發現這段Code居然不能執行。</p>
+<p>原因在於session是一個null，也就是說一開始就找不到Session這個物件了</p>
+<p>自然也就無法使用。</p>
+<p>爬了一些文後發現，WebApi由於是無狀態的，因此無法使用這樣的方式直接儲存</p>
+<p>所以需要在檔案：<code>~/Global.asax</code>，內新增以下程式碼即可支援：</p>
+<figure class="highlight c#"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">Application_PostAuthorizeRequest</span>()</span></span><br><span class="line">&#123;</span><br><span class="line">	System.Web.HttpContext.Current.SetSessionStateBehavior(System.Web.SessionState.SessionStateBehavior.Required);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<div>
+以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
+
+<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
+<p><a href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
+</div>
+]]></content>
+      <categories>
+        <category>.NET</category>
+      </categories>
+      <tags>
+        <tag>WebAPI</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>RxJS 快速入門 教你如何快速理解RxJS用途以及使用方式</title>
     <url>/2017/05/14/RxJS-%E5%BF%AB%E9%80%9F%E5%85%A5%E9%96%80-%E6%95%99%E4%BD%A0%E5%A6%82%E4%BD%95%E5%BF%AB%E9%80%9F%E7%90%86%E8%A7%A3RxJS%E7%94%A8%E9%80%94%E4%BB%A5%E5%8F%8A%E4%BD%BF%E7%94%A8%E6%96%B9%E5%BC%8F/</url>
     <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>前陣子的高雄前端開發者大會，因為有其他工作要忙沒機會過去聽</p>
@@ -1131,38 +1163,6 @@ version for package `Microsoft.EntityFrameworkCore.Tools.DotNet` could not be re
       <categories>
         <category>RxJS</category>
       </categories>
-  </entry>
-  <entry>
-    <title>.NET 如何讓 WebAPI 支援 Session ?</title>
-    <url>/2017/05/09/NET-%E5%A6%82%E4%BD%95%E8%AE%93-WebAPI-%E6%94%AF%E6%8F%B4-Session/</url>
-    <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>如果你有工作上的需求需要在WebAPI當中加入Session的功能</p>
-<p>那麼這一篇也許對你會有幫助。</p>
-<p>最近筆者為了案子而開始撰寫.NET WebApi</p>
-<p>其中有些資訊需要儲存在Session當中。</p>
-<span id="more"></span>
-<p>於是撰寫了以下的Code想要將資訊寫入Session當中：</p>
-<figure class="highlight c#"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> session = System.Web.HttpContext.Current.Session; <span class="comment">//宣告Session</span></span><br><span class="line">session.Add(<span class="string">&quot;Auth&quot;</span>,LoginInfo.Auth); <span class="comment">//將認證資訊放入Session</span></span><br><span class="line"><span class="keyword">var</span> temp = session[<span class="string">&quot;Auth&quot;</span>];</span><br></pre></td></tr></table></figure>
-<p>結果意外發現這段Code居然不能執行。</p>
-<p>原因在於session是一個null，也就是說一開始就找不到Session這個物件了</p>
-<p>自然也就無法使用。</p>
-<p>爬了一些文後發現，WebApi由於是無狀態的，因此無法使用這樣的方式直接儲存</p>
-<p>所以需要在檔案：<code>~/Global.asax</code>，內新增以下程式碼即可支援：</p>
-<figure class="highlight c#"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">Application_PostAuthorizeRequest</span>()</span></span><br><span class="line">&#123;</span><br><span class="line">	System.Web.HttpContext.Current.SetSessionStateBehavior(System.Web.SessionState.SessionStateBehavior.Required);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-<div>
-以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
-
-<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
-<p><a href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
-</div>
-]]></content>
-      <categories>
-        <category>.NET</category>
-      </categories>
-      <tags>
-        <tag>WebAPI</tag>
-      </tags>
   </entry>
   <entry>
     <title>WebAPI- 自定義RequestModel 驗證</title>
