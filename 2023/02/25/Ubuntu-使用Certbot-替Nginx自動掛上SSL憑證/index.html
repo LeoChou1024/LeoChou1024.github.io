@@ -35,26 +35,20 @@
     var NexT = window.NexT || {};
     var CONFIG = {"hostname":"blog.zhenghui.idv.tw","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"slideDownIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
-  <meta name="description" content="前言在 ASP.Net FrameWork 中，我們可以透過 CodeFirst 的方式，自動幫我們建立資料庫中每一個Table，並轉換成Entity，讓我們有Model可以做對應。 但是在 .Net Core 中，可就沒有辦法那麼方便點一點就可以完成了。我們得需要額外安裝其他套件，並透過下指令的方式才能自動幫我們產生。">
+  <meta name="description" content="前言剛好有機會拿到一台新的API Server並將API部署到 Nginx上因此趁著這次操作，順便紀錄一下，如何將Nginx掛上SSL憑證，並透過Certbot每個月自動 renew新的憑證">
 <meta property="og:type" content="article">
-<meta property="og:title" content=".NET Core自動建立Entity">
-<meta property="og:url" content="https://blog.zhenghui.idv.tw/2023/01/24/%E8%87%AA%E5%8B%95%E5%BB%BA%E7%AB%8BEntity/index.html">
+<meta property="og:title" content="Ubuntu 使用Certbot 替Nginx自動掛上SSL憑證">
+<meta property="og:url" content="https://blog.zhenghui.idv.tw/2023/02/25/Ubuntu-%E4%BD%BF%E7%94%A8Certbot-%E6%9B%BFNginx%E8%87%AA%E5%8B%95%E6%8E%9B%E4%B8%8ASSL%E6%86%91%E8%AD%89/index.html">
 <meta property="og:site_name" content="Leo程式筆記">
-<meta property="og:description" content="前言在 ASP.Net FrameWork 中，我們可以透過 CodeFirst 的方式，自動幫我們建立資料庫中每一個Table，並轉換成Entity，讓我們有Model可以做對應。 但是在 .Net Core 中，可就沒有辦法那麼方便點一點就可以完成了。我們得需要額外安裝其他套件，並透過下指令的方式才能自動幫我們產生。">
+<meta property="og:description" content="前言剛好有機會拿到一台新的API Server並將API部署到 Nginx上因此趁著這次操作，順便紀錄一下，如何將Nginx掛上SSL憑證，並透過Certbot每個月自動 renew新的憑證">
 <meta property="og:locale" content="zh_TW">
-<meta property="og:image" content="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/fd6263e3-7315-43ba-b592-a3076b15027a/1597291465.png">
-<meta property="og:image" content="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/fd6263e3-7315-43ba-b592-a3076b15027a/1597291842.png">
-<meta property="og:image" content="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/fd6263e3-7315-43ba-b592-a3076b15027a/1597292040.png">
-<meta property="og:image" content="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/fd6263e3-7315-43ba-b592-a3076b15027a/1597292120.png">
-<meta property="og:image" content="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/fd6263e3-7315-43ba-b592-a3076b15027a/1597292632.png">
-<meta property="article:published_time" content="2023-01-24T03:39:29.000Z">
-<meta property="article:modified_time" content="2023-02-11T03:54:15.845Z">
+<meta property="article:published_time" content="2023-02-24T17:24:44.000Z">
+<meta property="article:modified_time" content="2023-02-24T17:42:43.406Z">
 <meta property="article:author" content="Leo Zhou">
-<meta property="article:tag" content="EntityFrameWork">
+<meta property="article:tag" content="Nginx">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/fd6263e3-7315-43ba-b592-a3076b15027a/1597291465.png">
 
-<link rel="canonical" href="https://blog.zhenghui.idv.tw/2023/01/24/%E8%87%AA%E5%8B%95%E5%BB%BA%E7%AB%8BEntity/">
+<link rel="canonical" href="https://blog.zhenghui.idv.tw/2023/02/25/Ubuntu-%E4%BD%BF%E7%94%A8Certbot-%E6%9B%BFNginx%E8%87%AA%E5%8B%95%E6%8E%9B%E4%B8%8ASSL%E6%86%91%E8%AD%89/">
 
 
 <script id="page-configurations">
@@ -67,7 +61,7 @@
   };
 </script>
 
-  <title>.NET Core自動建立Entity | Leo程式筆記</title>
+  <title>Ubuntu 使用Certbot 替Nginx自動掛上SSL憑證 | Leo程式筆記</title>
   
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-Y5GB5Q2LC5"></script>
     <script>
@@ -218,7 +212,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-TW">
-    <link itemprop="mainEntityOfPage" href="https://blog.zhenghui.idv.tw/2023/01/24/%E8%87%AA%E5%8B%95%E5%BB%BA%E7%AB%8BEntity/">
+    <link itemprop="mainEntityOfPage" href="https://blog.zhenghui.idv.tw/2023/02/25/Ubuntu-%E4%BD%BF%E7%94%A8Certbot-%E6%9B%BFNginx%E8%87%AA%E5%8B%95%E6%8E%9B%E4%B8%8ASSL%E6%86%91%E8%AD%89/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/uploads/avatar.jpg">
@@ -231,7 +225,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          .NET Core自動建立Entity
+          Ubuntu 使用Certbot 替Nginx自動掛上SSL憑證
         </h1>
 
         <div class="post-meta">
@@ -240,23 +234,17 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">發表於</span>
+              
 
-              <time title="創建時間：2023-01-24 11:39:29" itemprop="dateCreated datePublished" datetime="2023-01-24T11:39:29+08:00">2023-01-24</time>
+              <time title="創建時間：2023-02-25 01:24:44 / 修改時間：01:42:43" itemprop="dateCreated datePublished" datetime="2023-02-25T01:24:44+08:00">2023-02-25</time>
             </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新於</span>
-                <time title="修改時間：2023-02-11 11:54:15" itemprop="dateModified" datetime="2023-02-11T11:54:15+08:00">2023-02-11</time>
-              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
               </span>
               <span class="post-meta-item-text">分類於</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/NET/" itemprop="url" rel="index"><span itemprop="name">.NET</span></a>
+                  <a href="/categories/Nginx/" itemprop="url" rel="index"><span itemprop="name">Nginx</span></a>
                 </span>
             </span>
 
@@ -269,8 +257,8 @@
       </span>
       <span class="post-meta-item-text">Disqus：</span>
     
-    <a title="disqus" href="/2023/01/24/%E8%87%AA%E5%8B%95%E5%BB%BA%E7%AB%8BEntity/#disqus_thread" itemprop="discussionUrl">
-      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2023/01/24/自動建立Entity/" itemprop="commentCount"></span>
+    <a title="disqus" href="/2023/02/25/Ubuntu-%E4%BD%BF%E7%94%A8Certbot-%E6%9B%BFNginx%E8%87%AA%E5%8B%95%E6%8E%9B%E4%B8%8ASSL%E6%86%91%E8%AD%89/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2023/02/25/Ubuntu-使用Certbot-替Nginx自動掛上SSL憑證/" itemprop="commentCount"></span>
     </a>
   </span>
   
@@ -280,14 +268,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">文章字數：</span>
-              <span>1k</span>
+              <span>1.8k</span>
             </span>
             <span class="post-meta-item" title="所需閱讀時間">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">所需閱讀時間 &asymp;</span>
-              <span>1 分鐘</span>
+              <span>2 分鐘</span>
             </span>
 
         </div>
@@ -299,37 +287,36 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>在 ASP.Net FrameWork 中，我們可以透過 CodeFirst 的方式，自動幫我們建立資料庫中每一個Table，並轉換成Entity，讓我們有Model可以做對應。</p>
-<p>但是在 .Net Core 中，可就沒有辦法那麼方便點一點就可以完成了。我們得需要額外安裝其他套件，並透過下指令的方式才能自動幫我們產生。</p>
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>剛好有機會拿到一台新的API Server並將API部署到 Nginx上<br>因此趁著這次操作，順便紀錄一下，如何將Nginx掛上SSL憑證，並透過Certbot每個月自動 renew新的憑證</p>
 <span id="more"></span>
 
+<h2 id="安裝Certbot"><a href="#安裝Certbot" class="headerlink" title="安裝Certbot"></a>安裝Certbot</h2><p>首先，我們需要先安裝Cerbot，待會將會透過它幫我們製作SSL憑證。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get update</span><br><span class="line">sudo apt-get install certbot</span><br></pre></td></tr></table></figure>
 
-<p>在過去 .Net FrameWork中，我們可以透過 加入&gt;新增項目&gt;資料 中，找到 ADO.NET 實體資料模型</p>
-<p>透過裡面的CodeFirst可以幫助我們快速將Table內的欄位轉換成Entity的Model作為使用，非常方便。</p>
-<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/fd6263e3-7315-43ba-b592-a3076b15027a/1597291465.png" alt="實體資料模型精靈"></p>
-<p>但在 .Net Core 中，並沒有提供介面可以讓我們進行點選。</p>
-<p>因此我們必須要透過安裝套件，並輸入指令才能將資料庫中的Table產生對應的Enriry作為Model讓我們使用。</p>
-<p>而在輸入指令之前，我們需要先至Nuget中，安裝以下兩個套件。</p>
-<p>分別是：</p>
-<p><strong>「Microsoft.EntityFrameworkCore.SqlServer」、「Microsoft.EntityFrameworkCore.Tools」</strong></p>
-<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/fd6263e3-7315-43ba-b592-a3076b15027a/1597291842.png"></p>
-<p>注意：安裝套件時，請記得兩者套件版本要一致，否則可能會發生問題。</p>
-<p>接著打開　工具＞Nuget套件管理員&gt;套件管理器主控台</p>
-<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/fd6263e3-7315-43ba-b592-a3076b15027a/1597292040.png"></p>
-<p>在主控台Consoel中就可以下指令：<br><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/fd6263e3-7315-43ba-b592-a3076b15027a/1597292120.png"></p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Scaffold-DbContext &quot;資料庫連線字串&quot; Microsoft.EntityFrameworkCore.SqlServer -OutputDir Models -Force -TableName -Tables 資料表</span><br></pre></td></tr></table></figure>
+<h2 id="建立憑證"><a href="#建立憑證" class="headerlink" title="建立憑證"></a>建立憑證</h2><p>接著，透過cerbot幫我們製作一個SSL憑證，這邊記得換上你購買的網域。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">certbot certonly --standalone -d &lt;你的domain name&gt;</span><br></pre></td></tr></table></figure>
 
-<p>Scaffold-DbContext 為剛剛安裝Tools套件的指令，雙引號後面就是放入該資料庫連線字串</p>
-<p>-OutputDir 指定要輸出到專案的哪個資料夾，本文為Models資料夾</p>
-<p>-Force 強制複寫，若Table欄位異動，會自動修改該Entity內的欄位</p>
-<p>-Tables ，決定要將那些資料表轉成Entity。若有多張表要匯入，則需要以逗號區隔。</p>
-<div style="color:red">
-註:沒給-Tables參數的話，預設抓DB全部的Table
-</div>
-匯入成功後，會自動產生 CeptContxt物件。裡面會有Entity的欄位
+<font color="red">
+注意：在第一次建立憑證的時候，cerbot會先佔用你的80 port，因此如果有開啟Nginx記得要先關閉。
+等建立完成後，再進行重啟。
+</font>
 
-<p>而在entity資料夾中，則會存放剛剛從Table轉出來Entity。</p>
-<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/fd6263e3-7315-43ba-b592-a3076b15027a/1597292632.png"></p>
+<p>在安裝完成後，預設會產生兩個檔案：<code>ssl_certificate</code> 與 <code>ssl_certificate_key</code><br>這兩個預設的路徑會被放到：<br>ssl_certificate &#x2F;etc&#x2F;letsencrypt&#x2F;live&#x2F;&lt;你的domain name&gt;&#x2F;fullchain.pem;<br>ssl_certificate_key &#x2F;etc&#x2F;letsencrypt&#x2F;live&#x2F;&lt;你的domain name&gt;&#x2F;privkey.pem;</p>
+<h2 id="在Nginx配置文件中加上SSL："><a href="#在Nginx配置文件中加上SSL：" class="headerlink" title="在Nginx配置文件中加上SSL："></a>在Nginx配置文件中加上SSL：</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">server &#123;</span><br><span class="line">    listen      443 ssl;</span><br><span class="line">    server_name &lt;你的domain name&gt;;</span><br><span class="line"></span><br><span class="line">    ssl_certificate /etc/letsencrypt/live/&lt;你的domain name&gt;/fullchain.pem;</span><br><span class="line">    ssl_certificate_key /etc/letsencrypt/live/&lt;你的domain name&gt;/privkey.pem;</span><br><span class="line"></span><br><span class="line">    location /api &#123;</span><br><span class="line">        proxy_pass         http://localhost:5000;</span><br><span class="line">        proxy_http_version 1.1;</span><br><span class="line">        proxy_set_header   Upgrade $http_upgrade;</span><br><span class="line">        proxy_set_header   Connection keep-alive;</span><br><span class="line">        proxy_set_header   Host $host;</span><br><span class="line">        proxy_cache_bypass $http_upgrade;</span><br><span class="line">        proxy_set_header   X-Forwarded-For $proxy_add_x_forwarded_for;</span><br><span class="line">        proxy_set_header   X-Forwarded-Proto $scheme;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="重啟Nginx"><a href="#重啟Nginx" class="headerlink" title="重啟Nginx"></a>重啟Nginx</h2><p>完成後，記得重啟一下Ngnix確認套用certbot產生的SSL</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">nginx -t </span><br><span class="line">nginx -s reload</span><br></pre></td></tr></table></figure>
+
+<h2 id="設定Crontab每個月重新renew一張新的憑證"><a href="#設定Crontab每個月重新renew一張新的憑證" class="headerlink" title="設定Crontab每個月重新renew一張新的憑證"></a>設定Crontab每個月重新renew一張新的憑證</h2><p>由於Let’s Encrypt 的憑證每三個月就會到期，因此我們需要透過 certbot幫助我們自動renew新的憑證。<br>因此在最後完成後，我們需要設定Crontab，透過linux內建的排程功能，每個月就自動renew一次。</p>
+<p>首先先開啟 crontab的文件，進行編輯：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">crontab -e</span><br></pre></td></tr></table></figure>
+<p>接著我們在最後一行加上以下命令： （這邊我設定每個月的第一天就自動啟動 certbot進行renew）</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">0 0 1 * * certbot renew</span><br></pre></td></tr></table></figure>
+<p>完成後，輸入 <code>Ctrl+O</code> 存檔後<code>Ctrl+X</code>離開即可。</p>
+<font color="red">
+註：如果要確認是否有成功寫入，可以輸入 crontab -l 進行確認。
+</font>
+
 <div>
 以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
 
@@ -345,7 +332,7 @@
 
       <footer class="post-footer">
           <div class="post-tags">
-              <a href="/tags/EntityFrameWork/" rel="tag"># EntityFrameWork</a>
+              <a href="/tags/Nginx/" rel="tag"># Nginx</a>
           </div>
 
         
@@ -354,13 +341,10 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2023/01/24/Controller%E7%9A%84%E5%87%BD%E6%95%B8%E7%84%A1%E6%B3%95%E5%82%B3%E5%85%A5%E5%A4%9A%E5%80%8B%E5%8F%83%E6%95%B8/" rel="prev" title="Controller的函數無法傳入多個參數">
-      <i class="fa fa-chevron-left"></i> Controller的函數無法傳入多個參數
+    <a href="/2023/02/17/%E3%80%90CI-CD%E5%AF%A6%E4%BD%9C%E3%80%91%E5%A6%82%E4%BD%95%E8%87%AA%E8%A8%82Teams-Message-%E4%BB%8B%E9%9D%A2/" rel="prev" title="【CI CD實作】如何自訂Teams Message 介面">
+      <i class="fa fa-chevron-left"></i> 【CI CD實作】如何自訂Teams Message 介面
     </a></div>
-      <div class="post-nav-item">
-    <a href="/2023/01/24/C-Dapper-SQL%E4%B8%AD%E7%9A%84Entity-Framework/" rel="next" title="C# Dapper-SQL中的Entity Framework">
-      C# Dapper-SQL中的Entity Framework <i class="fa fa-chevron-right"></i>
-    </a></div>
+      <div class="post-nav-item"></div>
     </div>
       </footer>
     
@@ -426,7 +410,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%89%E8%A3%9DCertbot"><span class="nav-number">2.</span> <span class="nav-text">安裝Certbot</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BB%BA%E7%AB%8B%E6%86%91%E8%AD%89"><span class="nav-number">3.</span> <span class="nav-text">建立憑證</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9C%A8Nginx%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E4%B8%AD%E5%8A%A0%E4%B8%8ASSL%EF%BC%9A"><span class="nav-number">4.</span> <span class="nav-text">在Nginx配置文件中加上SSL：</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%87%8D%E5%95%9FNginx"><span class="nav-number">5.</span> <span class="nav-text">重啟Nginx</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%A8%AD%E5%AE%9ACrontab%E6%AF%8F%E5%80%8B%E6%9C%88%E9%87%8D%E6%96%B0renew%E4%B8%80%E5%BC%B5%E6%96%B0%E7%9A%84%E6%86%91%E8%AD%89"><span class="nav-number">6.</span> <span class="nav-text">設定Crontab每個月重新renew一張新的憑證</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -583,9 +567,9 @@
 </script>
 <script>
   var disqus_config = function() {
-    this.page.url = "https://blog.zhenghui.idv.tw/2023/01/24/%E8%87%AA%E5%8B%95%E5%BB%BA%E7%AB%8BEntity/";
-    this.page.identifier = "2023/01/24/自動建立Entity/";
-    this.page.title = ".NET Core自動建立Entity";
+    this.page.url = "https://blog.zhenghui.idv.tw/2023/02/25/Ubuntu-%E4%BD%BF%E7%94%A8Certbot-%E6%9B%BFNginx%E8%87%AA%E5%8B%95%E6%8E%9B%E4%B8%8ASSL%E6%86%91%E8%AD%89/";
+    this.page.identifier = "2023/02/25/Ubuntu-使用Certbot-替Nginx自動掛上SSL憑證/";
+    this.page.title = "Ubuntu 使用Certbot 替Nginx自動掛上SSL憑證";
     };
   NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
     if (window.DISQUS) {

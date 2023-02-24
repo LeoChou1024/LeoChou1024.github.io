@@ -1,51 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>Android-FireBase 介紹</title>
-    <url>/2017/01/04/Android-FireBase-%E4%BB%8B%E7%B4%B9/</url>
-    <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>利用google 最新的firebase雲端資料庫技術讓App可以變得更加萬用</p>
-<p>Firebase在2014年的時候被google正式收購，接著由google轉手開發後不斷地精進</p>
-<p>而在Android Studio2.2版當中，google也首次加入的Firebase的功能</p>
-<span id="more"></span>
-<p>Firebase本身採用NoSql的概念，並且資料的產出顯示由json格式來進行顯示</p>
-<p>簡單的說，使用了Firebase後，自己就不需要再額外寫後端程式與資料庫溝通來撈取資料，這部分Google已經幫你處理好了</p>
-<p>而他本身SDK可以幫你處理離線問題（斷線，重連，保留訊息重新發送…） 使用起來簡單，但在設計noSql資料需要比較多功夫</p>
-<p>畢竟資料上的key相較傳統的資料庫有所不同</p>
-<p>當你想要新增一筆資料時，會是像這個樣子：<br><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/c26ac24a-9b34-4dfe-aefd-53873f2d8acf/1483541322_69598.png"><br>藉由名稱來顯示層級，假設要輸入第五筆的資料，在名稱欄中則需寫上：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">5/name</span><br></pre></td></tr></table></figure>
-
-<p>而我們今天要介紹的主要是針對於Android當中，如果想要使用Firebase那該如何去進行調用</p>
-<p>前置Firebse資料庫的設計在這邊筆者就不多攢述了，畢竟官方的教學文寫得相當淺顯易懂</p>
-<p>因此我們直接跳到Android Studio教你如何將在Firebase當中所設計的資料顯示在Android上</p>
-<p>＝＝＝＝＝＝＝＝＝＝＝＝＝＝本文開始＝＝＝＝＝＝＝＝＝＝＝＝＝＝</p>
-<p>Firebase是一個第三方套件，因此在專案開始之前我們需要先進行import</p>
-<p>因此首先請先在Grade當中載入以下套件</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">compile <span class="string">&#x27;com.firebase:firebase-client-android:2.3.1+&#x27;</span></span><br><span class="line"></span><br><span class="line">android &#123;</span><br><span class="line">    ...</span><br><span class="line">    packagingOptions &#123;</span><br><span class="line">        exclude <span class="string">&#x27;META-INF/LICENSE&#x27;</span></span><br><span class="line">        exclude <span class="string">&#x27;META-INF/LICENSE-FIREBASE.txt&#x27;</span></span><br><span class="line">        exclude <span class="string">&#x27;META-INF/NOTICE&#x27;</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>當一切就緒後，我們到一開始的Xml檔案，也就是畫面設計</p>
-<p>先拉一個listview出來</p>
-<p>如下：</p>
-<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=<span class="string">&quot;1.0&quot;</span> encoding=<span class="string">&quot;utf-8&quot;</span>?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">RelativeLayout</span> <span class="attr">xmlns:android</span>=<span class="string">&quot;http://schemas.android.com/apk/res/android&quot;</span></span></span><br><span class="line"><span class="tag">    <span class="attr">xmlns:tools</span>=<span class="string">&quot;http://schemas.android.com/tools&quot;</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:id</span>=<span class="string">&quot;@+id/activity_main&quot;</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:layout_width</span>=<span class="string">&quot;match_parent&quot;</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:layout_height</span>=<span class="string">&quot;match_parent&quot;</span></span></span><br><span class="line"><span class="tag">    <span class="attr">tools:context</span>=<span class="string">&quot;com.example.leo.firebase2.MainActivity&quot;</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">ListView</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:layout_width</span>=<span class="string">&quot;match_parent&quot;</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:layout_height</span>=<span class="string">&quot;match_parent&quot;</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:layout_alignParentTop</span>=<span class="string">&quot;true&quot;</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:id</span>=<span class="string">&quot;@+id/list&quot;</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">RelativeLayout</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<p>接著切換到java檔案</p>
-<p>把剛剛的listview進行初始化後，開始針對Firebase進行資料的撈取</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line">listView = (ListView) findViewById(R.id.list);</span><br><span class="line">adapter = <span class="keyword">new</span> <span class="title class_">ArrayAdapter</span>&lt;String&gt;(<span class="built_in">this</span>,android.R.layout.simple_list_item_1);</span><br><span class="line">listView.setAdapter(adapter);</span><br><span class="line"></span><br><span class="line">Firebase.setAndroidContext(<span class="built_in">this</span>);</span><br><span class="line"><span class="comment">//將Firebase實體化後，把在Firebase官網上的資料庫網址貼上</span></span><br><span class="line"><span class="type">Firebase</span> <span class="variable">firebase</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Firebase</span>(<span class="string">&quot;https://test-25861.firebaseio.com/contacts&quot;</span>);</span><br><span class="line"><span class="comment">//建立監聽事件，當資料庫當中的欄位被增加/刪除/移動等等就會進行觸發</span></span><br><span class="line"><span class="comment">//當資料庫有欄位異動，就會同步刷新listview</span></span><br><span class="line">firebase.addChildEventListener(<span class="keyword">new</span> <span class="title class_">ChildEventListener</span>() &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">onChildAdded</span><span class="params">(DataSnapshot dataSnapshot, String s)</span> &#123;</span><br><span class="line">        adapter.add((String) dataSnapshot.child(<span class="string">&quot;name&quot;</span>).getValue());</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">onChildChanged</span><span class="params">(DataSnapshot dataSnapshot, String s)</span> &#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">onChildRemoved</span><span class="params">(DataSnapshot dataSnapshot)</span> &#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">onChildMoved</span><span class="params">(DataSnapshot dataSnapshot, String s)</span> &#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">onCancelled</span><span class="params">(FirebaseError firebaseError)</span> &#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
-<p>當程式完成後記得要在Manifest 加上連線權限，否則無法正常上網。</p>
-<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">uses-permission</span> <span class="attr">android:name</span>=<span class="string">&quot;android.permission.INTERNET&quot;</span> /&gt;</span></span><br></pre></td></tr></table></figure>
-<p>完成之後就會發現listview上面就會有來自Firebase當中的資料了</p>
-<div>
-以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
-
-<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
-<p><a href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
-</div>
-]]></content>
-      <categories>
-        <category>Android</category>
-      </categories>
-      <tags>
-        <tag>FireBase</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Android- Fragment 切換頁面時會造成頁面重疊</title>
     <url>/2016/09/04/Android-Fragment-%E5%88%87%E6%8F%9B%E9%A0%81%E9%9D%A2%E6%99%82%E6%9C%83%E9%80%A0%E6%88%90%E9%A0%81%E9%9D%A2%E9%87%8D%E7%96%8A/</url>
     <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>上一回我們有說到在針對頁面切換時，會使用replace來進行切換</p>
@@ -150,6 +105,51 @@
 ]]></content>
   </entry>
   <entry>
+    <title>Android-FireBase 介紹</title>
+    <url>/2017/01/04/Android-FireBase-%E4%BB%8B%E7%B4%B9/</url>
+    <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>利用google 最新的firebase雲端資料庫技術讓App可以變得更加萬用</p>
+<p>Firebase在2014年的時候被google正式收購，接著由google轉手開發後不斷地精進</p>
+<p>而在Android Studio2.2版當中，google也首次加入的Firebase的功能</p>
+<span id="more"></span>
+<p>Firebase本身採用NoSql的概念，並且資料的產出顯示由json格式來進行顯示</p>
+<p>簡單的說，使用了Firebase後，自己就不需要再額外寫後端程式與資料庫溝通來撈取資料，這部分Google已經幫你處理好了</p>
+<p>而他本身SDK可以幫你處理離線問題（斷線，重連，保留訊息重新發送…） 使用起來簡單，但在設計noSql資料需要比較多功夫</p>
+<p>畢竟資料上的key相較傳統的資料庫有所不同</p>
+<p>當你想要新增一筆資料時，會是像這個樣子：<br><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/c26ac24a-9b34-4dfe-aefd-53873f2d8acf/1483541322_69598.png"><br>藉由名稱來顯示層級，假設要輸入第五筆的資料，在名稱欄中則需寫上：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">5/name</span><br></pre></td></tr></table></figure>
+
+<p>而我們今天要介紹的主要是針對於Android當中，如果想要使用Firebase那該如何去進行調用</p>
+<p>前置Firebse資料庫的設計在這邊筆者就不多攢述了，畢竟官方的教學文寫得相當淺顯易懂</p>
+<p>因此我們直接跳到Android Studio教你如何將在Firebase當中所設計的資料顯示在Android上</p>
+<p>＝＝＝＝＝＝＝＝＝＝＝＝＝＝本文開始＝＝＝＝＝＝＝＝＝＝＝＝＝＝</p>
+<p>Firebase是一個第三方套件，因此在專案開始之前我們需要先進行import</p>
+<p>因此首先請先在Grade當中載入以下套件</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">compile <span class="string">&#x27;com.firebase:firebase-client-android:2.3.1+&#x27;</span></span><br><span class="line"></span><br><span class="line">android &#123;</span><br><span class="line">    ...</span><br><span class="line">    packagingOptions &#123;</span><br><span class="line">        exclude <span class="string">&#x27;META-INF/LICENSE&#x27;</span></span><br><span class="line">        exclude <span class="string">&#x27;META-INF/LICENSE-FIREBASE.txt&#x27;</span></span><br><span class="line">        exclude <span class="string">&#x27;META-INF/NOTICE&#x27;</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>當一切就緒後，我們到一開始的Xml檔案，也就是畫面設計</p>
+<p>先拉一個listview出來</p>
+<p>如下：</p>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=<span class="string">&quot;1.0&quot;</span> encoding=<span class="string">&quot;utf-8&quot;</span>?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">RelativeLayout</span> <span class="attr">xmlns:android</span>=<span class="string">&quot;http://schemas.android.com/apk/res/android&quot;</span></span></span><br><span class="line"><span class="tag">    <span class="attr">xmlns:tools</span>=<span class="string">&quot;http://schemas.android.com/tools&quot;</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:id</span>=<span class="string">&quot;@+id/activity_main&quot;</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:layout_width</span>=<span class="string">&quot;match_parent&quot;</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:layout_height</span>=<span class="string">&quot;match_parent&quot;</span></span></span><br><span class="line"><span class="tag">    <span class="attr">tools:context</span>=<span class="string">&quot;com.example.leo.firebase2.MainActivity&quot;</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">ListView</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:layout_width</span>=<span class="string">&quot;match_parent&quot;</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:layout_height</span>=<span class="string">&quot;match_parent&quot;</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:layout_alignParentTop</span>=<span class="string">&quot;true&quot;</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:id</span>=<span class="string">&quot;@+id/list&quot;</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">RelativeLayout</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>接著切換到java檔案</p>
+<p>把剛剛的listview進行初始化後，開始針對Firebase進行資料的撈取</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line">listView = (ListView) findViewById(R.id.list);</span><br><span class="line">adapter = <span class="keyword">new</span> <span class="title class_">ArrayAdapter</span>&lt;String&gt;(<span class="built_in">this</span>,android.R.layout.simple_list_item_1);</span><br><span class="line">listView.setAdapter(adapter);</span><br><span class="line"></span><br><span class="line">Firebase.setAndroidContext(<span class="built_in">this</span>);</span><br><span class="line"><span class="comment">//將Firebase實體化後，把在Firebase官網上的資料庫網址貼上</span></span><br><span class="line"><span class="type">Firebase</span> <span class="variable">firebase</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Firebase</span>(<span class="string">&quot;https://test-25861.firebaseio.com/contacts&quot;</span>);</span><br><span class="line"><span class="comment">//建立監聽事件，當資料庫當中的欄位被增加/刪除/移動等等就會進行觸發</span></span><br><span class="line"><span class="comment">//當資料庫有欄位異動，就會同步刷新listview</span></span><br><span class="line">firebase.addChildEventListener(<span class="keyword">new</span> <span class="title class_">ChildEventListener</span>() &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">onChildAdded</span><span class="params">(DataSnapshot dataSnapshot, String s)</span> &#123;</span><br><span class="line">        adapter.add((String) dataSnapshot.child(<span class="string">&quot;name&quot;</span>).getValue());</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">onChildChanged</span><span class="params">(DataSnapshot dataSnapshot, String s)</span> &#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">onChildRemoved</span><span class="params">(DataSnapshot dataSnapshot)</span> &#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">onChildMoved</span><span class="params">(DataSnapshot dataSnapshot, String s)</span> &#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">onCancelled</span><span class="params">(FirebaseError firebaseError)</span> &#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>當程式完成後記得要在Manifest 加上連線權限，否則無法正常上網。</p>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">uses-permission</span> <span class="attr">android:name</span>=<span class="string">&quot;android.permission.INTERNET&quot;</span> /&gt;</span></span><br></pre></td></tr></table></figure>
+<p>完成之後就會發現listview上面就會有來自Firebase當中的資料了</p>
+<div>
+以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
+
+<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
+<p><a href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
+</div>
+]]></content>
+      <categories>
+        <category>Android</category>
+      </categories>
+      <tags>
+        <tag>FireBase</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Angular Universal 教學-如何將Server Side Render 專案部屬到IIS上</title>
     <url>/2020/07/24/Angular-Universal%E6%95%99%E5%AD%B8-%E5%A6%82%E4%BD%95%E5%B0%87Server-Side-Render-%E5%B0%88%E6%A1%88%E9%83%A8%E5%B1%AC%E5%88%B0IIS%E4%B8%8A/</url>
     <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>翻遍了各大國外網站，StakeOverFlow也每一篇仔細看過。</p>
@@ -234,6 +234,32 @@
       </tags>
   </entry>
   <entry>
+    <title>Angular 實作檔案下載(瀏覽器自動下載)</title>
+    <url>/2020/07/27/Angular-%E5%AF%A6%E4%BD%9C%E6%AA%94%E6%A1%88%E4%B8%8B%E8%BC%89-%E7%80%8F%E8%A6%BD%E5%99%A8%E8%87%AA%E5%8B%95%E4%B8%8B%E8%BC%89/</url>
+    <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>正常情況下，我們使用Angular發送Request取得API資料時，常見的情境都是取得json的格式。</p>
+<p>因此HttpClient，預設會將response的內容自動轉換為json格式。</p>
+<p>那，要如何實作檔案下載呢?</p>
+<span id="more"></span>
+<p>需利用Angular的HttpClient透過瀏覽器下載檔案，首先我們需要先指定回傳的型別(responseType)為blob(二進位格式)<br><font color="red"><br>註: 此步驟一定要做，因為HttpClient預設會將回傳格式設定為json格式，因此我們需要指定為blob格式才能下載。<br></font></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">let opton =  &#123; responseType: &#x27;blob&#x27; as &#x27;json&#x27; &#125;</span><br></pre></td></tr></table></figure>
+<p>接著將response的內容轉換為blob格式，並透過 <a> 的href屬性，來自動下載。</a></p>
+<p>完整程式碼如下:</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">// http.post 有以下三個參數需要給予(apiPath,body,option):</span><br><span class="line">// apiPath 為後端API路徑</span><br><span class="line">// body 為透過POST方式傳遞給後端API的參數(object)</span><br><span class="line">// option為發送request時所需要的額外設定(例如該範例為，將response的型態設定為blob格式。)</span><br><span class="line"></span><br><span class="line">this.http.post&lt;any&gt;(&#x27;your API path&#x27;, body, &#123; responseType: &#x27;blob&#x27; as &#x27;json&#x27; &#125;).subscribe(x =&gt; &#123;</span><br><span class="line">      </span><br><span class="line">this.blob = new Blob([x], &#123; type: &#x27;application/docx&#x27; &#125;); // application後面接下載的副檔名</span><br><span class="line"></span><br><span class="line">      let downloadURL = window.URL.createObjectURL(this.blob);</span><br><span class="line">      let link = document.createElement(&#x27;a&#x27;);</span><br><span class="line">      link.href = downloadURL;</span><br><span class="line">      link.download = &quot;template.docx&quot;; //瀏覽器下載時的檔案名稱</span><br><span class="line">      link.click();</span><br><span class="line">    &#125;);</span><br></pre></td></tr></table></figure>
+<div>
+以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
+
+<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
+<p><a href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
+</div>
+]]></content>
+      <categories>
+        <category>Angular</category>
+      </categories>
+      <tags>
+        <tag>Angular</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Angular Universal教學-將現有專案導入Server Side Render</title>
     <url>/2020/07/24/Angular-Universal%E6%95%99%E5%AD%B8-%E5%B0%87%E7%8F%BE%E6%9C%89%E5%B0%88%E6%A1%88%E5%B0%8E%E5%85%A5Server-Side-Render/</url>
     <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>找了各式各樣的文章，一直沒有看到完整關於Angular Univeral的詳細步驟教學</p>
@@ -299,32 +325,6 @@
       </categories>
       <tags>
         <tag>Angular Universal</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Angular 實作檔案下載(瀏覽器自動下載)</title>
-    <url>/2020/07/27/Angular-%E5%AF%A6%E4%BD%9C%E6%AA%94%E6%A1%88%E4%B8%8B%E8%BC%89-%E7%80%8F%E8%A6%BD%E5%99%A8%E8%87%AA%E5%8B%95%E4%B8%8B%E8%BC%89/</url>
-    <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>正常情況下，我們使用Angular發送Request取得API資料時，常見的情境都是取得json的格式。</p>
-<p>因此HttpClient，預設會將response的內容自動轉換為json格式。</p>
-<p>那，要如何實作檔案下載呢?</p>
-<span id="more"></span>
-<p>需利用Angular的HttpClient透過瀏覽器下載檔案，首先我們需要先指定回傳的型別(responseType)為blob(二進位格式)<br><font color="red"><br>註: 此步驟一定要做，因為HttpClient預設會將回傳格式設定為json格式，因此我們需要指定為blob格式才能下載。<br></font></p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">let opton =  &#123; responseType: &#x27;blob&#x27; as &#x27;json&#x27; &#125;</span><br></pre></td></tr></table></figure>
-<p>接著將response的內容轉換為blob格式，並透過 <a> 的href屬性，來自動下載。</a></p>
-<p>完整程式碼如下:</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">// http.post 有以下三個參數需要給予(apiPath,body,option):</span><br><span class="line">// apiPath 為後端API路徑</span><br><span class="line">// body 為透過POST方式傳遞給後端API的參數(object)</span><br><span class="line">// option為發送request時所需要的額外設定(例如該範例為，將response的型態設定為blob格式。)</span><br><span class="line"></span><br><span class="line">this.http.post&lt;any&gt;(&#x27;your API path&#x27;, body, &#123; responseType: &#x27;blob&#x27; as &#x27;json&#x27; &#125;).subscribe(x =&gt; &#123;</span><br><span class="line">      </span><br><span class="line">this.blob = new Blob([x], &#123; type: &#x27;application/docx&#x27; &#125;); // application後面接下載的副檔名</span><br><span class="line"></span><br><span class="line">      let downloadURL = window.URL.createObjectURL(this.blob);</span><br><span class="line">      let link = document.createElement(&#x27;a&#x27;);</span><br><span class="line">      link.href = downloadURL;</span><br><span class="line">      link.download = &quot;template.docx&quot;; //瀏覽器下載時的檔案名稱</span><br><span class="line">      link.click();</span><br><span class="line">    &#125;);</span><br></pre></td></tr></table></figure>
-<div>
-以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
-
-<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
-<p><a href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
-</div>
-]]></content>
-      <categories>
-        <category>Angular</category>
-      </categories>
-      <tags>
-        <tag>Angular</tag>
       </tags>
   </entry>
   <entry>
@@ -1064,38 +1064,6 @@ version for package `Microsoft.EntityFrameworkCore.Tools.DotNet` could not be re
       </tags>
   </entry>
   <entry>
-    <title>.NET 如何讓 WebAPI 支援 Session ?</title>
-    <url>/2017/05/09/NET-%E5%A6%82%E4%BD%95%E8%AE%93-WebAPI-%E6%94%AF%E6%8F%B4-Session/</url>
-    <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>如果你有工作上的需求需要在WebAPI當中加入Session的功能</p>
-<p>那麼這一篇也許對你會有幫助。</p>
-<p>最近筆者為了案子而開始撰寫.NET WebApi</p>
-<p>其中有些資訊需要儲存在Session當中。</p>
-<span id="more"></span>
-<p>於是撰寫了以下的Code想要將資訊寫入Session當中：</p>
-<figure class="highlight c#"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> session = System.Web.HttpContext.Current.Session; <span class="comment">//宣告Session</span></span><br><span class="line">session.Add(<span class="string">&quot;Auth&quot;</span>,LoginInfo.Auth); <span class="comment">//將認證資訊放入Session</span></span><br><span class="line"><span class="keyword">var</span> temp = session[<span class="string">&quot;Auth&quot;</span>];</span><br></pre></td></tr></table></figure>
-<p>結果意外發現這段Code居然不能執行。</p>
-<p>原因在於session是一個null，也就是說一開始就找不到Session這個物件了</p>
-<p>自然也就無法使用。</p>
-<p>爬了一些文後發現，WebApi由於是無狀態的，因此無法使用這樣的方式直接儲存</p>
-<p>所以需要在檔案：<code>~/Global.asax</code>，內新增以下程式碼即可支援：</p>
-<figure class="highlight c#"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">Application_PostAuthorizeRequest</span>()</span></span><br><span class="line">&#123;</span><br><span class="line">	System.Web.HttpContext.Current.SetSessionStateBehavior(System.Web.SessionState.SessionStateBehavior.Required);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-<div>
-以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
-
-<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
-<p><a href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
-</div>
-]]></content>
-      <categories>
-        <category>.NET</category>
-      </categories>
-      <tags>
-        <tag>WebAPI</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>RxJS 快速入門 教你如何快速理解RxJS用途以及使用方式</title>
     <url>/2017/05/14/RxJS-%E5%BF%AB%E9%80%9F%E5%85%A5%E9%96%80-%E6%95%99%E4%BD%A0%E5%A6%82%E4%BD%95%E5%BF%AB%E9%80%9F%E7%90%86%E8%A7%A3RxJS%E7%94%A8%E9%80%94%E4%BB%A5%E5%8F%8A%E4%BD%BF%E7%94%A8%E6%96%B9%E5%BC%8F/</url>
     <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>前陣子的高雄前端開發者大會，因為有其他工作要忙沒機會過去聽</p>
@@ -1163,6 +1131,38 @@ version for package `Microsoft.EntityFrameworkCore.Tools.DotNet` could not be re
       <categories>
         <category>RxJS</category>
       </categories>
+  </entry>
+  <entry>
+    <title>.NET 如何讓 WebAPI 支援 Session ?</title>
+    <url>/2017/05/09/NET-%E5%A6%82%E4%BD%95%E8%AE%93-WebAPI-%E6%94%AF%E6%8F%B4-Session/</url>
+    <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>如果你有工作上的需求需要在WebAPI當中加入Session的功能</p>
+<p>那麼這一篇也許對你會有幫助。</p>
+<p>最近筆者為了案子而開始撰寫.NET WebApi</p>
+<p>其中有些資訊需要儲存在Session當中。</p>
+<span id="more"></span>
+<p>於是撰寫了以下的Code想要將資訊寫入Session當中：</p>
+<figure class="highlight c#"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> session = System.Web.HttpContext.Current.Session; <span class="comment">//宣告Session</span></span><br><span class="line">session.Add(<span class="string">&quot;Auth&quot;</span>,LoginInfo.Auth); <span class="comment">//將認證資訊放入Session</span></span><br><span class="line"><span class="keyword">var</span> temp = session[<span class="string">&quot;Auth&quot;</span>];</span><br></pre></td></tr></table></figure>
+<p>結果意外發現這段Code居然不能執行。</p>
+<p>原因在於session是一個null，也就是說一開始就找不到Session這個物件了</p>
+<p>自然也就無法使用。</p>
+<p>爬了一些文後發現，WebApi由於是無狀態的，因此無法使用這樣的方式直接儲存</p>
+<p>所以需要在檔案：<code>~/Global.asax</code>，內新增以下程式碼即可支援：</p>
+<figure class="highlight c#"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">Application_PostAuthorizeRequest</span>()</span></span><br><span class="line">&#123;</span><br><span class="line">	System.Web.HttpContext.Current.SetSessionStateBehavior(System.Web.SessionState.SessionStateBehavior.Required);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<div>
+以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
+
+<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
+<p><a href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
+</div>
+]]></content>
+      <categories>
+        <category>.NET</category>
+      </categories>
+      <tags>
+        <tag>WebAPI</tag>
+      </tags>
   </entry>
   <entry>
     <title>WebAPI- 自定義RequestModel 驗證</title>
@@ -1670,36 +1670,6 @@ version for package `Microsoft.EntityFrameworkCore.Tools.DotNet` could not be re
       </tags>
   </entry>
   <entry>
-    <title>【CI CD實作】允許Jenkins有sudo權限(三)</title>
-    <url>/2023/02/10/%E5%85%81%E8%A8%B1Jenkins%E6%9C%89sudo%E6%AC%8A%E9%99%90/</url>
-    <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>由於我們要利用Jenkins來實作CI&#x2F;CD，因此部署上的操作上往往免不了會需要sudo的權限讓我們能做一些事情，如：建立資料夾、刪除資料夾、搬遷檔案等各種操作。</p>
-<p>因此本篇主要介紹如何允許Jenkins有sudo權限</p>
-<p>下面來描述在CentOS7上配置的具體步驟。</p>
-<span id="more"></span>
-
-<h3 id="配置步驟"><a href="#配置步驟" class="headerlink" title="配置步驟"></a>配置步驟</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">讓root 有權限可以編輯sudoers權限</span><br><span class="line">chmod 600 /etc/sudoers </span><br><span class="line">運行 vim /etc/sudoers 來修改該文件，允許root組下的用戶不需要密碼運行任何命令：</span><br><span class="line">## Same thing without a password</span><br><span class="line">%root        ALL=(ALL)       NOPASSWD: ALL</span><br><span class="line">在Defaults requiretty 後面添加一行Defaults:jenkins !requiretty</span><br></pre></td></tr></table></figure>
-
-<p>接著將jenkins帳號加入到root的Group中：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">usermod -a -G root jenkins</span><br></pre></td></tr></table></figure>
-
-<p>重啟Jenkins</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">systemctl restart jenkins</span><br></pre></td></tr></table></figure>
-
-<div>
-以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
-
-<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
-<p><a href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
-</div>
-]]></content>
-      <categories>
-        <category>Jenkins</category>
-      </categories>
-      <tags>
-        <tag>CI/CD</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>【CI CD實作】在 .NET 透過nuget.config 自訂NuGet 套件來源（番外篇）</title>
     <url>/2023/02/11/%E5%9C%A8-NET-%E9%80%8F%E9%81%8Enuget-config-%E8%87%AA%E8%A8%82NuGet-%E5%A5%97%E4%BB%B6%E4%BE%86%E6%BA%90/</url>
     <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>通常我們在開發.NET專案時，若因為專案中有使用到公司內部的Library時，通常都會架設Private Nuget Server來進行套件添加。<br>而一般來說添加套件來源的方式大多都是在 Nuget管理員的介面中選擇添加的目錄夾或是Url來操作。<br>但這樣的方式如果實現CI&#x2F;CD時，則會遇到找不到套件來源的問題，原因是Jenkins是直接將Github上的專案Clone下來進行建置與部署。<br>但我們設定套件來源的時機則是在專案Clone後手動開啟Nuget管理員添加的。<br>因此本篇主要會教學如何透過幾種方式讓Jenkins能夠讀的到自訂的Nuget套件來源。</p>
@@ -1766,25 +1736,21 @@ version for package `Microsoft.EntityFrameworkCore.Tools.DotNet` could not be re
       </tags>
   </entry>
   <entry>
-    <title>如何透過Postman傳遞Array參數</title>
-    <url>/2017/12/24/%E5%A6%82%E4%BD%95%E9%80%8F%E9%81%8EPostman%E5%82%B3%E9%81%9EArray%E5%8F%83%E6%95%B8/</url>
-    <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>Postman一直以來都是廣為人知開發輔助工具</p>
-<p>很多時候當我們已經開發完API的時候，想測試自己寫的程式是否沒問題</p>
-<p>但是卻因為前端的介面還沒有完成，而導致無法進行測試。</p>
-<p>這時候一般大部分的工程師會採用Postman的工具來進行測試</p>
-<p>今天來介紹一下，如何在Postman當中，傳遞Array</p>
+    <title>【CI CD實作】允許Jenkins有sudo權限(三)</title>
+    <url>/2023/02/10/%E5%85%81%E8%A8%B1Jenkins%E6%9C%89sudo%E6%AC%8A%E9%99%90/</url>
+    <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>由於我們要利用Jenkins來實作CI&#x2F;CD，因此部署上的操作上往往免不了會需要sudo的權限讓我們能做一些事情，如：建立資料夾、刪除資料夾、搬遷檔案等各種操作。</p>
+<p>因此本篇主要介紹如何允許Jenkins有sudo權限</p>
+<p>下面來描述在CentOS7上配置的具體步驟。</p>
 <span id="more"></span>
 
-<p>在最新的版本當中，Postman傳遞Array的方法，已經改為利用[]的方式進行傳遞</p>
-<p>方法其實很簡單：</p>
-<p>假設我有一個data陣列想要進行傳送</p>
-<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/a5fd7cee-1c87-44bd-a4c6-3e2eda43f573/1514081767_28554.png"></p>
-<p>只需要進行這樣的撰寫方式，Postman就會自動幫你把這幾個參數視為是陣列，在PHP當中，只需要這樣就可以接的到值了。<br><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/a5fd7cee-1c87-44bd-a4c6-3e2eda43f573/1514081858_37187.png"></p>
-<p>另外，假設我們是WebApi的話，方法也是一樣的：</p>
-<p>首先在我們的Request Model當中，定義一個Array的欄位</p>
-<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/a5fd7cee-1c87-44bd-a4c6-3e2eda43f573/1514081936_38664.png"></p>
-<p>接著一樣在我們的Postman當中，給定我們的值，只要欄位名稱相同，後面用[]來接，就可以當成陣列傳送到後端API</p>
-<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/a5fd7cee-1c87-44bd-a4c6-3e2eda43f573/1514082470_9356.png"></p>
+<h3 id="配置步驟"><a href="#配置步驟" class="headerlink" title="配置步驟"></a>配置步驟</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">讓root 有權限可以編輯sudoers權限</span><br><span class="line">chmod 600 /etc/sudoers </span><br><span class="line">運行 vim /etc/sudoers 來修改該文件，允許root組下的用戶不需要密碼運行任何命令：</span><br><span class="line">## Same thing without a password</span><br><span class="line">%root        ALL=(ALL)       NOPASSWD: ALL</span><br><span class="line">在Defaults requiretty 後面添加一行Defaults:jenkins !requiretty</span><br></pre></td></tr></table></figure>
+
+<p>接著將jenkins帳號加入到root的Group中：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">usermod -a -G root jenkins</span><br></pre></td></tr></table></figure>
+
+<p>重啟Jenkins</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">systemctl restart jenkins</span><br></pre></td></tr></table></figure>
+
 <div>
 以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
 
@@ -1793,8 +1759,11 @@ version for package `Microsoft.EntityFrameworkCore.Tools.DotNet` could not be re
 </div>
 ]]></content>
       <categories>
-        <category>Postman</category>
+        <category>Jenkins</category>
       </categories>
+      <tags>
+        <tag>CI/CD</tag>
+      </tags>
   </entry>
   <entry>
     <title>【CI CD實作】安裝Jenkins(一)</title>
@@ -1843,6 +1812,37 @@ version for package `Microsoft.EntityFrameworkCore.Tools.DotNet` could not be re
       <tags>
         <tag>CI/CD</tag>
       </tags>
+  </entry>
+  <entry>
+    <title>如何透過Postman傳遞Array參數</title>
+    <url>/2017/12/24/%E5%A6%82%E4%BD%95%E9%80%8F%E9%81%8EPostman%E5%82%B3%E9%81%9EArray%E5%8F%83%E6%95%B8/</url>
+    <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>Postman一直以來都是廣為人知開發輔助工具</p>
+<p>很多時候當我們已經開發完API的時候，想測試自己寫的程式是否沒問題</p>
+<p>但是卻因為前端的介面還沒有完成，而導致無法進行測試。</p>
+<p>這時候一般大部分的工程師會採用Postman的工具來進行測試</p>
+<p>今天來介紹一下，如何在Postman當中，傳遞Array</p>
+<span id="more"></span>
+
+<p>在最新的版本當中，Postman傳遞Array的方法，已經改為利用[]的方式進行傳遞</p>
+<p>方法其實很簡單：</p>
+<p>假設我有一個data陣列想要進行傳送</p>
+<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/a5fd7cee-1c87-44bd-a4c6-3e2eda43f573/1514081767_28554.png"></p>
+<p>只需要進行這樣的撰寫方式，Postman就會自動幫你把這幾個參數視為是陣列，在PHP當中，只需要這樣就可以接的到值了。<br><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/a5fd7cee-1c87-44bd-a4c6-3e2eda43f573/1514081858_37187.png"></p>
+<p>另外，假設我們是WebApi的話，方法也是一樣的：</p>
+<p>首先在我們的Request Model當中，定義一個Array的欄位</p>
+<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/a5fd7cee-1c87-44bd-a4c6-3e2eda43f573/1514081936_38664.png"></p>
+<p>接著一樣在我們的Postman當中，給定我們的值，只要欄位名稱相同，後面用[]來接，就可以當成陣列傳送到後端API</p>
+<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/a5fd7cee-1c87-44bd-a4c6-3e2eda43f573/1514082470_9356.png"></p>
+<div>
+以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
+
+<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
+<p><a href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
+</div>
+]]></content>
+      <categories>
+        <category>Postman</category>
+      </categories>
   </entry>
   <entry>
     <title>從 CSS 到 SASS (SCSS) 超入門觀念引導</title>
@@ -2553,6 +2553,53 @@ version for package `Microsoft.EntityFrameworkCore.Tools.DotNet` could not be re
       </categories>
       <tags>
         <tag>電子發票開立</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Ubuntu 使用Certbot 替Nginx自動掛上SSL憑證</title>
+    <url>/2023/02/25/Ubuntu-%E4%BD%BF%E7%94%A8Certbot-%E6%9B%BFNginx%E8%87%AA%E5%8B%95%E6%8E%9B%E4%B8%8ASSL%E6%86%91%E8%AD%89/</url>
+    <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>剛好有機會拿到一台新的API Server並將API部署到 Nginx上<br>因此趁著這次操作，順便紀錄一下，如何將Nginx掛上SSL憑證，並透過Certbot每個月自動 renew新的憑證</p>
+<span id="more"></span>
+
+<h2 id="安裝Certbot"><a href="#安裝Certbot" class="headerlink" title="安裝Certbot"></a>安裝Certbot</h2><p>首先，我們需要先安裝Cerbot，待會將會透過它幫我們製作SSL憑證。</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">sudo apt-get update</span><br><span class="line">sudo apt-get install certbot</span><br></pre></td></tr></table></figure>
+
+<h2 id="建立憑證"><a href="#建立憑證" class="headerlink" title="建立憑證"></a>建立憑證</h2><p>接著，透過cerbot幫我們製作一個SSL憑證，這邊記得換上你購買的網域。</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">certbot certonly --standalone -d &lt;你的domain name&gt;</span><br></pre></td></tr></table></figure>
+
+<font color="red">
+注意：在第一次建立憑證的時候，cerbot會先佔用你的80 port，因此如果有開啟Nginx記得要先關閉。
+等建立完成後，再進行重啟。
+</font>
+
+<p>在安裝完成後，預設會產生兩個檔案：<code>ssl_certificate</code> 與 <code>ssl_certificate_key</code><br>這兩個預設的路徑會被放到：<br>ssl_certificate &#x2F;etc&#x2F;letsencrypt&#x2F;live&#x2F;&lt;你的domain name&gt;&#x2F;fullchain.pem;<br>ssl_certificate_key &#x2F;etc&#x2F;letsencrypt&#x2F;live&#x2F;&lt;你的domain name&gt;&#x2F;privkey.pem;</p>
+<h2 id="在Nginx配置文件中加上SSL："><a href="#在Nginx配置文件中加上SSL：" class="headerlink" title="在Nginx配置文件中加上SSL："></a>在Nginx配置文件中加上SSL：</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">server &#123;</span><br><span class="line">    listen      443 ssl;</span><br><span class="line">    server_name &lt;你的domain name&gt;;</span><br><span class="line"></span><br><span class="line">    ssl_certificate /etc/letsencrypt/live/&lt;你的domain name&gt;/fullchain.pem;</span><br><span class="line">    ssl_certificate_key /etc/letsencrypt/live/&lt;你的domain name&gt;/privkey.pem;</span><br><span class="line"></span><br><span class="line">    location /api &#123;</span><br><span class="line">        proxy_pass         http://localhost:5000;</span><br><span class="line">        proxy_http_version 1.1;</span><br><span class="line">        proxy_set_header   Upgrade $http_upgrade;</span><br><span class="line">        proxy_set_header   Connection keep-alive;</span><br><span class="line">        proxy_set_header   Host $host;</span><br><span class="line">        proxy_cache_bypass $http_upgrade;</span><br><span class="line">        proxy_set_header   X-Forwarded-For $proxy_add_x_forwarded_for;</span><br><span class="line">        proxy_set_header   X-Forwarded-Proto $scheme;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="重啟Nginx"><a href="#重啟Nginx" class="headerlink" title="重啟Nginx"></a>重啟Nginx</h2><p>完成後，記得重啟一下Ngnix確認套用certbot產生的SSL</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">nginx -t </span><br><span class="line">nginx -s reload</span><br></pre></td></tr></table></figure>
+
+<h2 id="設定Crontab每個月重新renew一張新的憑證"><a href="#設定Crontab每個月重新renew一張新的憑證" class="headerlink" title="設定Crontab每個月重新renew一張新的憑證"></a>設定Crontab每個月重新renew一張新的憑證</h2><p>由於Let’s Encrypt 的憑證每三個月就會到期，因此我們需要透過 certbot幫助我們自動renew新的憑證。<br>因此在最後完成後，我們需要設定Crontab，透過linux內建的排程功能，每個月就自動renew一次。</p>
+<p>首先先開啟 crontab的文件，進行編輯：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">crontab -e</span><br></pre></td></tr></table></figure>
+<p>接著我們在最後一行加上以下命令： （這邊我設定每個月的第一天就自動啟動 certbot進行renew）</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">0 0 1 * * certbot renew</span><br></pre></td></tr></table></figure>
+<p>完成後，輸入 <code>Ctrl+O</code> 存檔後<code>Ctrl+X</code>離開即可。</p>
+<font color="red">
+註：如果要確認是否有成功寫入，可以輸入 crontab -l 進行確認。
+</font>
+
+<div>
+以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
+
+<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
+<p><a href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
+</div>
+]]></content>
+      <categories>
+        <category>Nginx</category>
+      </categories>
+      <tags>
+        <tag>Nginx</tag>
       </tags>
   </entry>
 </search>

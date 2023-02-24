@@ -35,26 +35,16 @@
     var NexT = window.NexT || {};
     var CONFIG = {"hostname":"blog.zhenghui.idv.tw","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"slideDownIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
-  <meta name="description" content="前言在 ASP.Net FrameWork 中，我們可以透過 CodeFirst 的方式，自動幫我們建立資料庫中每一個Table，並轉換成Entity，讓我們有Model可以做對應。 但是在 .Net Core 中，可就沒有辦法那麼方便點一點就可以完成了。我們得需要額外安裝其他套件，並透過下指令的方式才能自動幫我們產生。">
-<meta property="og:type" content="article">
-<meta property="og:title" content=".NET Core自動建立Entity">
-<meta property="og:url" content="https://blog.zhenghui.idv.tw/2023/01/24/%E8%87%AA%E5%8B%95%E5%BB%BA%E7%AB%8BEntity/index.html">
+  <meta property="og:type" content="website">
+<meta property="og:title" content="Leo程式筆記">
+<meta property="og:url" content="https://blog.zhenghui.idv.tw/tags/Nginx/index.html">
 <meta property="og:site_name" content="Leo程式筆記">
-<meta property="og:description" content="前言在 ASP.Net FrameWork 中，我們可以透過 CodeFirst 的方式，自動幫我們建立資料庫中每一個Table，並轉換成Entity，讓我們有Model可以做對應。 但是在 .Net Core 中，可就沒有辦法那麼方便點一點就可以完成了。我們得需要額外安裝其他套件，並透過下指令的方式才能自動幫我們產生。">
 <meta property="og:locale" content="zh_TW">
-<meta property="og:image" content="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/fd6263e3-7315-43ba-b592-a3076b15027a/1597291465.png">
-<meta property="og:image" content="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/fd6263e3-7315-43ba-b592-a3076b15027a/1597291842.png">
-<meta property="og:image" content="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/fd6263e3-7315-43ba-b592-a3076b15027a/1597292040.png">
-<meta property="og:image" content="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/fd6263e3-7315-43ba-b592-a3076b15027a/1597292120.png">
-<meta property="og:image" content="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/fd6263e3-7315-43ba-b592-a3076b15027a/1597292632.png">
-<meta property="article:published_time" content="2023-01-24T03:39:29.000Z">
-<meta property="article:modified_time" content="2023-02-11T03:54:15.845Z">
 <meta property="article:author" content="Leo Zhou">
-<meta property="article:tag" content="EntityFrameWork">
+<meta property="article:tag" content="Angular,.NET,C#,後端,WebApi,System Design">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/fd6263e3-7315-43ba-b592-a3076b15027a/1597291465.png">
 
-<link rel="canonical" href="https://blog.zhenghui.idv.tw/2023/01/24/%E8%87%AA%E5%8B%95%E5%BB%BA%E7%AB%8BEntity/">
+<link rel="canonical" href="https://blog.zhenghui.idv.tw/tags/Nginx/">
 
 
 <script id="page-configurations">
@@ -62,12 +52,12 @@
   CONFIG.page = {
     sidebar: "",
     isHome : false,
-    isPost : true,
+    isPost : false,
     lang   : 'zh-TW'
   };
 </script>
 
-  <title>.NET Core自動建立Entity | Leo程式筆記</title>
+  <title>標籤: Nginx | Leo程式筆記</title>
   
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-Y5GB5Q2LC5"></script>
     <script>
@@ -211,175 +201,55 @@
         <div class="content-wrap">
           
 
-          <div class="content post posts-expand">
+          <div class="content tag">
             
 
-    
   
   
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-TW">
-    <link itemprop="mainEntityOfPage" href="https://blog.zhenghui.idv.tw/2023/01/24/%E8%87%AA%E5%8B%95%E5%BB%BA%E7%AB%8BEntity/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/uploads/avatar.jpg">
-      <meta itemprop="name" content="Leo Zhou">
-      <meta itemprop="description" content>
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Leo程式筆記">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          .NET Core自動建立Entity
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">發表於</span>
-
-              <time title="創建時間：2023-01-24 11:39:29" itemprop="dateCreated datePublished" datetime="2023-01-24T11:39:29+08:00">2023-01-24</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新於</span>
-                <time title="修改時間：2023-02-11 11:54:15" itemprop="dateModified" datetime="2023-02-11T11:54:15+08:00">2023-02-11</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分類於</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/NET/" itemprop="url" rel="index"><span itemprop="name">.NET</span></a>
-                </span>
-            </span>
-
-          
   
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="far fa-comment"></i>
-      </span>
-      <span class="post-meta-item-text">Disqus：</span>
-    
-    <a title="disqus" href="/2023/01/24/%E8%87%AA%E5%8B%95%E5%BB%BA%E7%AB%8BEntity/#disqus_thread" itemprop="discussionUrl">
-      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2023/01/24/自動建立Entity/" itemprop="commentCount"></span>
-    </a>
-  </span>
-  
-  
-            <span class="post-meta-item" title="文章字數">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">文章字數：</span>
-              <span>1k</span>
-            </span>
-            <span class="post-meta-item" title="所需閱讀時間">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">所需閱讀時間 &asymp;</span>
-              <span>1 分鐘</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
+  <div class="post-block">
+    <div class="posts-collapse">
+      <div class="collection-title">
+        <h2 class="collection-header">Nginx
+          <small>標籤</small>
+        </h2>
+      </div>
 
       
-        <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>在 ASP.Net FrameWork 中，我們可以透過 CodeFirst 的方式，自動幫我們建立資料庫中每一個Table，並轉換成Entity，讓我們有Model可以做對應。</p>
-<p>但是在 .Net Core 中，可就沒有辦法那麼方便點一點就可以完成了。我們得需要額外安裝其他套件，並透過下指令的方式才能自動幫我們產生。</p>
-<span id="more"></span>
-
-
-<p>在過去 .Net FrameWork中，我們可以透過 加入&gt;新增項目&gt;資料 中，找到 ADO.NET 實體資料模型</p>
-<p>透過裡面的CodeFirst可以幫助我們快速將Table內的欄位轉換成Entity的Model作為使用，非常方便。</p>
-<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/fd6263e3-7315-43ba-b592-a3076b15027a/1597291465.png" alt="實體資料模型精靈"></p>
-<p>但在 .Net Core 中，並沒有提供介面可以讓我們進行點選。</p>
-<p>因此我們必須要透過安裝套件，並輸入指令才能將資料庫中的Table產生對應的Enriry作為Model讓我們使用。</p>
-<p>而在輸入指令之前，我們需要先至Nuget中，安裝以下兩個套件。</p>
-<p>分別是：</p>
-<p><strong>「Microsoft.EntityFrameworkCore.SqlServer」、「Microsoft.EntityFrameworkCore.Tools」</strong></p>
-<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/fd6263e3-7315-43ba-b592-a3076b15027a/1597291842.png"></p>
-<p>注意：安裝套件時，請記得兩者套件版本要一致，否則可能會發生問題。</p>
-<p>接著打開　工具＞Nuget套件管理員&gt;套件管理器主控台</p>
-<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/fd6263e3-7315-43ba-b592-a3076b15027a/1597292040.png"></p>
-<p>在主控台Consoel中就可以下指令：<br><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/fd6263e3-7315-43ba-b592-a3076b15027a/1597292120.png"></p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Scaffold-DbContext &quot;資料庫連線字串&quot; Microsoft.EntityFrameworkCore.SqlServer -OutputDir Models -Force -TableName -Tables 資料表</span><br></pre></td></tr></table></figure>
-
-<p>Scaffold-DbContext 為剛剛安裝Tools套件的指令，雙引號後面就是放入該資料庫連線字串</p>
-<p>-OutputDir 指定要輸出到專案的哪個資料夾，本文為Models資料夾</p>
-<p>-Force 強制複寫，若Table欄位異動，會自動修改該Entity內的欄位</p>
-<p>-Tables ，決定要將那些資料表轉成Entity。若有多張表要匯入，則需要以逗號區隔。</p>
-<div style="color:red">
-註:沒給-Tables參數的話，預設抓DB全部的Table
-</div>
-匯入成功後，會自動產生 CeptContxt物件。裡面會有Entity的欄位
-
-<p>而在entity資料夾中，則會存放剛剛從Table轉出來Entity。</p>
-<p><img src="https://dotblogsfile.blob.core.windows.net/user/%E5%91%A8%E6%94%BF%E8%BC%9D/fd6263e3-7315-43ba-b592-a3076b15027a/1597292632.png"></p>
-<div>
-以上文章敘述如有錯誤及觀念不正確，請不吝嗇指教:)
-
-<p>有任何家教、案子 或技術相關問題 請都歡迎聯繫我</p>
-<p><a target="_blank" rel="external nofollow noopener noreferrer" href="http://www.zhenghui.idv.tw/">http://www.zhenghui.idv.tw/</a></p>
-</div>
-
+    <div class="collection-year">
+      <span class="collection-header">2023</span>
     </div>
 
-    
-    
-    
+  <article itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
 
-      <footer class="post-footer">
-          <div class="post-tags">
-              <a href="/tags/EntityFrameWork/" rel="tag"># EntityFrameWork</a>
-          </div>
+      <div class="post-meta">
+        <time itemprop="dateCreated" datetime="2023-02-25T01:24:44+08:00" content="2023-02-25">
+          02-25
+        </time>
+      </div>
 
-        
+      <div class="post-title">
+          <a class="post-title-link" href="/2023/02/25/Ubuntu-%E4%BD%BF%E7%94%A8Certbot-%E6%9B%BFNginx%E8%87%AA%E5%8B%95%E6%8E%9B%E4%B8%8ASSL%E6%86%91%E8%AD%89/" itemprop="url">
+            <span itemprop="name">Ubuntu 使用Certbot 替Nginx自動掛上SSL憑證</span>
+          </a>
+      </div>
 
-
-        
-    <div class="post-nav">
-      <div class="post-nav-item">
-    <a href="/2023/01/24/Controller%E7%9A%84%E5%87%BD%E6%95%B8%E7%84%A1%E6%B3%95%E5%82%B3%E5%85%A5%E5%A4%9A%E5%80%8B%E5%8F%83%E6%95%B8/" rel="prev" title="Controller的函數無法傳入多個參數">
-      <i class="fa fa-chevron-left"></i> Controller的函數無法傳入多個參數
-    </a></div>
-      <div class="post-nav-item">
-    <a href="/2023/01/24/C-Dapper-SQL%E4%B8%AD%E7%9A%84Entity-Framework/" rel="next" title="C# Dapper-SQL中的Entity Framework">
-      C# Dapper-SQL中的Entity Framework <i class="fa fa-chevron-right"></i>
-    </a></div>
-    </div>
-      </footer>
-    
+    </header>
   </article>
-  
-  
-  
 
-
-
-          </div>
-          
-    
-  <div class="comments">
-    <div id="disqus_thread">
-      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
     </div>
   </div>
   
+  
+  
+
+  
+
+
+
+          </div>
+          
 
 <script>
   window.addEventListener('tabs:register', () => {
@@ -426,7 +296,6 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -580,26 +449,6 @@
   }
   // defer loading until the whole page loading is completed
   window.addEventListener('load', loadCount, false);
-</script>
-<script>
-  var disqus_config = function() {
-    this.page.url = "https://blog.zhenghui.idv.tw/2023/01/24/%E8%87%AA%E5%8B%95%E5%BB%BA%E7%AB%8BEntity/";
-    this.page.identifier = "2023/01/24/自動建立Entity/";
-    this.page.title = ".NET Core自動建立Entity";
-    };
-  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
-    if (window.DISQUS) {
-      DISQUS.reset({
-        reload: true,
-        config: disqus_config
-      });
-    } else {
-      var d = document, s = d.createElement('script');
-      s.src = 'https://zhenghui-blog.disqus.com/embed.js';
-      s.setAttribute('data-timestamp', '' + +new Date());
-      (d.head || d.body).appendChild(s);
-    }
-  });
 </script>
 
 </body>
